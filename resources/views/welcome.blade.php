@@ -367,13 +367,12 @@
 
       /* --- MEDIA QUERIES --- */
       @media (width > 768px) {
-        .range__grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-        .footer__container {
-          grid-template-columns: repeat(4, 1fr);
-        }
+  /* This ensures the car cards wrap neatly in a 3-column layout on desktop */
+      .range__grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
       }
+    }
 
       @media (max-width: 768px) {
         .nav__menu__btn {
@@ -509,24 +508,33 @@
     </header>
 
     <section class="section__container range__container">
-      <h2 class="section__header">OUR RANGE OF VEHICLES</h2>
-      <div class="range__grid">
-        <div class="range__card">
-          <img src="assets/range-1.png" alt="range" />
-          <div class="range__details">
-            <h4>Luxury<br />Sedans</h4>
-            <a href="#"><i class="ri-arrow-right-line"></i></a>
-          </div>
-        </div>
-        <div class="range__card">
-          <img src="assets/range-2.png" alt="range" />
-          <div class="range__details">
-            <h4>Sport<br />Cars</h4>
-            <a href="#"><i class="ri-arrow-right-line"></i></a>
-          </div>
-        </div>
+  <h2 class="section__header">OUR RANGE OF VEHICLES</h2>
+  <div class="range__grid">
+    <div class="range__card">
+      <img src="{{ asset('images/PERODUA-Axia-5639_10.jpeg') }}" alt="Perodua Axia" />
+      <div class="range__details">
+        <h4>Economy<br />Hatchbacks</h4>
+        <a href="#"><i class="ri-arrow-right-line"></i></a>
       </div>
-    </section>
+    </div>
+
+    <div class="range__card">
+      <img src="assets/range-1.png" alt="Luxury Sedan" />
+      <div class="range__details">
+        <h4>Luxury<br />Sedans</h4>
+        <a href="#"><i class="ri-arrow-right-line"></i></a>
+      </div>
+    </div>
+
+    <div class="range__card">
+      <img src="assets/range-2.png" alt="Sport Car" />
+      <div class="range__details">
+        <h4>Sport<br />Cars</h4>
+        <a href="#"><i class="ri-arrow-right-line"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
 
     <footer>
       <div class="section__container footer__container">
