@@ -453,6 +453,19 @@
           grid-column: 1;
         }
       }
+
+    .date-time-wrapper {
+    display: flex;
+    gap: 5px;
+    }
+
+    .date-time-wrapper input[type="date"] {
+    flex: 2; /* Date gets more space */
+    }
+
+    .date-time-wrapper input[type="time"] {
+    flex: 1; /* Time gets less space */
+    }
     </style>
     <title>Hasta Car Rental</title>
   </head>
@@ -489,7 +502,7 @@
       </nav>
 
       <div class="header__container" id="home">
-        <h1>PREMIUM CAR RENTAL</h1>
+        <h1>AFFORDABLE CAR RENTAL SERVICE</h1>
         <form action="/">
           <div class="input__group">
             <label for="pickup">Pick up location</label>
@@ -502,13 +515,19 @@
           </div>
 
           <div class="input__group">
-            <label for="start">Start Date</label>
-            <input type="date" id="start" required />
+            <label for="start">Start Date & Time</label>
+            <div class = "date-time-wrapper">
+              <input type="date" name="start_date" id="start" required>
+              <input type="time" name="start_time" required>
+            </div>
           </div>
 
           <div class="input__group">
-            <label for="stop">End Date</label>
-            <input type="date" id="stop" required />
+            <label for="stop">End Date & Time</label>
+            <div class = "date-time-wrapper">
+              <input type="date" name="stop_date" id="stop" required>
+              <input type="time" name="stop_time" required>
+            </div>
           </div>
 
           <div class="checkbox_group">
