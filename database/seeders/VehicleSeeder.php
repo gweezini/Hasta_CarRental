@@ -14,7 +14,7 @@ class VehicleSeeder extends Seeder
 {
     $vehicles = [
         ['V001', 'MCP 6113', 'PERODUA', 'AXIA', 2014, 1, 8, 'Available', 1, 'PERODUA-Axia-5639_10.jpeg'],
-        ['V002', 'JQU 1957', 'PERODUA', 'AXIA', 2015, 1, 9, 'Available', 1, 'PERODUA-Axia-5639_10.jpeg'],
+        ['V002', 'JQU 1957', 'PERODUA', 'AXIA', 2015, 1, 9, 'Unavailable', 1, 'PERODUA-Axia-5639_10.jpeg'],
         ['V003', 'NDD 7803', 'PERODUA', 'AXIA', 2016, 1, 7, 'Available', 1, 'PERODUA-Axia-5639_10.jpeg'],
         ['V004', 'CEX 5224', 'PERODUA', 'AXIA', 2024, 1, 9, 'Available', 1, 'PERODUA-Axia-5639_10.jpeg'],
         ['V005', 'UTM 3365', 'PERODUA', 'AXIA', 2024, 1, 8, 'Available', 1, 'PERODUA-Axia-5639_10.jpeg'],
