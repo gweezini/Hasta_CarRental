@@ -507,32 +507,51 @@
       </a>
     </header>
 
-    <section class="section__container range__container">
+   
+  <section class="section__container range__container" id="vehicle">
   <h2 class="section__header">OUR RANGE OF VEHICLES</h2>
   <div class="range__grid">
+    
     <div class="range__card">
       <img src="{{ asset('images/PERODUA-Axia-5639_10.jpeg') }}" alt="Perodua Axia" />
       <div class="range__details">
-        <h4>Economy<br />Hatchbacks</h4>
+        <h4>Perodua<br />Axia</h4>
         <a href="#"><i class="ri-arrow-right-line"></i></a>
       </div>
     </div>
 
     <div class="range__card">
-      <img src="assets/range-1.png" alt="Luxury Sedan" />
+      <img src="{{ asset('images/PERODUA-Axia-5639_10.jpeg') }}" alt="Perodua Myvi" />
       <div class="range__details">
-        <h4>Luxury<br />Sedans</h4>
+        <h4>Perodua<br />Myvi</h4>
         <a href="#"><i class="ri-arrow-right-line"></i></a>
       </div>
     </div>
 
     <div class="range__card">
-      <img src="assets/range-2.png" alt="Sport Car" />
+      <img src="{{ asset('images/PERODUA-Axia-5639_10.jpeg') }}" alt="Perodua Bezza" />
       <div class="range__details">
-        <h4>Sport<br />Cars</h4>
+        <h4>Perodua<br />Bezza</h4>
         <a href="#"><i class="ri-arrow-right-line"></i></a>
       </div>
     </div>
+
+    <div class="range__card">
+      <img src="{{ asset('images/PERODUA-Axia-5639_10.jpeg') }}" alt="Honda Dash 125" />
+      <div class="range__details">
+        <h4>Honda<br />Dash 125</h4>
+        <a href="#"><i class="ri-arrow-right-line"></i></a>
+      </div>
+    </div>
+
+    <div class="range__card">
+      <img src="{{ asset('images/PERODUA-Axia-5639_10.jpeg') }}" alt="Honda Beat 110" />
+      <div class="range__details">
+        <h4>Honda<br />Beat 110</h4>
+        <a href="#"><i class="ri-arrow-right-line"></i></a>
+      </div>
+    </div>
+
   </div>
 </section>
 
