@@ -6,6 +6,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany; 
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class User extends Authenticatable
 {
@@ -14,19 +17,22 @@ class User extends Authenticatable
 
     /**
      * The attributes that are mass assignable.
-     *
-     * @var list<string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
+        // --- ADDED THESE FOR HASTA CAR RENTAL ---
+        'matric_staff_id',
+        'nric_passport',
+        'license_number',
+        'phone_number',
+        'role',
+        'college_id',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
      */
     protected $hidden = [
         'password',
@@ -35,8 +41,6 @@ class User extends Authenticatable
 
     /**
      * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
      */
     protected function casts(): array
     {
@@ -44,5 +48,29 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relationship: A User can have many Bookings
+     * (This matches the 1:M line in your ERD)
+     */
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+    public function college(): BelongsTo
+    {
+        return $this->belongsTo(College::class);
+    }
+
+    public function loyaltyCard(): HasOne
+    {
+        return $this->hasOne(LoyaltyCard::class);
+    }
+
+    // For Staff: The maintenance logs this user recorded
+    public function maintenanceLogs(): HasMany
+    {
+        return $this->hasMany(MaintenanceLog::class);
     }
 }
