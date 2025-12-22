@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Vehicle;
 
 Route::get('/', function () {
-    return view('welcome');
+    $vehicles = Vehicle::all(); 
+
+    return view('welcome', ['vehicles' => $vehicles]);
 });
