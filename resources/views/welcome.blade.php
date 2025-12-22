@@ -90,7 +90,7 @@
       header {
         position: relative;
         background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)),
-          url("hastabackground.png");
+          url("{{ asset('images/hastabackground.png') }}");
         background-position: center center;
         background-size: cover;
         background-repeat: no-repeat;
@@ -475,7 +475,7 @@
         <div class="nav__header">
           <div class="nav__logo">
             <a href="index.html">
-              <img src="./logo_hasta.jpeg" alt="Hasta" />
+              <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Hasta" />
             </a>
           </div>
           <div class="nav__menu__btn" id="menu-btn">
