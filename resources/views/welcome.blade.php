@@ -483,7 +483,7 @@
     </div>
 
     <div class="range__card">
-      <img src="{{ asset('images/PERODUA-Axia-5639_10.jpeg') }}" alt="Perodua Myvi" />
+      <img src="{{ asset('images/perodua-myvi-color-797792.avif') }}" alt="Perodua Myvi" />
       <div class="range__details">
         <h4>Perodua<br />Myvi</h4>
         <a href="#"><i class="ri-arrow-right-line"></i></a>
@@ -491,7 +491,7 @@
     </div>
 
     <div class="range__card">
-      <img src="{{ asset('images/PERODUA-Axia-5639_10.jpeg') }}" alt="Perodua Bezza" />
+      <img src="{{ asset('images/bezza.jpg') }}" alt="Perodua Bezza" />
       <div class="range__details">
         <h4>Perodua<br />Bezza</h4>
         <a href="#"><i class="ri-arrow-right-line"></i></a>
@@ -499,7 +499,7 @@
     </div>
 
     <div class="range__card">
-      <img src="{{ asset('images/PERODUA-Axia-5639_10.jpeg') }}" alt="Honda Dash 125" />
+      <img src="{{ asset('images/DASH125.png') }}" alt="Honda Dash 125" />
       <div class="range__details">
         <h4>Honda<br />Dash 125</h4>
         <a href="#"><i class="ri-arrow-right-line"></i></a>
@@ -507,7 +507,7 @@
     </div>
 
     <div class="range__card">
-      <img src="{{ asset('images/PERODUA-Axia-5639_10.jpeg') }}" alt="Honda Beat 110" />
+      <img src="{{ asset('images/Honda_Beat110.png') }}" alt="Honda Beat 110" />
       <div class="range__details">
         <h4>Honda<br />Beat 110</h4>
         <a href="#"><i class="ri-arrow-right-line"></i></a>
