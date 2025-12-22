@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         VehicleTypeSeeder::class,
         CarOwnerSeeder::class, 
         
-     
+        FacultySeeder::class,
         UserSeeder::class,
         VehicleSeeder::class,
         
