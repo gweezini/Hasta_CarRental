@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,52 +11,77 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
-        // --- ADDED THESE FOR HASTA CAR RENTAL ---
-        'matric_staff_id',
+        
+        // --- ID & Contact ---
+        'matric_staff_id',  // Stores Matric ID (Student) or Staff ID (Admin)
         'nric_passport',
-        'license_number',
         'phone_number',
-        'role',
+        
+        // --- Role & Status ---
+        'role',             // 'customer', 'admin', 'topmanagement'
+        'is_blacklisted',   // From ERD (Boolean)
+
+        // --- Student Specific (Nullable for Staff) ---
+        'driving_license',  // Renamed from 'license_number' to match ERD 'DrivingLicense'
+        'address',          // From ERD 'CustomerAddress'
         'college_id',
+        'faculty_id',
+
+        // --- Emergency Contact (From ERD) ---
+        'emergency_name',
+        'emergency_contact',
+        'emergency_relationship',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_blacklisted' => 'boolean', // Ensures this is treated as true/false
         ];
     }
 
-    /**
-     * Relationship: A User can have many Bookings
-     * (This matches the 1:M line in your ERD)
-     */
+    // --- HELPER FUNCTIONS (Use these in your Controllers/Views) ---
+
+    // Is this a Student?
+    public function isCustomer() {
+        return $this->role === 'customer';
+    }
+
+    // Is this a normal Staff/Worker?
+    public function isAdmin() {
+        return $this->role === 'admin';
+    }
+
+    // Is this the Big Boss (Financial Reports)?
+    public function isTopManagement() {
+        return $this->role === 'topmanagement';
+    }
+    
+    // Check if user is ANY kind of staff (Admin OR Manager)
+    public function isStaff() {
+        return in_array($this->role, ['admin', 'topmanagement']);
+    }
+
+    // --- RELATIONSHIPS ---
+
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
     }
+
     public function college(): BelongsTo
     {
         return $this->belongsTo(College::class);
@@ -68,9 +92,13 @@ class User extends Authenticatable
         return $this->hasOne(LoyaltyCard::class);
     }
 
-    // For Staff: The maintenance logs this user recorded
     public function maintenanceLogs(): HasMany
     {
         return $this->hasMany(MaintenanceLog::class);
+    }
+
+    public function faculty()
+    {
+        return $this->belongsTo(Faculty::class);
     }
 }
