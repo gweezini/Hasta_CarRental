@@ -20,6 +20,7 @@ return new class extends Migration
         $table->integer('year');
         $table->integer('capacity')->default(5);
         $table->decimal('price_per_hour', 8, 2)->default(10.00);
+        $table->string('vehicle_image')->nullable();
         
         // --- OWNERSHIP LOGIC ---
         $table->boolean('is_hasta_owned')->default(true); // The Switch
