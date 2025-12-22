@@ -64,7 +64,7 @@
 }
 
 img {
-  display: flex;
+  display: block;
   width: 100%;
 }
 
@@ -847,6 +847,145 @@ footer {
     width: 110px;
   }
 }
+
+
+.header__container form {
+  max-width: 800px;
+  margin-inline: auto;
+  margin-bottom: 4rem;
+  padding: 1rem;
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  background-color: var(--white);
+  box-shadow: 5px 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+
+.header__container form {
+  max-width: 800px;
+  margin-inline: auto;
+  margin-bottom: 4rem;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 1rem;
+  background-color: var(--white);
+  box-shadow: 5px 10px 20px rgba(0, 0, 0, 0.1);
+  position: relative; 
+}
+
+.pickup_group {
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  gap: 10px;
+}
+
+.startdate_group {
+  grid-column: 2;
+  grid-row: 1;
+  display: grid;
+  gap: 10px;
+}
+
+.enddate_group {
+  grid-column: 3;
+  grid-row: 1;
+  display: grid;
+  gap: 10px;
+}
+
+.checkbox_group {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.checkbox_group label {
+  position: relative;
+  padding-left: 30px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.checkbox_group label::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--text-dark);
+  border-radius: 3px;
+  background-color: var(--white);
+  transition: all 0.3s;
+}
+
+#same-location {
+  display: none;
+}
+
+.dropoff_group {
+  display: none;
+}
+
+#same-location:not(:checked) ~ .dropoff_group {
+  display: grid;
+}
+
+.dropoff_group {
+  grid-column: 1;
+  grid-row: 3;
+  display: none;
+  gap: 10px;
+}
+
+
+.header__container form .btn {
+  grid-column: 3;
+  grid-row: 2;
+  align-self: end;
+  justify-self: end;
+}
+
+input[type="date"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--text-light);
+  background-color: transparent;
+  font-family: "Poppins", sans-serif;
+}
+
+@media (max-width: 768px) {
+  .header__container form {
+    grid-template-columns: 1fr;
+  }
+  
+  .pickup_group,
+  .startdate_group,
+  .enddate_group,
+  .checkbox_group,
+  .dropoff_group,
+  .header__container form .btn {
+    grid-column: 1;
+  }
+  
+  .pickup_group { grid-row: 1; }
+  .startdate_group { grid-row: 2; }
+  .enddate_group { grid-row: 3; }
+  .checkbox_group { grid-row: 4; }
+  .dropoff_group { grid-row: 5; }
+  .header__container form .btn { grid-row: 6; }
+}
 </style>
     <title>Hasta Car Rental</title>
   </head>
@@ -870,37 +1009,50 @@ footer {
         </ul>
         <div class="nav__btn">
           <button class="btn">Login</button>
+          <button class="btn">Register</button>
         </div>
       </nav>
       <div class="header__container" id="home">
         <h1>PREMIUM CAR RENTAL</h1>
         <form action="/">
-          <div class="input__group">
-            <label for="location">Pick up & Return location</label>
+          <div class="pickup_group">
+            <label for="location">Pick up location</label>
             <input
               type="text"
-              name="location"
-              id="location"
+              name="pickup"
+              id="pickup"
               placeholder="Student Mall, UTM"
-            />
+            >
+            </div>
+            <input type="checkbox" id="same-location">
+
+            <div class="checkbox_group">
+            <label for="same-location">Same as pick up location</label>
+           </div>
+          <div class="dropoff_group">
+            <label for="dropoff">Drop off location</label>
+            <input 
+                type="text" 
+                name="dropoff" 
+                id="dropoff" 
+                placeholder="Different location"
+              >
           </div>
-          <div class="input__group">
+          <div class="startdate_group">
             <label for="start">Start Date</label>
             <input
-              type="text"
+              type="date"
               name="start"
               id="start"
-              placeholder="Aug 16, 10:00 AM"
-            />
+            >
           </div>
-          <div class="input__group">
+          <div class="enddate_group">
             <label for="stop">End Date</label>
             <input
-              type="text"
+              type="date"
               name="stop"
               id="stop"
-              placeholder="Aug 18, 10:00 PM"
-            />
+            >
           </div>
           <button class="btn">
             <i class="ri-search-line"></i>
@@ -1233,13 +1385,16 @@ footer {
           <h4>Follow Us</h4>
           <ul class="footer__socials">
             <li>
-              <a href="#"><i class="ri-facebook-fill"></i></a>
+              <a href="https://www.facebook.com/hastatraveltours"><i class="ri-facebook-fill"></i></a>
             </li>
             <li>
-              <a href="#"><i class="ri-twitter-fill"></i></a>
+              <a href="https://www.instagram.com/hastatraveltours/?hl=en"><i class="ri-instagram-fill"></i></a>
+            </li>
+             <li>
+              <a href="https://x.com/hastacarrental"><i class="ri-twitter-fill"></i></a>
             </li>
             <li>
-              <a href="#"><i class="ri-linkedin-fill"></i></a>
+              <a href="https://www.linkedin.com/company/hasta-travel/"><i class="ri-linkedin-fill"></i></a>
             </li>
           </ul>
         </div>
