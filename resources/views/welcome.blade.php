@@ -483,7 +483,7 @@
     </div>
 
     <div class="range__card">
-      <img src="{{ asset('images/perodua-myvi-color-797792.avif') }}" alt="Perodua Myvi" />
+      <img src="{{ asset('images/perodua-myvi-color-797792.png') }}" alt="Perodua Myvi" />
       <div class="range__details">
         <h4>Perodua<br />Myvi</h4>
         <a href="#"><i class="ri-arrow-right-line"></i></a>
