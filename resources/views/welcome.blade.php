@@ -277,48 +277,112 @@
   }
 
   .range__card {
-    flex: 0 1 calc(33.333% - 2rem); /* 3 cards per row */
-    min-width: 300px; /* Prevents cards from getting too small */
-    position: relative;
-    isolation: isolate;
-    border-radius: 1.5rem;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #f0f0f0;
     overflow: hidden;
-    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column; /* 关键：让图片和字垂直排列 */
+    transition: transform 0.3s ease;
   }
 
-  .range__card img { transition: 0.3s; }
-  .range__card:hover img { transform: scale(1.1); }
+  .range__card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .range__card img {
+    width: 100%;
+    height: 220px;
+    object-fit: contain;
+    background-color: #ffffff;
+    padding: 20px;
+    border-bottom: 1px solid #f5f5f5;
+  }
 
   .range__details {
-    position: absolute;
-    inset: 0;
-    padding: 2rem;
-    background-image: linear-gradient(
-      to bottom right,
-      rgba(0, 0, 0, 0.8),
-      transparent 50%,
-      rgba(0, 0, 0, 0.8)
-    );
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 10px;
+    /* 注意：这里没有 position: absolute 了，所以字会乖乖跑到图片下面 */
   }
 
-  .range__details h4 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    font-family: var(--header-font);
-    color: var(--white);
+  .card__title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #15191d;
+    margin: 0;
   }
 
-  .range__details a {
-    align-self: flex-start;
+  .card__price {
+    font-size: 0.9rem;
+    color: #737373;
+    margin: 0;
+  }
+
+  .card__price strong {
+    color: #ec5a29;
+    font-size: 1.1rem;
+  }
+
+  .card__divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 5px 0;
+  }
+
+  .card__tags {
+    display: flex;
+    gap: 8px;
+  }
+
+  .card__tag {
+    background-color: #f4f4f4;
+    color: #555;
     padding: 5px 10px;
-    font-size: 1.5rem;
-    color: var(--white);
-    border: 2px solid var(--white);
-    border-radius: 100%;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
   }
+
+  .card__location {
+    font-size: 0.85rem;
+    color: #999;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: auto;
+  }
+  .card__btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #ec5a29;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background 0.3s;
+}
+
+.card__btn:hover {
+  background-color: #d14a1e;
+}
+
+.range__card.unavailable {
+  background-color: #f5f5f5;
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: not-allowed;
+  filter: grayscale(100%);
+}
+
+.range__card.unavailable .card__btn {
+  background-color: #999;
+}
 
   /* --- FOOTER --- */
   footer {
@@ -327,11 +391,12 @@
   }
 
   .footer__container {
-    display: grid;
-    gap: 4rem 2rem;
-    border-bottom: 1px solid var(--text-light);
-    padding-bottom: 2rem;
-  }
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  border-bottom: 1px solid var(--text-light);
+  padding-bottom: 2rem;
+}
 
   .footer__col h4 {
     margin-bottom: 2rem;
@@ -340,7 +405,11 @@
     color: var(--white);
   }
 
-  .footer__links a { color: var(--text-light); }
+  .footer__links a { 
+  color: var(--text-light); 
+  display: block;
+  margin-bottom: 1rem;
+}
   .footer__links a:hover { color: var(--primary-color); }
 
   .footer__socials { display: flex; gap: 1rem; }
@@ -470,21 +539,44 @@
     </header>
 
    
-  <section class="section__container range__container" id="vehicles">
+<section class="section__container range__container" id="vehicles">
   <h2 class="section__header">OUR RANGE OF VEHICLES</h2>
+  
   <div class="range__grid">
 
-    @foreach($vehicles as $vehicle)
-    <div class="range__card">
-      <img src="{{ asset('images/' . $vehicle->vehicle_image) }}" alt="{{ $vehicle->model }}" />
-      <div class="range__details">
-        <h4>{{ $vehicle->brand }}<br />{{ $vehicle->model }}</h4>
-        <a href="#"><i class="ri-arrow-right-line"></i></a>
-      </div>
-    </div>
-    @endforeach
+  @foreach($vehicles as $vehicle)
+  <div class="range__card {{ $vehicle->status !== 'Available' ? 'unavailable' : '' }}">
+    
+    <img src="{{ asset('images/' . $vehicle->vehicle_image) }}" alt="{{ $vehicle->model }}" />
+    
+    <div class="range__details">
+      <h4 class="card__title">{{ $vehicle->brand }} {{ $vehicle->model }}</h4>
+      
+      <p class="card__price">
+          Starting from <strong>RM {{ $vehicle->price_per_hour }} / hour</strong>
+      </p>
 
+      <hr class="card__divider">
+
+      <div class="card__tags">
+          <span class="card__tag">
+              {{ $vehicle->capacity }} Seater
+          </span>
+      </div>
+      
+      <p class="card__location">
+          <i class="ri-map-pin-line"></i> UTM Campus
+      </p>
+
+      <button class="card__btn">
+          {{ $vehicle->status === 'Available' ? 'Rent Now' : 'Not Available' }}
+      </button>
+
+    </div>
   </div>
+  @endforeach
+
+</div>
 </section>
 
 <br><br>
