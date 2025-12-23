@@ -471,21 +471,16 @@
           </div>
         </div>
         <ul class="nav__links" id="nav-links">
-          <li><a href="#home">Home</a></li>
+          <li><a href="#home">Dashboard</a></li>
           <li><a href="#vehicles">Vehicles</a></li>
           <li><a href="#contact">Contact</a></li>
           <li><a href="#about">About Us</a></li>
         </ul>
         <div class="nav__btn">
-          <button
-            class="btn"
-            style="background: transparent; color: white; border: 1px solid white;"
-          >
-            Login
-          </button>
-          <button class="btn" style="background-color: var(--primary-color);">
-            Register
-          </button>
+          <a href="{{ route('login') }}" class="btn" style="background: transparent; color: white; border: 1px solid white; text-decoration: none; display: inline-block; text-align: center;">
+            Login</a>
+          <a href="{{ route('register') }}" class="btn" style="background-color: var(--primary-color); color: white; text-decoration: none; display: inline-block; text-align: center;">
+            Register</a>
         </div>
       </nav>
 
