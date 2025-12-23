@@ -650,10 +650,15 @@
               <i class="ri-map-pin-line"></i> UTM Campus
             </p>
 
-            <button class="card__btn">
-              {{ $vehicle->status === 'Available' ? 'Rent Now' : 'Not Available'
-              }}
-            </button>
+            @if($vehicle->status === 'Available')
+              <a href="{{ route('login') }}" class="card__btn" style="text-align: center; display: block;">
+              Rent Now
+              </a>
+            @else
+              <button class="card__btn" style="background-color: #999; cursor: not-allowed;" disabled>
+                Not Available
+              </button>
+            @endif
           </div>
         </div>
         @endforeach
