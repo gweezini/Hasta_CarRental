@@ -13,8 +13,10 @@ Route::get('/', function () {
     return view('welcome', compact('vehicles'));
 });
 
+
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $vehicles = \App\Models\Vehicle::all();
+    return view('dashboard', compact('vehicles')); 
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
