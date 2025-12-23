@@ -584,21 +584,21 @@
             />
           </div>
 
-          <div class="input__group">
-            <label for="start">Start Date & Time</label>
-            <div class="date-time-wrapper">
-              <input type="date" name="start_date" id="start" required />
-              <input type="time" name="start_time" required />
-            </div>
+      <div class="input__group">
+        <label for="start">Start Date & Time</label>
+          <div class="date-time-wrapper">
+            <input type="date" name="start_date" id="start_date" min="{{ date('Y-m-d') }}" required />
+            <input type="time" name="start_time" step="600" required />
           </div>
-
-          <div class="input__group">
-            <label for="stop">End Date & Time</label>
-            <div class="date-time-wrapper">
-              <input type="date" name="stop_date" id="stop" required />
-              <input type="time" name="stop_time" required />
-            </div>
+      </div>
+      
+      <div class="input__group">
+        <label for="stop">End Date & Time</label>
+          <div class="date-time-wrapper">
+            <input type="date" name="stop_date" id="stop_date" min="{{ date('Y-m-d') }}" required />
+            <input type="time" name="stop_time" step="600" required />
           </div>
+      </div>
 
           <div class="checkbox_group">
             <input type="checkbox" id="same-location" checked />
@@ -774,6 +774,17 @@
 
       // 2. Initial state check (Call function immediately)
       toggleDropoff();
+    </script>
+    <script>
+      const startInput = document.getElementById('start_date');
+      const stopInput = document.getElementById('stop_date');
+
+      startInput.addEventListener('change', function() {
+        stopInput.min = this.value;
+        if (stopInput.value && stopInput.value < this.value) {
+            stopInput.value = "";
+        }
+      });
     </script>
   </body>
 </html>
