@@ -2,7 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Models\Vehicle; 
+use App\Models\Vehicle;
+use App\Http\Controllers\AdminVehicleController;
 
 Route::get('/', function () {
     // 1. Fetch all vehicles from your database
