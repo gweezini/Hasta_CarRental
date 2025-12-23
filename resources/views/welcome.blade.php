@@ -588,7 +588,7 @@
         <label for="start">Start Date & Time</label>
           <div class="date-time-wrapper">
             <input type="date" name="start_date" id="start_date" min="{{ date('Y-m-d') }}" required />
-            <input type="time" name="start_time" step="600" required />
+            <input type="time" name="start_time" required />
           </div>
       </div>
       
@@ -596,7 +596,7 @@
         <label for="stop">End Date & Time</label>
           <div class="date-time-wrapper">
             <input type="date" name="stop_date" id="stop_date" min="{{ date('Y-m-d') }}" required />
-            <input type="time" name="stop_time" step="600" required />
+            <input type="time" name="stop_time" required />
           </div>
       </div>
 
