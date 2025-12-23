@@ -1,4 +1,21 @@
 <x-guest-layout>
+    <div class="flex justify-center mb-6">
+        <a href="/">
+            <img src="{{ asset('images/logo_hasta.jpeg') }}" 
+                alt="Hasta Logo" 
+                class="w-64 h-auto">
+        </a>
+    </div>
+    <div class="mb-6 text-left">
+        <h2 class="text-3xl font-bold text-gray-900">Welcome back</h2>
+        <p class="text-gray-500 text-sm mb-1">Please enter your details</p>
+    </div>
+    <x-auth-session-status class="mb-4" :status="session('status')" />
+
+    <form method="POST" action="{{ route('login') }}">
+        @csrf
+
+        <div>
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
