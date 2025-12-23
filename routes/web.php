@@ -13,11 +13,14 @@ Route::get('/', function () {
     return view('welcome', compact('vehicles'));
 });
 
-
 Route::get('/dashboard', function () {
     $vehicles = \App\Models\Vehicle::all();
     return view('dashboard', compact('vehicles')); 
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/admin/dashboard', function () {
+    return view('admin.dashboard'); 
+})->middleware(['auth', 'verified'])->name('admin.dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
