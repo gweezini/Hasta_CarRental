@@ -49,33 +49,32 @@
     </div>
 
     <div class="mt-4">
-        <x-input-label for="college_id" :value="__('College ID')" />
-        <x-text-input id="college_id" class="block mt-1 w-full" type="number" name="college_id" :value="old('college_id')" required />
+        <x-input-label for="college_id" :value="__('College')" />
+        
+        <select id="college_id" name="college_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+            <option value="" disabled selected>Select your College</option> 
+            @foreach($colleges as $college)
+            <option value="{{ $college->id }}">
+                {{ $college->name }} 
+            </option>
+            @endforeach
+        </select>
+
         <x-input-error :messages="$errors->get('college_id')" class="mt-2" />
     </div>
 
     <div class="mt-4">
-        <x-input-label for="faculty_id" :value="__('Faculty ID')" />
-        <x-text-input id="faculty_id" class="block mt-1 w-full" type="number" name="faculty_id" :value="old('faculty_id')" required />
+        <x-input-label for="faculty_id" :value="__('Faculty')" />
+        
+        <select id="faculty_id" name="faculty_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+            <option value="" disabled selected>Select your Faculty</option>
+            @foreach($faculties as $faculty)
+               <option value="{{ $faculty->id }}">
+                  {{ $faculty->name }}
+               </option>
+            @endforeach
+        </select>
         <x-input-error :messages="$errors->get('faculty_id')" class="mt-2" />
-    </div>
-
-    <div class="mt-4">
-        <x-input-label for="emergency_name" :value="__('Emergency Contact Name')" />
-        <x-text-input id="emergency_name" class="block mt-1 w-full" type="text" name="emergency_name" :value="old('emergency_name')" required />
-        <x-input-error :messages="$errors->get('emergency_name')" class="mt-2" />
-    </div>
-
-    <div class="mt-4">
-        <x-input-label for="emergency_contact" :value="__('Emergency Contact Phone')" />
-        <x-text-input id="emergency_contact" class="block mt-1 w-full" type="text" name="emergency_contact" :value="old('emergency_contact')" required />
-        <x-input-error :messages="$errors->get('emergency_contact')" class="mt-2" />
-    </div>
-
-    <div class="mt-4">
-        <x-input-label for="emergency_relationship" :value="__('Relationship (e.g. Father, Mother)')" />
-        <x-text-input id="emergency_relationship" class="block mt-1 w-full" type="text" name="emergency_relationship" :value="old('emergency_relationship')" required />
-        <x-input-error :messages="$errors->get('emergency_relationship')" class="mt-2" />
     </div>
 
     <div class="mt-4">

@@ -32,11 +32,6 @@ class User extends Authenticatable
         'address',          // From ERD 'CustomerAddress'
         'college_id',
         'faculty_id',
-
-        // --- Emergency Contact (From ERD) ---
-        'emergency_name',
-        'emergency_contact',
-        'emergency_relationship',
     ];
 
     protected $hidden = [

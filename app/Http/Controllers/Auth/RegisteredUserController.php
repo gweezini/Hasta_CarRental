@@ -11,15 +11,20 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 class RegisteredUserController extends Controller
 {
     /**
      * Display the registration view.
      */
+    // ... inside the class ...
+
     public function create(): View
     {
-        return view('auth.register');
+        $faculties = DB::table('faculties')->get(); 
+        $colleges = DB::table('colleges')->get(); 
+        return view('auth.register', compact('faculties', 'colleges'));
     }
 
     /**
@@ -42,13 +47,8 @@ class RegisteredUserController extends Controller
             // Student Specifics
             'driving_license' => ['required', 'string', 'max:20'],
             'address'         => ['required', 'string', 'max:255'],
-            'college_id'      => ['required', 'integer'], // Assuming this is an ID from a dropdown
-            'faculty_id'      => ['required', 'integer'], // Assuming this is an ID from a dropdown
-
-            // Emergency Contact
-            'emergency_name'         => ['required', 'string', 'max:255'],
-            'emergency_contact'      => ['required', 'string', 'max:15'],
-            'emergency_relationship' => ['required', 'string', 'max:50'],
+            'college_id'      => ['required'], 
+            'faculty_id'      => ['required'], 
         ]);
 
         $user = User::create([
