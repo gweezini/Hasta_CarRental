@@ -650,15 +650,25 @@
               <i class="ri-map-pin-line"></i> UTM Campus
             </p>
 
+            <div class="card__btn" style="background-color: transparent;">
             @if($vehicle->status === 'Available')
-              <a href="{{ route('login') }}" class="card__btn" style="text-align: center; display: block;">
-              Rent Now
-              </a>
+                @auth
+                    <a href="{{ url('/booking/' . $vehicle->id) }}" class="btn" 
+                       style="background-color: var(--primary-color); color: white; width: 100%; display: block; text-align: center; text-decoration: none;">
+                       Rent Now
+                    </a>
+               @else
+                    <a href="{{ route('login') }}" class="btn" 
+                       style="background-color: var(--primary-color); color: white; width: 100%; display: block; text-align: center; text-decoration: none;">
+                       Rent Now
+                    </a>
+               @endauth
             @else
-              <button class="card__btn" style="background-color: #999; cursor: not-allowed;" disabled>
+                <button class="btn" disabled style="background-color: gray; color: white; cursor: not-allowed; opacity: 0.7; width: 100%;">
                 Not Available
-              </button>
+                </button>
             @endif
+            </div>
           </div>
         </div>
         @endforeach
