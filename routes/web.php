@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Vehicle;
 use App\Http\Controllers\AdminVehicleController;
+use App\Http\Controllers\BookingController;
 
 Route::get('/', function () {
     // 1. Fetch all vehicles from your database
@@ -28,4 +29,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// The {id} represents the vehicle ID
+Route::get('/booking/{id}', [BookingController::class, 'show'])->name('booking.show');
 require __DIR__.'/auth.php';
