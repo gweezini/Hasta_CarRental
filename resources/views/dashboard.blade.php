@@ -587,8 +587,11 @@
 
         </div>
       </nav>
-
+      
       <div class="header__container" id="home">
+        <h3 style="color: #ffffff !important; font-size: 50px; font-weight: 800; margin-bottom: 20px;">
+          Welcome back, {{ Auth::user()->name }}
+        </h3>
         <h1>AFFORDABLE CAR RENTAL SERVICE</h1>
         <form action="/">
           <div class="input__group">

@@ -40,16 +40,31 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             
             // ID & Contact
-            'matric_staff_id' => ['required', 'string', 'max:20'],
-            'nric_passport'   => ['required', 'string', 'max:20'],
-            'phone_number'    => ['required', 'string', 'max:15'],
+            'matric_staff_id' => ['required', 'string', 'regex:/^[a-zA-Z0-9]+$/', 'max:15', 'unique:users'],
+            'nric_passport' => ['required', 'string', 'regex:/^[a-zA-Z0-9]+$/', 'max:20', 'unique:users'],
+            'phone_number' => ['required', 'string', 'regex:/^[0-9]+$/', 'max:15'],
 
             // Student Specifics
-            'driving_license' => ['required', 'string', 'max:20'],
+            'driving_license' => ['required', 'string', 'regex:/^[0-9]+$/', 'max:20', 'unique:users'],
             'address'         => ['required', 'string', 'max:255'],
             'college_id'      => ['required'], 
             'faculty_id'      => ['required'], 
+        
+            'matric_card_doc' => ['required', 'file', 'mimes:jpg,png', 'max:2048'],
+            'driving_license_doc' => ['required', 'file', 'mimes:jpg,png', 'max:2048'],
         ]);
+        
+        $matricPath = null;
+        if ($request->hasFile('matric_card_doc')) {
+            $matricPath = $request->file('matric_card_doc')->store('matric_cards', 'public');
+        }
+
+        $licensePath = null;
+        if ($request->hasFile('driving_license_doc')) {
+            $licensePath = $request->file('driving_license_doc')->store('licenses', 'public');
+        }
+
+        $fullPhoneNumber = '+6' . $request->phone_number;
 
         $user = User::create([
             'name' => $request->name,
@@ -59,7 +74,7 @@ class RegisteredUserController extends Controller
             // Save ID & Contact
             'matric_staff_id' => $request->matric_staff_id,
             'nric_passport'   => $request->nric_passport,
-            'phone_number'    => $request->phone_number,
+            'phone_number' => $fullPhoneNumber,
 
             // Set Defaults for Role & Status
             'role' => 'customer',     // Default role
@@ -70,18 +85,15 @@ class RegisteredUserController extends Controller
             'address'         => $request->address,
             'college_id'      => $request->college_id,
             'faculty_id'      => $request->faculty_id,
-
-            // Save Emergency Details
-            'emergency_name'         => $request->emergency_name,
-            'emergency_contact'      => $request->emergency_contact,
-            'emergency_relationship' => $request->emergency_relationship,
+            'matric_card_path' => $matricPath, 
+            'driving_license_path' => $licensePath,
         ]);
 
-    event(new Registered($user));
+        event(new Registered($user));
 
-    Auth::login($user);
+        Auth::login($user);
 
-    return redirect(route('dashboard', absolute: false));
-}
+        return redirect(route('dashboard', absolute: false));
+    }
 
 }

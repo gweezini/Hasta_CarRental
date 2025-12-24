@@ -32,6 +32,9 @@ class User extends Authenticatable
         'address',          // From ERD 'CustomerAddress'
         'college_id',
         'faculty_id',
+
+        'matric_card_path',
+        'driving_license_path',
     ];
 
     protected $hidden = [
