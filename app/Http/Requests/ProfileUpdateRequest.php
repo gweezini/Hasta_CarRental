@@ -25,6 +25,18 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'phone_number' => ['required', 'string', 'max:15'],
+            'address'      => ['required', 'string', 'max:255'],
+            'driving_license' => ['required', 'string', 'max:20'],
+            'matric_staff_id' => ['required', 'string', 'max:20'], 
+            'nric_passport'   => ['required', 'string', 'max:20'],
+
+            
+            'college_id' => ['required', 'integer'],
+            'faculty_id' => ['required', 'integer'],
+            
+            'matric_card_doc'     => ['nullable', 'file', 'mimes:jpg,png', 'max:2048'],
+            'driving_license_doc' => ['nullable', 'file', 'mimes:jpg,png', 'max:2048'],
         ];
     }
 }
