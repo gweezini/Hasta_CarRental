@@ -673,10 +673,15 @@
             <div class="card__btn" style="background-color: transparent;">
             @if($vehicle->status === 'Available')
                 @auth
-                    <a href="{{ url('/booking/' . $vehicle->id) }}" class="btn" 
-                       style="background-color: var(--primary-color); color: white; width: 100%; display: block; text-align: center; text-decoration: none;">
-                       Rent Now
-                    </a>
+                    <a href="{{ route('booking.show', [
+                    'id' => $vehicle->id, 
+                    'start_date' => request('start_date'), 
+                    'start_time' => request('start_time'), 
+                    'stop_date' => request('stop_date'), 
+                    'stop_time' => request('stop_time')
+                ]) }}" class="btn" style="background-color: var(--primary-color); color: white; width: 100%; display: block; text-align: center; text-decoration: none;">
+                  Rent Now
+                </a>
                @else
                     <a href="{{ route('login') }}" class="btn" 
                        style="background-color: var(--primary-color); color: white; width: 100%; display: block; text-align: center; text-decoration: none;">
