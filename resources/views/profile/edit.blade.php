@@ -16,13 +16,17 @@
 
             <div>
                 
-                <div class="bg-gray-200 p-1 rounded-lg inline-flex items-center mb-0">
+                <div class="bg-gray-200 p-1 rounded-lg inline-flex items-center mb-0 overflow-x-auto max-w-full">
                     
-                    <button onclick="openTab('booking')" id="tab-booking" class="px-6 py-2 text-sm font-bold rounded-md shadow bg-white text-gray-900 transition-all">
+                    <button onclick="openTab('booking')" id="tab-booking" class="px-6 py-2 text-sm font-bold rounded-md shadow bg-white text-gray-900 transition-all whitespace-nowrap">
                         Booking History
                     </button>
 
-                    <button onclick="openTab('personal')" id="tab-personal" class="px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all">
+                    <button onclick="openTab('rewards')" id="tab-rewards" class="px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all whitespace-nowrap">
+                        My Rewards
+                    </button>
+
+                    <button onclick="openTab('personal')" id="tab-personal" class="px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all whitespace-nowrap">
                         Personal Information
                     </button>
                     
@@ -37,6 +41,42 @@
                             </svg>
                             <h3 class="mt-2 text-sm font-medium text-gray-900">No bookings yet</h3>
                             <p class="mt-1 text-sm text-gray-500">Your rental history will appear here later.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-rewards" class="hidden mt-4">
+                    <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">My Rewards & Loyalty Points</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div class="bg-indigo-50 p-6 rounded-lg border border-indigo-100 text-center">
+                                <h3 class="text-indigo-600 font-bold text-lg">Total Loyalty Points</h3>
+                                <p class="text-4xl font-extrabold text-gray-900 mt-2">0</p>
+                                <p class="text-xs text-gray-500 mt-1">Earn points with booking!</p>
+                            </div>
+
+                            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-100 text-center">
+                                <h3 class="text-yellow-600 font-bold text-lg">Active Vouchers</h3>
+                                <p class="text-xl font-bold text-gray-900 mt-4">-</p>
+                            </div>
+                        </div>
+
+                        <hr class="border-gray-200 mb-8">
+
+                        <div class="max-w-xl mx-auto text-center mt-8">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Have a Referral or Promo Code?</h3>
+                            <p class="text-sm text-gray-500 mb-6">Enter your code below to claim exclusive discounts.</p>
+                            
+                            <form action="#" method="POST" class="flex justify-center items-center gap-3">
+                            @csrf
+                                <input type="text" name="promo_code" placeholder="ENTER CODE (E.G. WELCOME50)" class="w-64 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm uppercase">
+                                <button type="button" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                    Redeem
+                                </button>
+                            </form>
+                            
+                            <p class="text-xs text-gray-400 mt-4">* Terms and conditions apply.</p>
                         </div>
                     </div>
                 </div>
@@ -68,28 +108,44 @@
 
     <script>
         function openTab(tabName) {
-            const contentPersonal = document.getElementById('content-personal');
+            // Get Content Divs
             const contentBooking = document.getElementById('content-booking');
-            const btnPersonal = document.getElementById('tab-personal');
+            const contentRewards = document.getElementById('content-rewards');
+            const contentPersonal = document.getElementById('content-personal');
+            
+            // Get Buttons
             const btnBooking = document.getElementById('tab-booking');
+            const btnRewards = document.getElementById('tab-rewards');
+            const btnPersonal = document.getElementById('tab-personal');
 
-            const activeClass = "px-6 py-2 text-sm font-bold rounded-md shadow bg-white text-gray-900 transition-all";
-            const inactiveClass = "px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all";
+            // Styles
+            const activeClass = "px-6 py-2 text-sm font-bold rounded-md shadow bg-white text-gray-900 transition-all whitespace-nowrap";
+            const inactiveClass = "px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all whitespace-nowrap";
 
-            if (tabName === 'personal') {
-                contentPersonal.classList.remove('hidden');
-                contentBooking.classList.add('hidden');
-                
-                btnPersonal.className = activeClass;
-                btnBooking.className = inactiveClass;
-            } else {
-                contentPersonal.classList.add('hidden');
+            // Hide Everything First
+            contentBooking.classList.add('hidden');
+            contentRewards.classList.add('hidden');
+            contentPersonal.classList.add('hidden');
+
+            // Reset All Buttons
+            btnBooking.className = inactiveClass;
+            btnRewards.className = inactiveClass;
+            btnPersonal.className = inactiveClass;
+
+            // Show Selected
+            if (tabName === 'booking') {
                 contentBooking.classList.remove('hidden');
-                
-                btnPersonal.className = inactiveClass;
                 btnBooking.className = activeClass;
+            } else if (tabName === 'rewards') {
+                contentRewards.classList.remove('hidden');
+                btnRewards.className = activeClass;
+            } else if (tabName === 'personal') {
+                contentPersonal.classList.remove('hidden');
+                btnPersonal.className = activeClass;
             }
         }
+
+        // Logic to keep Personal tab open after saving
         document.addEventListener("DOMContentLoaded", function() {
             @if (session('status') === 'profile-updated' || $errors->any())
                 openTab('personal');
