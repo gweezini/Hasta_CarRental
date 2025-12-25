@@ -1,19 +1,41 @@
 <x-app-layout>
     <x-slot name="header">
+        <div class="flex justify-start">
+            <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                &larr; Back to Dashboard
+            </a>
+        </div>
+        <br>
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Profile') }}
-        </h2>
+            {{ __('My Profile') }}
+        </h2><br>
+        <div class="hidden sm:flex sm:items-center sm:ml-10">
+        
+            <img 
+                class="h-10 w-10 rounded-full object-cover border-2 border-indigo-50" 
+                src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=4F46E5&color=fff" 
+                alt="Profile Photo"
+            >
+
+            <div class="flex flex-col leading-none" style="margin-left:10px">
+            
+                <span class="text-sm font-bold text-gray-800 mb-1">
+                    {{ Auth::user()->name }}
+                </span>
+            
+                <span class="text-[10px] text-gray-500 mb-0.5">
+                    {{ Auth::user()->email }}
+                </span>
+
+                <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-1.5 rounded-md w-fit">
+                    ID: {{ Auth::user()->matric_staff_id ?? 'Not Set' }}
+                </span>
+            </div>
+        </div>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-
-            <div class="flex justify-start">
-                <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                    &larr; Back to Dashboard
-                </a>
-            </div>
-
             <div>
                 
                 <div class="bg-gray-200 p-1 rounded-lg inline-flex items-center mb-0 overflow-x-auto max-w-full">
@@ -35,13 +57,15 @@
                 <div id="content-booking" class="mt-4">
                     <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                         <h2 class="text-lg font-medium text-gray-900 mb-4">My Past Bookings</h2>
+                        
                         <div class="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="mx-auto text-gray-400" style="width: 48px; height: 48px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
                             <h3 class="mt-2 text-sm font-medium text-gray-900">No bookings yet</h3>
                             <p class="mt-1 text-sm text-gray-500">Your rental history will appear here later.</p>
                         </div>
+
                     </div>
                 </div>
 
