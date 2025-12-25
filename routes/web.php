@@ -5,12 +5,13 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Vehicle;
 use App\Http\Controllers\AdminVehicleController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CarController;
+use App\Http\Controllers\CustomerController;
+
 
 Route::get('/', function () {
-    // 1. Fetch all vehicles from your database
     $vehicles = Vehicle::all(); 
-
-    // 2. Pass the $vehicles variable to the 'welcome' view
     return view('welcome', compact('vehicles'));
 });
 
@@ -27,6 +28,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/cars', [CarController::class, 'index'])->name('admin.cars.index');
+    Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
 });
 
 // The {id} represents the vehicle ID

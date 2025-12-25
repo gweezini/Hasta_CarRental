@@ -11,6 +11,23 @@
                 </div>
             </div>
 
+            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                @if(Auth::user() && Auth::user()->role === 'admin') 
+    
+                <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                    {{ __('Admin Panel') }}
+                </x-nav-link>
+
+                <x-nav-link :href="route('admin.cars.index')" :active="request()->routeIs('admin.cars.index')">
+                    {{ __('Car List') }}
+                </x-nav-link>
+
+                <x-nav-link :href="route('admin.customers.index')" :active="request()->routeIs('admin.customers.index')">
+                    {{ __('Customer List') }}
+                </x-nav-link>
+                @endif
+            </div>
+
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ml-6">
                 <form method="POST" action="{{ route('logout') }}">
