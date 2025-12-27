@@ -58,7 +58,7 @@
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <a href="{{ route('admin.vehicle.show', $vehicles->id) }}" 
-                                       class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs" style="background-color:blue">
+                                       class="inline-block bg-blue-600 text-white font-bold px-10 py-1 rounded-md hover:bg-blue-700 shadow-md transition text-center w-full max-w-[200px]" style="background-color:blue">
                                         View Details
                                     </a>
                                 </td>

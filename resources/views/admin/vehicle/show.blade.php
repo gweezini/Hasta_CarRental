@@ -45,8 +45,8 @@
                                 </div>
                                 <br>
                                 <div>
-                                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Type ID</span>
-                                    <span class="text-base font-semibold text-gray-800">{{ $vehicle->type_id }}</span>
+                                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Vehicle Type</span>
+                                    <span class="text-base font-semibold text-gray-800">{{ $vehicle->type->name ?? $vehicle->type_id }}</span>
                                 </div>
                                 <br>
                                 <div>

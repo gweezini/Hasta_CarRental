@@ -8,7 +8,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Vehicle extends Model
 {
-    protected $guarded = [];
+    protected $fillable = [
+    'brand',
+    'model',
+    'plate_number',
+    'year',
+    'capacity',
+    'price_per_hour',
+    'status',
+    'type_id',
+    'road_tax_expiry',
+    'insurance_expiry',
+    'is_hasta_owned',
+    'vehicle_id_custom',
+    'current_fuel_bars', 
+    'vehicle_image',     
+    'car_owner_id'      
+];
 
     public function bookings(): HasMany
     {

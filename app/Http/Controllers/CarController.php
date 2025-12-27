@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Vehicle;
+use Illuminate\Support\Facades\Storage;
 
 class CarController extends Controller
 {
@@ -21,22 +22,42 @@ class CarController extends Controller
 
     public function edit($id)
     {
-        $vehicle = Vehicle::findOrFail($id); // Find car by ID or show error
-        return view('admin.vehicle.edit', compact('vehicle'));
+        $vehicle = Vehicle::findOrFail($id);
+        $types = \Illuminate\Support\Facades\DB::table('vehicle_types')->get();
+        return view('admin.vehicle.edit', compact('vehicle', 'types'));
     }
 
     public function update(Request $request, $id)
     {
         $vehicle = Vehicle::findOrFail($id);
 
-        $vehicle->update([
-            'brand' => $request->brand,
-            'model' => $request->model,
-            'plate_number' => $request->plate_number,
-            'price_per_hour' => $request->price_per_hour,
-            'status' => $request->status,
+        $data = $request->validate([
+            'brand' => 'required|string',
+            'model' => 'required|string',
+            'plate_number' => 'required|string',
+            'year' => 'required|numeric',
+            'vehicle_id_custom' => 'required|string',
+            'type_id' => 'required|numeric',
+            'capacity' => 'required|numeric',
+            'is_hasta_owned' => 'required|boolean',
+            'current_fuel_bars' => 'required|numeric|min:0|max:10',
+            'road_tax_expiry' => 'required|date',
+            'insurance_expiry' => 'required|date',
+            'price_per_hour' => 'required|numeric',
+            'status' => 'required|string',
+            'vehicle_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        return redirect()->route('admin.vehicle.index')->with('success', 'Vehicle updated successfully!');
+        if ($request->hasFile('vehicle_image')) {
+            if ($vehicle->vehicle_image) {
+                Storage::disk('public')->delete($vehicle->vehicle_image);
+            }
+            
+            $imagePath = $request->file('vehicle_image')->store('vehicles', 'public');
+            $data['vehicle_image'] = $imagePath;
+        }
+
+        $vehicle->update($data);
+        return redirect()->back()->with('success', 'Vehicle updated successfully!');
     }
 }
