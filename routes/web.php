@@ -33,8 +33,10 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-    Route::get('/cars', [CarController::class, 'index'])->name('admin.cars.index');
+    Route::get('/vehicle', [CarController::class, 'index'])->name('admin.vehicle.index');
     Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
+    Route::get('/vehicle/{id}/edit', [CarController::class, 'edit'])->name('admin.vehicle.edit');
+    Route::put('/vehicle/{id}', [CarController::class, 'update'])->name('admin.vehicle.update');
 });
 
 // The {id} represents the vehicle ID

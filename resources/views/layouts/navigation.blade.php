@@ -18,7 +18,7 @@
                     {{ __('Admin Panel') }}
                 </x-nav-link>
 
-                <x-nav-link :href="route('admin.cars.index')" :active="request()->routeIs('admin.cars.index')">
+                <x-nav-link :href="route('admin.vehicle.index')" :active="request()->routeIs('admin.vehicle.index')">
                     {{ __('Car List') }}
                 </x-nav-link>
 
