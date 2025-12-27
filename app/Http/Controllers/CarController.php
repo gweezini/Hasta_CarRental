@@ -13,6 +13,12 @@ class CarController extends Controller
         return view('admin.vehicle.index', compact('vehicle'));
     }
 
+    public function show($id)
+    {
+        $vehicle = Vehicle::findOrFail($id);
+        return view('admin.vehicle.show', compact('vehicle'));
+    } 
+
     public function edit($id)
     {
         $vehicle = Vehicle::findOrFail($id); // Find car by ID or show error

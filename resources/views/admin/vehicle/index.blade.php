@@ -19,41 +19,47 @@
                     <table class="min-w-full text-left text-sm">
                         <thead class="bg-gray-100 uppercase font-medium text-gray-600">
                             <tr>
-                                <th class="p-3">ID</th>
-                                <th class="p-3">Image</th>
-                                <th class="p-3">Car Info</th>
-                                <th class="p-3">Plate No.</th>
-                                <th class="p-3">Price/Hr</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3">Action</th>
+                                <th class="px-6 py-3 text-center">No.</th>
+                                <th class="px-6 py-3 text-center">Custom ID</th>
+                                <th class="px-6 py-3 text-center">Image</th>
+                                <th class="px-6 py-3 text-center">Car Info</th>
+                                <th class="px-6 py-3 text-center">Plate No.</th>
+                                <th class="px-6 py-3 text-center">Fuel</th>
+                                <th class="px-6 py-3 text-center">Price per Hour</th>
+                                <th class="px-6 py-3 text-center">Status</th>
+                                <th class="px-6 py-3 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($vehicle as $vehicles)
                             <tr class="border-b hover:bg-gray-50">
-                                <td class="p-3">{{ $loop->iteration }}</td>
-                                <td class="p-3">
+                                <td class="px-6 py-4 text-center">{{ $loop->iteration }}</td>
+                                <td class="px-6 py-4 text-center font-medium text-blue-600">
+                                    {{ $vehicles->vehicle_id_custom }}
+                                </td>
+                                <td class="px-6 py-4 text-center">
                                     @if($vehicles->vehicle_image)
                                         <img src="{{ asset('images/' . $vehicles->vehicle_image) }}" class="h-12 w-20 object-cover rounded">
                                     @else
                                         <span class="text-gray-400">No Image</span>
                                     @endif
                                 </td>
-                                <td class="p-3 font-bold">
+                                <td class="px-6 py-4 text-center font-bold">
                                     {{ $vehicles->brand }} {{ $vehicles->model }} <br>
                                     <span class="text-xs font-normal text-gray-500">{{ $vehicles->year }}</span>
                                 </td>
-                                <td class="p-3">{{ $vehicles->plate_number }}</td>
-                                <td class="p-3">RM {{ $vehicles->price_per_hour }}</td>
-                                <td class="p-3">
-                                    <span class="px-2 py-1 rounded text-xs {{ $vehicles->status == 'Available' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800' }}">
+                                <td class="px-6 py-4 text-center">{{ $vehicles->plate_number }}</td>
+                                <td class="px-6 py-4 text-center">{{ $vehicles->current_fuel_bars }}/10</td>
+                                <td class="px-6 py-4 text-center">RM {{ $vehicles->price_per_hour }}</td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="px-6 py-4 text-center rounded text-xs {{ $vehicles->status == 'Available' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800' }}">
                                         {{ $vehicles->status }}
                                     </span>
                                 </td>
-                                <td class="p-3">
-                                    <a href="{{ route('admin.vehicle.edit', $vehicles->id) }}" 
+                                <td class="px-6 py-4 text-center">
+                                    <a href="{{ route('admin.vehicle.show', $vehicles->id) }}" 
                                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs" style="background-color:blue">
-                                        Edit
+                                        View Details
                                     </a>
                                 </td>
                             </tr>
