@@ -9,13 +9,12 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    
-                    @if(session('success'))
-                        <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
+                    <div class="flex justify-end mb-4">
+                        <a href="{{ route('admin.vehicle.create') }}" 
+                            class="bg-indigo-600 text-white font-bold py-2 px-4 rounded hover:bg-indigo-700 transition" style="background-color:orange">
+                            + Add New Vehicle
+                        </a>
+                    </div>
                     <table class="min-w-full text-left text-sm">
                         <thead class="bg-gray-100 uppercase font-medium text-gray-600">
                             <tr>
@@ -57,18 +56,39 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <a href="{{ route('admin.vehicle.show', $vehicles->id) }}" 
-                                       class="inline-block bg-blue-600 text-white font-bold px-10 py-1 rounded-md hover:bg-blue-700 shadow-md transition text-center w-full max-w-[200px]" style="background-color:blue">
-                                        View Details
-                                    </a>
-                                </td>
+    <div class="flex justify-center items-center gap-4">
+        
+        <a href="{{ route('admin.vehicle.show', $vehicles->id) }}" 
+           class="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 shadow-md transition transform hover:-translate-y-0.5">
+            View Details
+        </a>
+
+        <form action="{{ route('admin.vehicle.destroy', $vehicles->id) }}" method="POST" class="inline">
+            @csrf
+            @method('DELETE')
+            
+            <button type="submit" 
+                    class="bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700 shadow-md transition transform hover:-translate-y-0.5" style="padding:18px"
+                    onclick="return confirm('Are you sure you want to delete this vehicle? This action cannot be undone.')">
+                Delete
+            </button>
+        </form>
+
+    </div>
+</td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
-
                 </div>
             </div>
         </div>
     </div>
+    @if(session('success'))
+        <script>
+            window.onload = function() {
+                alert("{{ session('success') }}");
+            }
+        </script>
+    @endif
 </x-app-layout>

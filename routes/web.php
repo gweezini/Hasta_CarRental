@@ -33,11 +33,14 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-    Route::get('/vehicle', [CarController::class, 'index'])->name('admin.vehicle.index');
     Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
+    Route::get('/vehicle', [CarController::class, 'index'])->name('admin.vehicle.index');
+    Route::get('/vehicle/create', [CarController::class, 'create'])->name('admin.vehicle.create');
+    Route::post('/vehicle', [CarController::class, 'store'])->name('admin.vehicle.store');
     Route::get('/vehicle/{id}/show', [CarController::class, 'show'])->name('admin.vehicle.show');
     Route::get('/vehicle/{id}/edit', [CarController::class, 'edit'])->name('admin.vehicle.edit');
     Route::put('/vehicle/{id}', [CarController::class, 'update'])->name('admin.vehicle.update');
+    Route::delete('/vehicle/{id}', [CarController::class, 'destroy'])->name('admin.vehicle.destroy');
 });
 
 // The {id} represents the vehicle ID
