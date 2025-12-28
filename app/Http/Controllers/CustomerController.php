@@ -9,7 +9,13 @@ class CustomerController extends Controller
 {
     public function index()
     {
-        $customers = User::whereNotIn('role', ['admin', 'topmanagement'])->get();
+        $customers = User::where('role', 'customer')->get(); 
         return view('admin.customers.index', compact('customers'));
+    }
+
+    public function show($id)
+    {
+        $customer = User::findOrFail($id);
+        return view('admin.customers.show', compact('customer'));
     }
 }

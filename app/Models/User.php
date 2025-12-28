@@ -82,7 +82,7 @@ class User extends Authenticatable
 
     public function college(): BelongsTo
     {
-        return $this->belongsTo(College::class);
+        return $this->belongsTo(College::class, 'college_id');
     }
 
     public function loyaltyCard(): HasOne
@@ -97,6 +97,6 @@ class User extends Authenticatable
 
     public function faculty()
     {
-        return $this->belongsTo(Faculty::class);
+        return $this->belongsTo(Faculty::class, 'faculty_id');
     }
 }

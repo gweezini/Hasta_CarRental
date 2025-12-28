@@ -56,26 +56,23 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-    <div class="flex justify-center items-center gap-4">
-        
-        <a href="{{ route('admin.vehicle.show', $vehicles->id) }}" 
-           class="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 shadow-md transition transform hover:-translate-y-0.5">
-            View Details
-        </a>
-
-        <form action="{{ route('admin.vehicle.destroy', $vehicles->id) }}" method="POST" class="inline">
-            @csrf
-            @method('DELETE')
-            
-            <button type="submit" 
-                    class="bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700 shadow-md transition transform hover:-translate-y-0.5" style="padding:18px"
-                    onclick="return confirm('Are you sure you want to delete this vehicle? This action cannot be undone.')">
-                Delete
-            </button>
-        </form>
-
-    </div>
-</td>
+                                    <div class="flex justify-center items-center gap-4">
+                                        <a href="{{ route('admin.vehicle.show', $vehicles->id) }}" 
+                                           class="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 shadow-md transition transform hover:-translate-y-0.5">
+                                           View Details
+                                        </a>
+                                        
+                                        <form action="{{ route('admin.vehicle.destroy', $vehicles->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                            <button type="submit" 
+                                                class="bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700 shadow-md transition transform hover:-translate-y-0.5" style="padding:18px"
+                                                onclick="return confirm('Are you sure you want to delete this vehicle? This action cannot be undone.')">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>

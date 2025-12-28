@@ -33,7 +33,10 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+
     Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
+    Route::get('/customers/{id}', [CustomerController::class, 'show'])->name('admin.customers.show');
+    
     Route::get('/vehicle', [CarController::class, 'index'])->name('admin.vehicle.index');
     Route::get('/vehicle/create', [CarController::class, 'create'])->name('admin.vehicle.create');
     Route::post('/vehicle', [CarController::class, 'store'])->name('admin.vehicle.store');
