@@ -35,6 +35,7 @@ class User extends Authenticatable
 
         'matric_card_path',
         'driving_license_path',
+        'nric_passport_path',
     ];
 
     protected $hidden = [

@@ -98,6 +98,19 @@
             <x-input-error class="mt-2" :messages="$errors->get('driving_license_doc')" />
         </div>
 
+        <div>
+            <x-input-label for="nric_passport_doc" :value="__('NRIC/Passport')" />
+        
+            @if($user->nric_passport_path)
+                <p class="text-sm text-gray-500 mb-2">
+                    Current file: <a href="{{ asset('storage/' . $user->nric_passport_path) }}" target="_blank" class="text-indigo-600 underline">View</a>
+                </p>
+            @endif
+        
+            <input id="nric_passport_doc" name="nric_passport_doc" type="file" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+            <x-input-error class="mt-2" :messages="$errors->get('nric_passport_doc')" />
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
             @if (session('status') === 'profile-updated')

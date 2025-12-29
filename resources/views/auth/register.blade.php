@@ -144,13 +144,19 @@
             </div>
 
             <div class="mt-4">
-                <x-input-label for="matric_card_doc" :value="__('Matric / Staff ID Card (Image/PDF)')" />
+                <x-input-label for="nric_passport_doc" :value="__('NRIC/Passport Card')" />
+                <input id="nric_passport_doc" class="block mt-1 w-full border border-gray-300 rounded-md p-2" type="file" name="nric_passport_doc" required />
+                <x-input-error :messages="$errors->get('nric_passport_doc')" class="mt-2" />
+            </div>
+
+            <div class="mt-4">
+                <x-input-label for="matric_card_doc" :value="__('Matric / Staff ID Card')" />
                 <input id="matric_card_doc" class="block mt-1 w-full border border-gray-300 rounded-md p-2" type="file" name="matric_card_doc" required />
                 <x-input-error :messages="$errors->get('matric_card_doc')" class="mt-2" />
             </div>
 
             <div class="mt-4">
-                <x-input-label for="driving_license_doc" :value="__('Driving License (Image/PDF)')" />
+                <x-input-label for="driving_license_doc" :value="__('Driving License')" />
                 <input id="driving_license_doc" class="block mt-1 w-full border border-gray-300 rounded-md p-2" type="file" name="driving_license_doc" required />
                 <x-input-error :messages="$errors->get('driving_license_doc')" class="mt-2" />
             </div>
