@@ -44,6 +44,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/vehicle/{id}/edit', [CarController::class, 'edit'])->name('admin.vehicle.edit');
     Route::put('/vehicle/{id}', [CarController::class, 'update'])->name('admin.vehicle.update');
     Route::delete('/vehicle/{id}', [CarController::class, 'destroy'])->name('admin.vehicle.destroy');
+    Route::get('/bookings', [App\Http\Controllers\AdminController::class, 'allBookings'])->name('admin.bookings.index');
 });
 
 // --- BOOKING ROUTES (The Fix is Here) ---
