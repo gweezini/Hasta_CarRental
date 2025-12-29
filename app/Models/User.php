@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Voucher; // Add this line at the top
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -108,6 +109,6 @@ class User extends Authenticatable
 // Relationship: A User can have many Vouchers (via the 'user_vouchers' wallet table)
    public function vouchers()
     {
-        return $this->hasMany(\App\Models\Voucher::class);
+        return $this->hasMany(Voucher::class);
     }
 }
