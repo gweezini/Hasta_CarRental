@@ -24,18 +24,23 @@
             </div>
 
             <nav class="flex-1 p-4 space-y-2">
-                <a href="{{ route('admin.dashboard') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white hover:text-white transition">
+                <a href="{{ route('admin.dashboard') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition {{ request()->routeIs('admin.dashboard') ? 'bg-white/20 shadow-inner' : '' }}">
                     <i class="ri-dashboard-line mr-2"></i> Dashboard
                 </a>
 
-                <a href="{{ route('admin.vehicle.index') }}" class="block py-3 px-4 rounded bg-white/20 text-white font-medium shadow-inner">
+                <a href="{{ route('admin.bookings.index') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition">
+                    <i class="ri-list-check-2 mr-2"></i> Bookings
+                </a>
+
+                <a href="{{ route('admin.vehicle.index') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition {{ request()->routeIs('admin.vehicle.*') ? 'bg-white/20 shadow-inner' : '' }}">
                     <i class="ri-car-line mr-2"></i> Fleet Management
                 </a>
                 
-                <a href="#" class="block py-3 px-4 rounded hover:bg-white/10 text-white hover:text-white transition">
+                <a href="{{ route('admin.customers.index') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition {{ request()->routeIs('admin.customers.*') ? 'bg-white/20 shadow-inner' : '' }}">
                     <i class="ri-group-line mr-2"></i> Customers
                 </a>
-                <a href="#" class="block py-3 px-4 rounded hover:bg-white/10 text-white hover:text-white transition">
+
+                <a href="#" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition">
                     <i class="ri-file-chart-line mr-2"></i> Reports
                 </a>
             </nav>
@@ -63,7 +68,8 @@
             </div>
 
             @if(session('success'))
-                <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
+                <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded shadow-sm flex items-center">
+                    <i class="ri-checkbox-circle-line mr-2 text-xl"></i>
                     {{ session('success') }}
                 </div>
             @endif
@@ -115,7 +121,7 @@
                                         <span class="px-3 py-1 text-xs font-bold text-red-700 bg-red-100 rounded-full">{{ $v->status }}</span>
                                     @endif
                                 </td>
-                                <td class="p-4">
+                                <td class="p-4 text-center">
                                     <div class="flex justify-center gap-2">
                                         <a href="{{ route('admin.vehicle.show', $v->id) }}" class="p-2 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition" title="View">
                                             <i class="ri-eye-line"></i>
