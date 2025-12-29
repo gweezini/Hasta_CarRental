@@ -45,7 +45,7 @@ class RegisteredUserController extends Controller
             'phone_number' => ['required', 'string', 'regex:/^[0-9]+$/', 'max:15'],
 
             // Student Specifics
-            'driving_license' => ['required', 'string', 'regex:/^[0-9]+$/', 'max:20', 'unique:users'],
+            'driving_license' => ['required', 'string', 'regex:/^[a-zA-Z0-9]+$/', 'max:20', 'unique:users'],
             'address'         => ['required', 'string', 'max:255'],
             'college_id'      => ['required'], 
             'faculty_id'      => ['required'], 

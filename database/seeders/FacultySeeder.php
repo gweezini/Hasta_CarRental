@@ -10,18 +10,18 @@ class FacultySeeder extends Seeder
     public function run(): void
     {
         $faculties = [
-            'FAKULTI ALAM BINA & UKUR',
-            'FAKULTI KECERDASAN BUATAN',
-            'FAKULTI KEJURUTERAAN AWAM',
-            'FAKULTI KEJURUTERAAN ELEKTRIK',
-            'FAKULTI KEJURUTERAAN KIMIA',
-            'FAKULTI KEJURUTERAAN KIMIA DAN KEJURUTERAAN TENAGA',
-            'FAKULTI KEJURUTERAAN MEKANIKAL',
-            'FAKULTI KOMPUTERAN',
-            'FAKULTI PENGURUSAN',
-            'FAKULTI SAINS',
-            'FAKULTI SAINS PENDIDIKAN DAN TEKNOLOGI',
-            'FAKULTI SAINS SOSIAL DAN KEMANUSIAAN',
+            'Faculty of Built Environment and Surveying',
+            'Faculty of Artificial Intelligence',
+            'Faculty of Civil Engineering',
+            'Faculty of Electrical Engineering',
+            'Faculty of Chemical Engineering',
+            'Faculty of Chemical and Energy Engineering',
+            'Faculty of Mechanical Engineering',
+            'Faculty of Computing',
+            'Faculty of Management',
+            'Faculty of Science',
+            'Faculty of Educational Sciences and Technology',
+            'Faculty of Social Sciences and Humanities',
         ];
 
         foreach ($faculties as $facultyName) {

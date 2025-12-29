@@ -71,13 +71,13 @@
 
                 <div id="content-rewards" class="hidden mt-4">
                     <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                        <h2 class="text-lg font-medium text-gray-900 mb-4">My Rewards & Loyalty Points</h2>
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">My Rewards & Loyalty Stamps</h2>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                             <div class="bg-indigo-50 p-6 rounded-lg border border-indigo-100 text-center">
-                                <h3 class="text-indigo-600 font-bold text-lg">Total Loyalty Points</h3>
+                                <h3 class="text-indigo-600 font-bold text-lg">Total Loyalty Stamps</h3>
                                 <p class="text-4xl font-extrabold text-gray-900 mt-2">0</p>
-                                <p class="text-xs text-gray-500 mt-1">Earn points with booking!</p>
+                                <p class="text-xs text-gray-500 mt-1">Earn stamps with booking!</p>
                             </div>
 
                             <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-100 text-center">

@@ -30,7 +30,7 @@
       .section__container {
         max-width: var(--max-width);
         margin: auto;
-        padding: 5rem 1rem;
+        padding: 2rem 1rem;
       }
 
       /* Centered Section Headers */
@@ -112,7 +112,8 @@
         background-position: center center;
         background-size: cover;
         background-repeat: no-repeat;
-        min-height: 100vh;
+        min-height: auto;
+        padding-bottom: 3rem;
       }
 
       /* --- NAVIGATION --- */
@@ -127,6 +128,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 1.5rem 2rem;
+        background-color: var(--text-dark);
       }
 
       nav.nav__fixed {
@@ -481,7 +483,7 @@
           padding: 2rem;
           transform: translateY(-150%);
           transition: 0.5s;
-          z-index: -1;
+          z-index: 9;
         }
         .nav__links.open {
           transform: translateY(0);
@@ -573,12 +575,26 @@
 }
 
 /* Responsive for Mobile */
+/* Responsive for Mobile */
+/* Responsive for Mobile & Tablet */
+/* Responsive for Mobile & Tablet */
 @media (max-width: 992px) {
   .booking__grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
   }
+
   .booking__summary {
-    position: static;
+    position: static !important;
+    margin-top: 2rem !important;
+    
+    /* Force these colors to apply */
+    background-color: #fff8f5 !important; 
+    border: 2px solid #ec5a29 !important;
+    box-shadow: 0 8px 20px rgba(236, 90, 41, 0.15) !important;
+    
+    z-index: 100 !important;
+    display: block !important;
+    width: 100% !important;
   }
 }
 
@@ -604,6 +620,72 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
     background-color: var(--primary-color);
     border-radius: 50%;
     display: block;
+}
+
+/* --- PASTE THIS TO REPLACE THE BOTTOM CHUNK OF YOUR CSS --- */
+
+.form__section h3 {
+  border-bottom: 2px solid var(--primary-color);
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+}
+
+/* Custom Radio Circle for CSS-only toggle */
+.radio-circle {
+    width: 20px; 
+    height: 20px; 
+    border: 2px solid #ccc; 
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Checked State */
+input[type="radio"]:checked + .payment-label-content .radio-circle {
+    border-color: var(--primary-color);
+}
+input[type="radio"]:checked + .payment-label-content .radio-circle::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    display: block;
+}
+
+/* =========================================
+   MOBILE RESPONSIVE STYLES (The Fix)
+   ========================================= */
+@media (max-width: 992px) {
+  /* 1. Stack the layout */
+  .booking__grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 2. Style the Summary Box to be visible */
+  .booking__summary {
+    position: static !important;
+    margin-top: 2rem !important;
+    
+    /* Colors and Borders */
+    background-color: #fff8f5 !important; 
+    border: 2px solid #ec5a29 !important;
+    box-shadow: 0 8px 20px rgba(236, 90, 41, 0.15) !important;
+    
+    /* Ensure visibility */
+    z-index: 100 !important;
+    display: block !important;
+    width: 100% !important;
+    padding: 1.5rem !important;
+    border-radius: 12px !important;
+  }
+  
+  /* 3. Make the total price text larger on mobile */
+  .booking__summary strong {
+    font-size: 1.4rem !important;
+  }
 }
     </style>
 </head>
@@ -657,6 +739,7 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
         </div>
       </nav>
       <section class="section__container">
+        <br><br><br><br><br>
   <h2 class="section__header" style="text-align: left; margin-bottom: 2rem;">Complete Your Booking</h2>
   
   <div class="booking__grid">
@@ -681,6 +764,34 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
         </div>
       </div>
 
+      <div class="form__section">
+    <h3><i class="ri-map-pin-line"></i> Pickup & Dropoff</h3>
+    <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
+        Additional fees apply for delivery outside HQ.
+    </p>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="input__group">
+            <label>Pickup Location</label>
+            <select name="pickup_location" id="pickup_location" onchange="updatePrice()" required style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
+                <option value="office" {{ $pickupLoc == 'office' ? 'selected' : '' }}>Student Mall (Free)</option>
+                <option value="campus" {{ $pickupLoc == 'campus' ? 'selected' : '' }}>In Campus (+RM 2.50)</option>
+                <option value="taman_u" {{ $pickupLoc == 'taman_u' ? 'selected' : '' }}>Taman Universiti (+RM 7.50)</option>
+                <option value="jb" {{ $pickupLoc == 'jb' ? 'selected' : '' }}>Other Area JB (+RM 25)</option>
+            </select>
+        </div>
+
+        <div class="input__group">
+            <label>Dropoff Location</label>
+            <select name="dropoff_location" id="dropoff_location" onchange="updatePrice()" required style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
+                <option value="office" {{ $dropoffLoc == 'office' ? 'selected' : '' }}>Student Mall (Free)</option>
+                <option value="campus" {{ $dropoffLoc == 'campus' ? 'selected' : '' }}>In Campus (+RM 2.50)</option>
+                <option value="taman_u" {{ $dropoffLoc == 'taman_u' ? 'selected' : '' }}>Taman Universiti (+RM 7.50)</option>
+                <option value="jb" {{ $dropoffLoc == 'jb' ? 'selected' : '' }}>Other Area JB (+RM 25)</option>
+            </select>
+        </div>
+    </div>
+</div>
       <div class="form__section">
         <h3><i class="ri-ticket-line"></i> Vouchers</h3>
         <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
@@ -813,19 +924,19 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
         <strong>RM {{ number_format($subtotal ?? 0, 2) }}</strong>
     </div>
 
+    @if(isset($deliveryFee) && $deliveryFee > 0)
+    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--primary-color);">
+        <span>Delivery Fee</span>
+        <strong>+ RM {{ number_format($deliveryFee, 2) }}</strong>
+    </div>
+    @endif
+    
     @if(isset($discount) && $discount > 0)
     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #28a745;">
         <span>Discount</span>
         <strong>- RM {{ number_format($discount, 2) }}</strong>
     </div>
     @endif
-
-    @if(isset($voucherMessage) && $voucherMessage != "")
-        <small style="display: block; text-align: right; color: {{ $discount > 0 ? '#28a745' : 'red' }}; margin-bottom: 10px;">
-            {{ $voucherMessage }}
-        </small>
-    @endif
-
     <hr style="margin: 1rem 0; opacity: 0.2;">
 
     <div style="display: flex; justify-content: space-between; font-size: 1.4rem; color: var(--primary-color);">
@@ -836,6 +947,25 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
 </div>
 
 <script>
+    // --- 1. MOBILE MENU LOGIC (Add This) ---
+    const menuBtn = document.getElementById("menu-btn");
+    const navLinks = document.getElementById("nav-links");
+    const menuBtnIcon = menuBtn.querySelector("i");
+
+    menuBtn.addEventListener("click", (e) => {
+        navLinks.classList.toggle("open");
+
+        const isOpen = navLinks.classList.contains("open");
+        menuBtnIcon.setAttribute("class", isOpen ? "ri-close-line" : "ri-menu-line");
+    });
+
+    // Close menu when a link is clicked
+    navLinks.addEventListener("click", (e) => {
+        navLinks.classList.remove("open");
+        menuBtnIcon.setAttribute("class", "ri-menu-line");
+    });
+
+    // --- 2. EXISTING PRICE UPDATE LOGIC ---
     function updatePrice() {
         var form = document.getElementById('bookingForm');
         // Force URL to current page (Booking Page)
