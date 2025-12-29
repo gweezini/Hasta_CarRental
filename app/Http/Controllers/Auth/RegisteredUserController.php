@@ -50,8 +50,9 @@ class RegisteredUserController extends Controller
             'college_id'      => ['required'], 
             'faculty_id'      => ['required'], 
         
-            'matric_card_doc' => ['required', 'file', 'mimes:jpg,png', 'max:2048'],
-            'driving_license_doc' => ['required', 'file', 'mimes:jpg,png', 'max:2048'],
+            'matric_card_doc' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
+            'driving_license_doc' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
+            'nric_passport_doc' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
         ]);
         
         $matricPath = null;
@@ -62,6 +63,11 @@ class RegisteredUserController extends Controller
         $licensePath = null;
         if ($request->hasFile('driving_license_doc')) {
             $licensePath = $request->file('driving_license_doc')->store('licenses', 'public');
+        }
+
+        $nricPath = null;
+        if ($request->hasFile('nric_passport_doc')) {
+            $nricPath = $request->file('nric_passport_doc')->store('nric', 'public');
         }
 
         $fullPhoneNumber = '+6' . $request->phone_number;
@@ -87,6 +93,7 @@ class RegisteredUserController extends Controller
             'faculty_id'      => $request->faculty_id,
             'matric_card_path' => $matricPath, 
             'driving_license_path' => $licensePath,
+            'nric_passport_path' => $nricPath,
         ]);
 
         event(new Registered($user));

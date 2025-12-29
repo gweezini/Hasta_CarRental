@@ -36,7 +36,8 @@ class ProfileController extends Controller
             '_token', 
             '_method', 
             'matric_card_doc', 
-            'driving_license_doc'
+            'driving_license_doc',
+            'nric_passport_doc'
         ])); 
     
         if ($request->hasFile('matric_card_doc')) {
@@ -47,6 +48,11 @@ class ProfileController extends Controller
         if ($request->hasFile('driving_license_doc')) {
             $path = $request->file('driving_license_doc')->store('licenses', 'public');
             $user->driving_license_path = $path;
+        }
+
+        if ($request->hasFile('nric_passport_doc')) {
+            $path = $request->file('nric_passport_doc')->store('nric', 'public');
+            $user->nric_passport_path = $path;
         }
 
         if ($user->isDirty('email')) {
