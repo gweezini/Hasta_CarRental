@@ -738,7 +738,7 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
       </nav>
       <section class="section__container">
         <br><br><br><br><br>
-  <h2 class="section__header" style="text-align: left; margin-bottom: 2rem;">Complete Your Booking</h2>
+  <h2 class="section__header" style="text-align: left; margin-bottom: 2rem; color: #ffb070ff">Complete Your Booking</h2>
   
   <div class="booking__grid">
   
