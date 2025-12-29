@@ -21,7 +21,6 @@ public function show($id, Request $request)
 {
     $vehicle = Vehicle::findOrFail($id);
     $myVouchers = Auth::user()->vouchers()->get();
-    $loyaltyCard = Auth::user()->loyaltyCard;
 
     // 1. Define Delivery Prices (Per Trip)
     $prices = [
@@ -95,7 +94,12 @@ public function store(Request $request)
         'license_image' => 'required|image|max:2048',
         'receipt_image' => 'required|image|max:2048',
         'pickup_location' => 'required',
-        'dropoff_location' => 'required',
+        'custom_pickup_address' => 'required_if:pickup_location,!=,office|nullable|string',
+        'custom_dropoff_address' => 'required_if:dropoff_location,!=,office|nullable|string',
+        'name' => 'required|string',
+        'phone' => 'required|string',
+        'emergency_name' => 'required|string',
+        'emergency_contact' => 'required|string',
     ]);
 
     $vehicle = Vehicle::findOrFail($request->vehicle_id);
@@ -110,14 +114,21 @@ public function store(Request $request)
     // 2. Re-calculate Delivery Fee (Security)
     $prices = ['office' => 0, 'campus' => 2.50, 'taman_u' => 7.50, 'jb' => 25];
     $pickupFee = $prices[$request->pickup_location] ?? 0;
-    $dropoffFee = $prices[$request->dropoff_location] ?? 0;
+    
+    // Handle dropoff location
+    $dropoffLocation = $request->filled('same_location_checkbox') ? $request->pickup_location : $request->dropoff_location;
+    $dropoffFee = $prices[$dropoffLocation] ?? 0;
     $deliveryFee = $pickupFee + $dropoffFee;
 
-    // 3. Calculate Discount
+    // 3. Calculate Discount & Voucher ID
     $discount = 0;
+    $voucherId = null;
     if ($request->filled('selected_voucher_id')) {
         $voucher = Voucher::find($request->selected_voucher_id);
-        if ($voucher && $voucher->user_id == Auth::id()) $discount = $voucher->amount;
+        if ($voucher && $voucher->user_id == Auth::id()) {
+            $discount = $voucher->amount;
+            $voucherId = $voucher->id;
+        }
     } elseif ($request->filled('manual_code')) {
          if (strtoupper($request->manual_code) === 'WELCOME10') $discount = 10;
     }
@@ -128,21 +139,36 @@ public function store(Request $request)
     $licensePath = $request->file('license_image')->store('licenses', 'public');
     $receiptPath = $request->file('receipt_image')->store('payments', 'public');
 
-    // 5. Save to Database (Matching your table columns from screenshot)
+    // 5. Save to Database
     $booking = new Booking();
     $booking->user_id = Auth::id();
     $booking->vehicle_id = $vehicle->id;
     
-    // Map HTML names to DB names based on your screenshot
+    // Dates & Times
     $booking->pickup_date_time = $start; 
     $booking->return_date_time = $end;
+    
+    // Locations
     $booking->pickup_location = $request->pickup_location;
-    $booking->dropoff_location = $request->dropoff_location;
+    $booking->custom_pickup_address = $request->custom_pickup_address ?? null;
+    $booking->dropoff_location = $dropoffLocation;
+    $booking->custom_dropoff_address = $request->custom_dropoff_address ?? null;
     
-    $booking->total_rental_fee = $final_total; // Saving the calculated total here
+    // Customer Info
+    $booking->customer_name = $request->name;
+    $booking->customer_phone = $request->phone;
+    $booking->emergency_contact_name = $request->emergency_name;
+    $booking->emergency_contact_phone = $request->emergency_contact;
     
-    $booking->license_image = $licensePath; // Ensure your DB has this or similar column
-    $booking->payment_receipt = $receiptPath; // Ensure your DB has this or similar column
+    // Financials
+    $booking->total_rental_fee = $final_total;
+    $booking->voucher_id = $voucherId;
+    
+    // Files
+    $booking->license_image = $licensePath;
+    $booking->payment_receipt = $receiptPath;
+    
+    // Status
     $booking->status = 'pending';
     $booking->save();
 

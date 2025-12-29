@@ -765,13 +765,13 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
       <div class="form__section">
     <h3><i class="ri-map-pin-line"></i> Pickup & Dropoff</h3>
     <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
-        Additional fees apply for delivery outside HQ.
+        Additional fees apply for delivery outside Student Mall.
     </p>
     
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
         <div class="input__group">
             <label>Pickup Location</label>
-            <select name="pickup_location" id="pickup_location" onchange="updatePrice()" required style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
+            <select name="pickup_location" id="pickup_location" onchange="handlePickupChange()" required style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
                 <option value="office" {{ $pickupLoc == 'office' ? 'selected' : '' }}>Student Mall (Free)</option>
                 <option value="campus" {{ $pickupLoc == 'campus' ? 'selected' : '' }}>In Campus (+RM 2.50)</option>
                 <option value="taman_u" {{ $pickupLoc == 'taman_u' ? 'selected' : '' }}>Taman Universiti (+RM 7.50)</option>
@@ -779,14 +779,36 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
             </select>
         </div>
 
-        <div class="input__group">
-            <label>Dropoff Location</label>
-            <select name="dropoff_location" id="dropoff_location" onchange="updatePrice()" required style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
-                <option value="office" {{ $dropoffLoc == 'office' ? 'selected' : '' }}>Student Mall (Free)</option>
-                <option value="campus" {{ $dropoffLoc == 'campus' ? 'selected' : '' }}>In Campus (+RM 2.50)</option>
-                <option value="taman_u" {{ $dropoffLoc == 'taman_u' ? 'selected' : '' }}>Taman Universiti (+RM 7.50)</option>
-                <option value="jb" {{ $dropoffLoc == 'jb' ? 'selected' : '' }}>Other Area JB (+RM 25)</option>
-            </select>
+        <!-- Custom Pickup Address (shown if not Student Mall) -->
+        <div class="input__group" id="custom_pickup_group" style="display: none;">
+            <label>Specific Pickup Address</label>
+            <input type="text" name="custom_pickup_address" id="custom_pickup_address" placeholder="Enter your specific pickup address" style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;" />
+        </div>
+
+        <!-- Checkbox for Same Location -->
+        <div style="display: flex; align-items: center; gap: 10px; margin: 1rem 0;">
+            <input type="checkbox" id="same_location_checkbox" checked onchange="handleSameLocationChange()" />
+            <label for="same_location_checkbox" style="margin: 0; cursor: pointer;">Drop off location same as pick up location</label>
+        </div>
+
+        <!-- Dropoff Location (hidden by default, shown if checkbox unchecked) -->
+        <div id="dropoff_section" style="display: none;">
+            <div class="input__group">
+                <label>Dropoff Location</label>
+                <select name="dropoff_location" id="dropoff_location" onchange="handleDropoffChange()" style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
+                    <option value="">-- Select Dropoff Location --</option>
+                    <option value="office" {{ $dropoffLoc == 'office' ? 'selected' : '' }}>Student Mall (Free)</option>
+                    <option value="campus" {{ $dropoffLoc == 'campus' ? 'selected' : '' }}>In Campus (+RM 2.50)</option>
+                    <option value="taman_u" {{ $dropoffLoc == 'taman_u' ? 'selected' : '' }}>Taman Universiti (+RM 7.50)</option>
+                    <option value="jb" {{ $dropoffLoc == 'jb' ? 'selected' : '' }}>Other Area JB (+RM 25)</option>
+                </select>
+            </div>
+
+            <!-- Custom Dropoff Address (shown if not Student Mall) -->
+            <div class="input__group" id="custom_dropoff_group" style="display: none;">
+                <label>Specific Dropoff Address</label>
+                <input type="text" name="custom_dropoff_address" id="custom_dropoff_address" placeholder="Enter your specific dropoff address" style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;" />
+            </div>
         </div>
     </div>
 </div>
@@ -973,7 +995,61 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
         }
     });
 
-    // --- 3. EXISTING PRICE UPDATE LOGIC ---
+    // --- 3. PICKUP & DROPOFF LOCATION LOGIC ---
+    function handlePickupChange() {
+        const pickupValue = document.getElementById("pickup_location").value;
+        const customPickupGroup = document.getElementById("custom_pickup_group");
+        const customPickupInput = document.getElementById("custom_pickup_address");
+        
+        if (pickupValue !== "office") {
+            customPickupGroup.style.display = "block";
+            customPickupInput.setAttribute("required", "required");
+        } else {
+            customPickupGroup.style.display = "none";
+            customPickupInput.removeAttribute("required");
+            customPickupInput.value = "";
+        }
+    }
+
+    function handleDropoffChange() {
+        const dropoffValue = document.getElementById("dropoff_location").value;
+        const customDropoffGroup = document.getElementById("custom_dropoff_group");
+        const customDropoffInput = document.getElementById("custom_dropoff_address");
+        
+        if (dropoffValue !== "office") {
+            customDropoffGroup.style.display = "block";
+            customDropoffInput.setAttribute("required", "required");
+        } else {
+            customDropoffGroup.style.display = "none";
+            customDropoffInput.removeAttribute("required");
+            customDropoffInput.value = "";
+        }
+    }
+
+    function handleSameLocationChange() {
+        const checkbox = document.getElementById("same_location_checkbox");
+        const dropoffSection = document.getElementById("dropoff_section");
+        const dropoffSelect = document.getElementById("dropoff_location");
+        
+        if (checkbox.checked) {
+            dropoffSection.style.display = "none";
+            dropoffSelect.removeAttribute("required");
+            dropoffSelect.value = "";
+            document.getElementById("custom_dropoff_address").value = "";
+            document.getElementById("custom_dropoff_group").style.display = "none";
+        } else {
+            dropoffSection.style.display = "block";
+            dropoffSelect.setAttribute("required", "required");
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener("DOMContentLoaded", function() {
+        handlePickupChange();
+        handleSameLocationChange();
+    });
+
+    // --- 4. EXISTING PRICE UPDATE LOGIC ---
     function updatePrice() {
         var form = document.getElementById('bookingForm');
         // Force URL to current page (Booking Page)
