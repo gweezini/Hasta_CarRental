@@ -3,7 +3,6 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Vehicle;
-use App\Http\Controllers\AdminVehicleController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CarController;
@@ -19,20 +18,16 @@ Route::get('/dashboard', function () {
     return view('dashboard', compact('vehicles')); 
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard'); 
-})->middleware(['auth', 'verified'])->name('admin.dashboard');
-
-// --- PROFILE ROUTES ---
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// --- ADMIN ROUTES ---
 Route::middleware(['auth'])->prefix('admin')->group(function () {
+
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/bookings', [AdminController::class, 'allBookings'])->name('admin.bookings.index');
 
     Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
     Route::get('/customers/{id}', [CustomerController::class, 'show'])->name('admin.customers.show');
@@ -44,18 +39,19 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/vehicle/{id}/edit', [CarController::class, 'edit'])->name('admin.vehicle.edit');
     Route::put('/vehicle/{id}', [CarController::class, 'update'])->name('admin.vehicle.update');
     Route::delete('/vehicle/{id}', [CarController::class, 'destroy'])->name('admin.vehicle.destroy');
-    Route::get('/bookings', [App\Http\Controllers\AdminController::class, 'allBookings'])->name('admin.bookings.index');
+
+    Route::get('/booking/{id}/verify', [AdminController::class, 'verifyPayment'])->name('admin.payment.verify');
+    Route::post('/booking/{id}/approve', [AdminController::class, 'approvePayment'])->name('admin.payment.approve');
+    Route::post('/booking/{id}/reject', [AdminController::class, 'rejectPayment'])->name('admin.payment.reject');
 });
 
-// --- BOOKING ROUTES (The Fix is Here) ---
 Route::middleware(['auth'])->group(function () {
     
-    // 1. GET Route: Shows the form & Updates Price
     Route::get('/booking/{id}', [BookingController::class, 'show'])->name('booking.show');
 
-    // 2. POST Route: SAVES the booking (This was missing!)
     Route::post('/confirm-booking', [BookingController::class, 'store'])->name('booking.store');
-
+    Route::get('/booking/{id}/payment', [BookingController::class, 'showPayment'])->name('payment.show');
+    Route::post('/booking/{id}/payment', [BookingController::class, 'storePayment'])->name('payment.store');
 });
 
 require __DIR__.'/auth.php';
