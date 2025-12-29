@@ -21,6 +21,7 @@ public function show($id, Request $request)
 {
     $vehicle = Vehicle::findOrFail($id);
     $myVouchers = Auth::user()->vouchers()->get();
+    $loyaltyCard = Auth::user()->loyaltyCard;
 
     // 1. Define Delivery Prices (Per Trip)
     $prices = [
