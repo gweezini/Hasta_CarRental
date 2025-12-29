@@ -581,6 +581,30 @@
     position: static;
   }
 }
+
+/* Custom Radio Circle for CSS-only toggle */
+.radio-circle {
+    width: 20px; 
+    height: 20px; 
+    border: 2px solid #ccc; 
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Checked State */
+input[type="radio"]:checked + .payment-label-content .radio-circle {
+    border-color: var(--primary-color);
+}
+input[type="radio"]:checked + .payment-label-content .radio-circle::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    display: block;
+}
     </style>
 </head>
 
@@ -636,77 +660,192 @@
   <h2 class="section__header" style="text-align: left; margin-bottom: 2rem;">Complete Your Booking</h2>
   
   <div class="booking__grid">
-    <div class="booking__form">
-      <form action="/confirm-booking" method="POST">
-        @csrf
-        <div class="form__section">
-          <h3><i class="ri-user-line"></i> Personal Information</h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+  
+  <div class="booking__form">
+    <form id="bookingForm" action="/confirm-booking" method="POST" enctype="multipart/form-data">
+      @csrf
+      
+      <input type="hidden" name="vehicle_id" value="{{ $vehicle->id }}">
+
+      <div class="form__section">
+        <h3><i class="ri-calendar-check-line"></i> Rental Period</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="input__group">
-              <label>Full Name</label>
-              <input type="text" value="{{ Auth::user()->name }}" required />
+                <label>Start Date</label>
+                <input type="datetime-local" name="start_time" value="{{ request('start_time') }}" required />
             </div>
             <div class="input__group">
-              <label>Phone Number</label>
-              <input type="tel" placeholder="+60..." required />
+                <label>End Date</label>
+                <input type="datetime-local" name="end_time" value="{{ request('end_time') }}" required />
             </div>
-          </div>
+        </div>
+      </div>
+
+      <div class="form__section">
+        <h3><i class="ri-ticket-line"></i> Vouchers</h3>
+        <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
+            Select a claimed voucher OR enter a code.
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+            <div class="input__group">
+                <label>My Rewards</label>
+                <select name="selected_voucher_id" style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
+                    <option value="">-- Select a Reward --</option>
+                    @foreach($myVouchers as $v)
+                        <option value="{{ $v->id }}" {{ request('selected_voucher_id') == $v->id ? 'selected' : '' }}>
+                            {{ $v->name }} (RM {{ $v->amount }} Off)
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="input__group">
+                <label>Or Enter Promo Code</label>
+                <input type="text" name="manual_code" value="{{ request('manual_code') }}" placeholder="e.g. HASTA2024" style="text-transform: uppercase;">
+            </div>
         </div>
 
-        <div class="form__section">
-          <h3><i class="ri-file-info-line"></i> Driving License</h3>
-          <div class="input__group">
-            <label>Upload License Photo (Front)</label>
-            <input type="file" required />
-          </div>
-        </div>
-
-        <div class="form__section">
-          <h3><i class="ri-bank-card-line"></i> Payment Method</h3>
-          <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-            <label><input type="radio" name="pay" checked> Online Banking</label>
-            <label><input type="radio" name="pay"> Credit Card</label>
-            <label><input type="radio" name="pay"> E-Wallet</label>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1.2rem; font-size: 1.1rem;">
-          Confirm & Pay Now
+        <button 
+            type="button" 
+            onclick="updatePrice()"
+            class="btn btn-transparent" 
+            style="margin-top: 15px; width: 100%; border: 1px solid var(--primary-color); color: var(--primary-color);">
+            <i class="ri-refresh-line"></i> Apply Voucher & Update Price
         </button>
-      </form>
-    </div>
+        <small style="color: red; display: block; margin-top: 5px;">* Apply voucher BEFORE uploading receipt/license.</small>
+      </div>
 
-    <div class="booking__summary">
-      <h3 style="margin-bottom: 1rem;">Booking Summary</h3>
-      <img src="{{ asset('images/' . $vehicle->vehicle_image) }}" alt="Car" style="border-radius: 8px; margin-bottom: 1rem;">
-      
-      <h4 style="font-size: 1.3rem;">{{ $vehicle->brand }} {{ $vehicle->model }}</h4>
-      <p style="color: var(--text-light); margin-bottom: 1rem;"><i class="ri-map-pin-line"></i> UTM Campus, Skudai</p>
-      
-      <hr style="margin-bottom: 1rem; opacity: 0.2;">
-      
-      <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+      <div class="form__section">
+        <h3><i class="ri-user-line"></i> Personal Information</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="input__group">
+            <label>Full Name</label>
+            <input type="text" name="name" value="{{ Auth::user()->name }}" required />
+          </div>
+          <div class="input__group">
+            <label>Phone Number</label>
+            <input type="tel" name="phone" value="{{ Auth::user()->phone }}" placeholder="+60..." required />
+          </div>
+        </div>
+      </div>
+
+      <div class="form__section">
+        <h3><i class="ri-alarm-warning-line"></i> Emergency Contact</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="input__group">
+                <label>Contact Name</label>
+                <input type="text" name="emergency_name" value="{{ Auth::user()->emergency_name }}" required />
+            </div>
+            <div class="input__group">
+                <label>Contact Number</label>
+                <input type="tel" name="emergency_contact" value="{{ Auth::user()->emergency_contact }}" required />
+            </div>
+        </div>
+        <div class="input__group" style="margin-top: 1rem;">
+            <label>Relationship</label>
+            <input type="text" name="emergency_relationship" value="{{ Auth::user()->emergency_relationship }}" required />
+        </div>
+      </div>
+
+      <div class="form__section">
+        <h3><i class="ri-bank-card-line"></i> Payment Method</h3>
+        
+        <div class="payment-card">
+            <input type="radio" name="payment_method" id="pay-qr" value="qr_pay" checked style="display: none;">
+            <label for="pay-qr" class="payment-label-content">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="radio-circle"></div>
+                    <div style="flex: 1;"><strong>DuitNow QR</strong></div>
+                    <i class="ri-qr-code-line" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+                </div>
+                <div class="payment-details-box" style="text-align: center;">
+                    <img src="{{ asset('images/paymentqr.png') }}" alt="QR" style="max-width: 200px;">
+                </div>
+            </label>
+        </div>
+
+        <div class="payment-card">
+            <input type="radio" name="payment_method" id="pay-bank" value="bank_transfer" style="display: none;">
+            <label for="pay-bank" class="payment-label-content">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                     <div class="radio-circle"></div>
+                    <div style="flex: 1;"><strong>Manual Transfer</strong></div>
+                    <i class="ri-bank-line" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+                </div>
+                <div class="payment-details-box">
+                    <div style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid var(--primary-color);">
+                        <p><strong>CIMB Bank</strong> | Hasta Car Rental</p>
+                        <p style="font-size: 1.1rem; color: var(--primary-color); font-weight: 700;">8600123456</p>
+                    </div>
+                </div>
+            </label>
+        </div>
+
+        <div class="input__group" style="margin-top: 1rem;">
+            <label>Upload Payment Receipt</label>
+            <input type="file" name="receipt_image" required accept="image/*, .pdf" />
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1.2rem; margin-top: 1rem;">
+        Confirm Booking
+      </button>
+    </form>
+  </div>
+
+  <div class="booking__summary">
+    <h3>Booking Summary</h3>
+    <img src="{{ asset('images/' . $vehicle->vehicle_image) }}" alt="Car" style="border-radius: 8px; margin-bottom: 1rem; width: 100%; object-fit: cover;">
+    
+    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
         <span>Rate</span>
         <strong>RM {{ $vehicle->price_per_hour }} / hr</strong>
-      </div>
-      
-      <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
         <span>Duration</span>
-        <strong id="summary-duration">-- hours</strong>
-      </div>
+        <strong>{{ $hours ?? 0 }} hours</strong>
+    </div>
 
-      <hr style="margin: 1rem 0; opacity: 0.2;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+        <span>Subtotal</span>
+        <strong>RM {{ number_format($subtotal ?? 0, 2) }}</strong>
+    </div>
 
-      <div style="display: flex; justify-content: space-between; font-size: 1.4rem; color: var(--primary-color);">
+    @if(isset($discount) && $discount > 0)
+    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #28a745;">
+        <span>Discount</span>
+        <strong>- RM {{ number_format($discount, 2) }}</strong>
+    </div>
+    @endif
+
+    @if(isset($voucherMessage) && $voucherMessage != "")
+        <small style="display: block; text-align: right; color: {{ $discount > 0 ? '#28a745' : 'red' }}; margin-bottom: 10px;">
+            {{ $voucherMessage }}
+        </small>
+    @endif
+
+    <hr style="margin: 1rem 0; opacity: 0.2;">
+
+    <div style="display: flex; justify-content: space-between; font-size: 1.4rem; color: var(--primary-color);">
         <span>Total</span>
-        <strong id="summary-total">RM 0.00</strong>
-      </div>
-
-      <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 1rem; text-align: center;">
-        <i class="ri-shield-check-line"></i> Secure Payment Protected
-      </p>
+        <strong>RM {{ number_format($total ?? 0, 2) }}</strong>
     </div>
   </div>
+</div>
+
+<script>
+    function updatePrice() {
+        var form = document.getElementById('bookingForm');
+        // Force URL to current page (Booking Page)
+        form.action = "{{ url('/booking/' . $vehicle->id) }}";
+        // Force method to GET
+        form.method = "GET";
+        // Submit
+        form.submit();
+    }
+</script>
 </section>
 </body>
 
