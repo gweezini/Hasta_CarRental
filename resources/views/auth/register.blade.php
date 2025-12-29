@@ -67,8 +67,8 @@
             </div>
 
             <div class="mt-4">
-                <x-input-label for="driving_license" :value="__('Driving License Number')" />
-                <x-text-input id="driving_license" class="block mt-1 w-full" type="text" name="driving_license" :value="old('driving_license')" required placeholder="1234567890" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                <x-input-label for="driving_license" :value="__('Serial Number (Refer behind of driving license)')" />
+                <x-text-input id="driving_license" class="block mt-1 w-full" type="text" name="driving_license" :value="old('driving_license')" required placeholder="12A1hewex" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                 
                 <x-input-error :messages="$errors->get('driving_license')" class="mt-2" />
             </div>
