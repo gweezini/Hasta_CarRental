@@ -112,8 +112,7 @@
         background-position: center center;
         background-size: cover;
         background-repeat: no-repeat;
-        min-height: auto;
-        padding-bottom: 3rem;
+        min-height: 100vh;
       }
 
       /* --- NAVIGATION --- */
@@ -128,7 +127,6 @@
         align-items: center;
         justify-content: space-between;
         padding: 1.5rem 2rem;
-        background-color: var(--text-dark);
       }
 
       nav.nav__fixed {
@@ -965,7 +963,17 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
         menuBtnIcon.setAttribute("class", "ri-menu-line");
     });
 
-    // --- 2. EXISTING PRICE UPDATE LOGIC ---
+    // --- 2. NAVBAR SCROLL EFFECT ---
+    const navbar = document.getElementById("navbar");
+    window.addEventListener("scroll", () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add("nav__fixed");
+        } else {
+            navbar.classList.remove("nav__fixed");
+        }
+    });
+
+    // --- 3. EXISTING PRICE UPDATE LOGIC ---
     function updatePrice() {
         var form = document.getElementById('bookingForm');
         // Force URL to current page (Booking Page)
