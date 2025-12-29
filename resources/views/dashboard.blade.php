@@ -536,6 +536,68 @@
           color: var(--primary-color);
         }
       }
+      /* --- WALLET SECTION STYLES --- */
+      .wallet__form {
+        max-width: 600px;
+        margin: 0 auto 3rem auto;
+        display: flex;
+        gap: 10px;
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      }
+      .wallet__form input {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        outline: none;
+      }
+      .wallet__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+      }
+      .wallet__card {
+        background: white;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-left: 5px solid var(--primary-color);
+      }
+      .wallet__card.used {
+        background: #f0f0f0;
+        border-left-color: #999;
+        opacity: 0.7;
+      }
+      .wallet__info h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+      }
+      .wallet__info p {
+        font-size: 0.9rem;
+        color: var(--text-light);
+      }
+      .wallet__badge {
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 5px;
+        text-transform: uppercase;
+      }
+      .badge-active { background: #ec5a2933; color: var(--primary-color); }
+      .badge-used { background: #ddd; color: #666; }
+      
+      /* Messages */
+      .msg-box { text-align: center; margin-bottom: 20px; padding: 10px; border-radius: 8px; }
+      .msg-success { background: #d4edda; color: #155724; }
+      .msg-error { background: #f8d7da; color: #721c24; }
     </style>
     <title>Hasta Car Rental</title>
   </head>
@@ -637,6 +699,7 @@
       </div>
     </header>
 
+    
     <section class="section__container range__container" id="vehicles">
       <h2 class="section__header">OUR RANGE OF VEHICLES</h2>
 
