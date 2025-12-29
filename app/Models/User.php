@@ -99,4 +99,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Faculty::class, 'faculty_id');
     }
+
+  // In app/Models/User.php
+
+// 1. Add connection for Vouchers
+public function vouchers()
+{
+    return $this->hasMany(\App\Models\Voucher::class);
+}
+
+
 }
