@@ -23,4 +23,10 @@ class Voucher extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // Backwards-compatibility accessor: some controllers reference $voucher->amount
+    public function getAmountAttribute()
+    {
+        return $this->attributes['value'] ?? null;
+    }
 }
