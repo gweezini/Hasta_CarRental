@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany; 
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -105,10 +106,10 @@ class User extends Authenticatable
 
 // 1. Add connection for Vouchers
 // Relationship: A User can have many Vouchers (via the 'user_vouchers' wallet table)
-   public function vouchers(): HasMany
-    {
-        return $this->hasMany(Voucher::class);
-    }
-
-
+   public function vouchers(): BelongsToMany
+   {
+        return $this->belongsToMany(Voucher::class, 'user_vouchers')
+                ->withPivot('id', 'created_at')
+                ->withTimestamps();
+   }
 }
