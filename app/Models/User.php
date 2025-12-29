@@ -103,11 +103,7 @@ class User extends Authenticatable
         return $this->belongsTo(Faculty::class, 'faculty_id');
     }
 
-  // In app/Models/User.php
-
-// 1. Add connection for Vouchers
-// Relationship: A User can have many Vouchers (via the 'user_vouchers' wallet table)
-    public function vouchers(): HasMany
+    public function vouchers()
     {
         return $this->hasMany(Voucher::class);
     }
