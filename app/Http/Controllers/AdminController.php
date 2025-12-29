@@ -64,4 +64,11 @@ class AdminController extends Controller
 
         return redirect()->route('admin.dashboard')->with('error', 'Booking has been rejected.');
     }
+
+    public function allBookings()
+    {
+        $bookings = Booking::with(['user', 'vehicle'])->orderBy('created_at', 'desc')->paginate(10);
+    
+        return view('admin.bookings.index', compact('bookings'));
+    }
 }
