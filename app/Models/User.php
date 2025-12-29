@@ -104,10 +104,13 @@ class User extends Authenticatable
   // In app/Models/User.php
 
 // 1. Add connection for Vouchers
-public function vouchers()
-{
-    return $this->hasMany(\App\Models\Voucher::class);
-}
+// Relationship: A User can have many Vouchers (via the 'user_vouchers' wallet table)
+    public function vouchers()
+    {
+        return $this->belongsToMany(Voucher::class, 'user_vouchers')
+                    ->withPivot('id', 'used_at') // This lets us access the 'used_at' column later
+                    ->withTimestamps();
+    }
 
 
 }
