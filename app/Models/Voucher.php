@@ -16,5 +16,11 @@ class Voucher extends Model
         'type',   // 'percent' or 'fixed'
         'value',  // e.g. 10.00
         'is_active',
+        'user_id',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
