@@ -128,7 +128,7 @@ public function store(Request $request)
     $receiptPath = $request->file('receipt_image')->store('payments', 'public');
 
     // 5. Save to Database (Matching your table columns from screenshot)
-    $booking = new \App\Models\Booking();
+    $booking = new Booking();
     $booking->user_id = Auth::id();
     $booking->vehicle_id = $vehicle->id;
     
@@ -148,7 +148,7 @@ public function store(Request $request)
     // 6. Stamps Logic
     $stampsEarned = floor($hours / 3);
     if($stampsEarned > 0) {
-        $card = Auth::user()->loyaltyCard ?? \App\Models\LoyaltyCard::create(['user_id' => Auth::id()]);
+        $card = Auth::user()->loyaltyCard ?? LoyaltyCard::create(['user_id' => Auth::id()]);
         $card->stamps += $stampsEarned;
         $card->save();
     }
