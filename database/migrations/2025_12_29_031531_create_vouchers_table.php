@@ -25,7 +25,8 @@ return new class extends Migration
     // 2. The Wallet (Pivot) Table
     Schema::create('user_vouchers', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->string('user_id');
+        $table->foreign('user_id')->references('matric_staff_id')->on('users')->onDelete('cascade');
         $table->foreignId('voucher_id')->constrained()->onDelete('cascade');
         
         // This tells us if the user used it yet. NULL = Active. Date = Used.
@@ -40,6 +41,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('user_vouchers');
         Schema::dropIfExists('vouchers');
     }
 };

@@ -105,6 +105,6 @@ class User extends Authenticatable
 
     public function vouchers()
     {
-        return $this->hasMany(Voucher::class);
+        return $this->hasMany(Voucher::class, 'user_id', 'matric_staff_id');
     }
 }

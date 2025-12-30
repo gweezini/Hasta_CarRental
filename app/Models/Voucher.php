@@ -21,7 +21,7 @@ class Voucher extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'matric_staff_id');
     }
 
     // Backwards-compatibility accessor: some controllers reference $voucher->amount
