@@ -635,6 +635,10 @@
               {{ $vehicle->brand }} {{ $vehicle->model }}
             </h4>
 
+            <p style="font-size: 0.85rem; color: #666; margin: 0.5rem 0;">
+              <strong>Plate:</strong> {{ $vehicle->plate_number }}
+            </p>
+
             <p class="card__price">
               Starting from
               <strong>RM {{ $vehicle->price_per_hour }} / hour</strong>

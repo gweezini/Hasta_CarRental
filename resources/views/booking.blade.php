@@ -685,6 +685,25 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
     font-size: 1.4rem !important;
   }
 }
+
+  /* Ensure typed form text is dark for readability */
+  input[type="text"],
+  input[type="tel"],
+  input[type="datetime-local"],
+  input[type="date"],
+  input[type="time"],
+  input[type="file"],
+  input[type="search"],
+  select,
+  textarea {
+    color: #111 !important;
+  }
+
+  /* keep placeholders light */
+  input::placeholder,
+  textarea::placeholder {
+    color: #999 !important;
+  }
     </style>
 </head>
 
@@ -738,7 +757,7 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
       </nav>
       <section class="section__container">
         <br><br><br><br><br>
-  <h2 class="section__header" style="text-align: left; margin-bottom: 2rem; color: #ffb070ff">Complete Your Booking</h2>
+  <h2 class="section__header" style="text-align: left; margin-bottom: 2rem; color: #ffb273ff">Complete Your Booking</h2>
   
   <div class="booking__grid">
   
@@ -790,6 +809,9 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
             <input type="checkbox" id="same_location_checkbox" checked onchange="handleSameLocationChange()" />
             <label for="same_location_checkbox" style="margin: 0; cursor: pointer;">Drop off location same as pick up location</label>
         </div>
+
+        <!-- Hidden input to always submit dropoff_location -->
+        <input type="hidden" name="dropoff_location" id="dropoff_location_hidden" value="office" />
 
         <!-- Dropoff Location (hidden by default, shown if checkbox unchecked) -->
         <div id="dropoff_section" style="display: none;">
@@ -919,9 +941,20 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1.2rem; margin-top: 1rem;">
-        Confirm Booking
-      </button>
+      <button type="submit" class="btn btn-primary">Confirm Booking</button>
+    {{-- ERROR DISPLAY BLOCK --}}
+@if ($errors->any())
+    <div style="background-color: #ffe6e6; border: 1px solid #d93025; color: #d93025; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        <h4 style="margin: 0 0 0.5rem 0; font-weight: bold;">
+            <i class="ri-error-warning-line"></i> Please fix the following:
+        </h4>
+        <ul style="margin-left: 1.5rem; list-style: disc;">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
     </form>
   </div>
 
@@ -1013,8 +1046,12 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
 
     function handleDropoffChange() {
         const dropoffValue = document.getElementById("dropoff_location").value;
+        const dropoffHidden = document.getElementById("dropoff_location_hidden");
         const customDropoffGroup = document.getElementById("custom_dropoff_group");
         const customDropoffInput = document.getElementById("custom_dropoff_address");
+        
+        // Always sync the hidden input
+        dropoffHidden.value = dropoffValue;
         
         if (dropoffValue !== "office") {
             customDropoffGroup.style.display = "block";
@@ -1030,16 +1067,24 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
         const checkbox = document.getElementById("same_location_checkbox");
         const dropoffSection = document.getElementById("dropoff_section");
         const dropoffSelect = document.getElementById("dropoff_location");
+        const dropoffHidden = document.getElementById("dropoff_location_hidden");
+        const pickupValue = document.getElementById("pickup_location").value;
         
         if (checkbox.checked) {
             dropoffSection.style.display = "none";
-            dropoffSelect.removeAttribute("required");
-            dropoffSelect.value = "";
+        dropoffSelect.removeAttribute("required");
+        // Remove name so it does not override the hidden input on submit
+        dropoffSelect.removeAttribute('name');
+        dropoffSelect.value = "";
+        dropoffHidden.value = pickupValue; // Set to same as pickup
             document.getElementById("custom_dropoff_address").value = "";
             document.getElementById("custom_dropoff_group").style.display = "none";
         } else {
             dropoffSection.style.display = "block";
-            dropoffSelect.setAttribute("required", "required");
+        dropoffSelect.setAttribute("required", "required");
+        // Ensure the select will submit its value when visible
+        dropoffSelect.setAttribute('name', 'dropoff_location');
+        dropoffHidden.value = dropoffSelect.value;
         }
     }
 

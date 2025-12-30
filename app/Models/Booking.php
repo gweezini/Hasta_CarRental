@@ -11,6 +11,14 @@ class Booking extends Model
 {
     protected $guarded = [];
 
+    /**
+     * Cast date/time fields to Carbon instances for view formatting.
+     */
+    protected $casts = [
+        'pickup_date_time' => 'datetime',
+        'return_date_time' => 'datetime',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

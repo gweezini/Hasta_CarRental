@@ -56,15 +56,86 @@
 
                 <div id="content-booking" class="mt-4">
                     <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                        <h2 class="text-lg font-medium text-gray-900 mb-4">My Past Bookings</h2>
+                        <!-- Ongoing Bookings -->
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Ongoing Bookings</h2>
                         
-                        <div class="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                            <svg class="mx-auto text-gray-400" style="width: 48px; height: 48px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">No bookings yet</h3>
-                            <p class="mt-1 text-sm text-gray-500">Your rental history will appear here later.</p>
-                        </div>
+                        @if($ongoingBookings->count() > 0)
+                            <div class="space-y-4 mb-8">
+                                @foreach($ongoingBookings as $booking)
+                                    <div class="border border-blue-200 bg-blue-50 rounded-lg p-4">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <h3 class="font-semibold text-gray-900">Booking ID: #{{ $booking->id }}</h3>
+                                                <p class="text-sm text-gray-600">{{ $booking->vehicle?->model ?? 'N/A' }} ({{ $booking->vehicle?->plate_number ?? 'N/A' }})</p>
+                                            </div>
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                                {{ ucfirst($booking->status) }}
+                                            </span>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <p class="text-gray-500">Pickup</p>
+                                                <p class="font-medium text-gray-900">{{ $booking->pickup_date_time->format('M d, Y h:i A') }}</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-500">Return</p>
+                                                <p class="font-medium text-gray-900">{{ $booking->return_date_time->format('M d, Y h:i A') }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 pt-3 border-t border-blue-200">
+                                            <p class="text-lg font-semibold text-gray-900">Total: RM {{ number_format($booking->total_rental_fee, 2) }}</p>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-8 bg-blue-50 rounded-lg border border-blue-200 mb-8">
+                                <p class="text-sm text-gray-600">No ongoing bookings</p>
+                            </div>
+                        @endif
+
+                        <!-- Past Bookings -->
+                        <h2 class="text-lg font-medium text-gray-900 mb-4 mt-8">Past Bookings</h2>
+                        
+                        @if($pastBookings->count() > 0)
+                            <div class="space-y-4">
+                                @foreach($pastBookings as $booking)
+                                    <div class="border border-gray-300 rounded-lg p-4 hover:shadow-md transition">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <h3 class="font-semibold text-gray-900">Booking ID: #{{ $booking->id }}</h3>
+                                                <p class="text-sm text-gray-600">{{ $booking->vehicle?->model ?? 'N/A' }} ({{ $booking->vehicle?->plate_number ?? 'N/A' }})</p>
+                                            </div>
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                                                @if($booking->status === 'completed') bg-green-100 text-green-800 @else bg-gray-100 text-gray-800 @endif">
+                                                {{ ucfirst($booking->status) }}
+                                            </span>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <p class="text-gray-500">Pickup</p>
+                                                <p class="font-medium text-gray-900">{{ $booking->pickup_date_time->format('M d, Y h:i A') }}</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-500">Return</p>
+                                                <p class="font-medium text-gray-900">{{ $booking->return_date_time->format('M d, Y h:i A') }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 pt-3 border-t border-gray-200">
+                                            <p class="text-sm font-semibold text-gray-900">Total: RM {{ number_format($booking->total_rental_fee, 2) }}</p>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                                <svg class="mx-auto text-gray-400" style="width: 48px; height: 48px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                <h3 class="mt-2 text-sm font-medium text-gray-900">No past bookings yet</h3>
+                                <p class="mt-1 text-sm text-gray-500">Your rental history will appear here.</p>
+                            </div>
+                        @endif
 
                     </div>
                 </div>

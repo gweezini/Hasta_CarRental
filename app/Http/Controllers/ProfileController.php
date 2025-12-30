@@ -19,11 +19,35 @@ class ProfileController extends Controller
     {
         $colleges = \App\Models\College::all();
         $faculties = \App\Models\Faculty::all();
+        $user = $request->user();
+
+        // Fetch ongoing bookings (status = pending or confirmed, return_date_time >= now)
+        $ongoingBookings = $user->bookings()
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->orWhere(function ($query) {
+                $query->whereIn('status', ['ongoing', 'returning'])
+                    ->where('return_date_time', '>=', now());
+            })
+            ->with('vehicle')
+            ->orderBy('pickup_date_time', 'desc')
+            ->get();
+
+        // Fetch past bookings (status = completed or return_date_time < now)
+        $pastBookings = $user->bookings()
+            ->where(function ($query) {
+                $query->where('status', 'completed')
+                    ->orWhere('return_date_time', '<', now());
+            })
+            ->with('vehicle')
+            ->orderBy('return_date_time', 'desc')
+            ->get();
         
         return view('profile.edit', [
-            'user' => $request->user(),
-            'colleges' => $colleges,   // <--- Pass this
-            'faculties' => $faculties, // <--- Pass this
+            'user' => $user,
+            'colleges' => $colleges,
+            'faculties' => $faculties,
+            'ongoingBookings' => $ongoingBookings,
+            'pastBookings' => $pastBookings,
         ]);
     }
 

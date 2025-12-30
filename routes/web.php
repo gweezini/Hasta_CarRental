@@ -14,7 +14,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    $vehicles = \App\Models\Vehicle::all();
+    $vehicles = Vehicle::all();
     return view('dashboard', compact('vehicles')); 
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -50,8 +50,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/booking/{id}', [BookingController::class, 'show'])->name('booking.show');
 
     Route::post('/confirm-booking', [BookingController::class, 'store'])->name('booking.store');
-    Route::get('/booking/{id}/payment', [BookingController::class, 'showPayment'])->name('payment.show');
-    Route::post('/booking/{id}/payment', [BookingController::class, 'storePayment'])->name('payment.store');
 });
 
 require __DIR__.'/auth.php';
