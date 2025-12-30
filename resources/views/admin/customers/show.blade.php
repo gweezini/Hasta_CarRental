@@ -28,7 +28,7 @@
                 <i class="ri-dashboard-line mr-2"></i> Dashboard
             </a>
 
-            <a href="#" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition">
+            <a href="{{ route('admin.bookings.index') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition">
                 <i class="ri-list-check-2 mr-2"></i> Bookings
             </a>
 
