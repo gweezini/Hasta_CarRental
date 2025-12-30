@@ -150,6 +150,16 @@
                                     No Matric Card Uploaded
                                 </span>
                             @endif
+
+                            @if($customer->nric_passport_path)
+                                <a href="{{ asset('storage/' . $customer->nric_passport_path) }}" target="_blank" class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition border border-green-200 font-medium text-sm">
+                                    <i class="ri-id-card-line"></i> View NRIC/Passport
+                                </a>
+                            @else
+                                <span class="px-4 py-2 bg-gray-100 text-gray-400 rounded-lg border border-gray-200 text-sm cursor-not-allowed">
+                                    No NRIC/Passport Uploaded
+                                </span>
+                            @endif
                         </div>
                     </div>
 
