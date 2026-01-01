@@ -14,8 +14,13 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    $vehicles = Vehicle::all();
+    if (Auth::user()->isStaff()) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    $vehicles = \App\Models\Vehicle::all(); 
     return view('dashboard', compact('vehicles')); 
+
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -29,6 +34,11 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/bookings', [AdminController::class, 'allBookings'])->name('admin.bookings.index');
 
+    Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
+
+    Route::get('/bookings', [AdminController::class, 'allBookings'])->name('admin.bookings.index');
+    Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
+    Route::get('/bookings', [AdminController::class, 'allBookings'])->name('admin.bookings.index');
     Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
     Route::get('/customers/{id}', [CustomerController::class, 'show'])->name('admin.customers.show');
     
