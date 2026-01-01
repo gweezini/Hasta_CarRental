@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Vehicle;
@@ -7,11 +8,9 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CustomerController;
+use Illuminate\Support\Facades\Auth; 
 
-Route::get('/', function () {
-    $vehicles = Vehicle::all(); 
-    return view('welcome', compact('vehicles'));
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/dashboard', function () {
     if (Auth::user()->isStaff()) {
@@ -32,13 +31,11 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    
     Route::get('/bookings', [AdminController::class, 'allBookings'])->name('admin.bookings.index');
 
     Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
 
-    Route::get('/bookings', [AdminController::class, 'allBookings'])->name('admin.bookings.index');
-    Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
-    Route::get('/bookings', [AdminController::class, 'allBookings'])->name('admin.bookings.index');
     Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
     Route::get('/customers/{id}', [CustomerController::class, 'show'])->name('admin.customers.show');
     
@@ -56,9 +53,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    
     Route::get('/booking/{id}', [BookingController::class, 'show'])->name('booking.show');
-
     Route::post('/confirm-booking', [BookingController::class, 'store'])->name('booking.store');
 });
 
