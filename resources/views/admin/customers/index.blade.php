@@ -17,7 +17,6 @@
 
     <div class="min-h-screen flex">
         <aside class="w-64 bg-[#cb5c55] text-white flex flex-col fixed h-full shadow-lg z-50">
-            
             <div class="p-6 text-center border-b border-white/20">
                 <a href="{{ route('admin.dashboard') }}">
                     <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Hasta Logo" class="w-32 mx-auto rounded-lg shadow-sm">
@@ -25,27 +24,33 @@
             </div>
 
             <nav class="flex-1 p-4 space-y-2">
-                <a href="{{ route('admin.dashboard') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition {{ request()->routeIs('admin.dashboard') ? 'bg-white/20 shadow-inner' : '' }}">
-                <i class="ri-dashboard-line mr-2"></i> Dashboard
-            </a>
+                <a href="{{ route('admin.dashboard') }}" 
+                   class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.dashboard') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
+                    <i class="ri-dashboard-line mr-2"></i> Dashboard
+                </a>
 
-             <a href="{{ route('admin.bookings.index') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition">
-                <i class="ri-list-check-2 mr-2"></i> Bookings
-            </a>
+                <a href="{{ route('admin.bookings.index') }}" 
+                   class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.bookings*') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
+                    <i class="ri-list-check-2 mr-2"></i> Bookings
+                </a>
 
-            <a href="{{ route('admin.vehicle.index') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition {{ request()->routeIs('admin.vehicle.*') ? 'bg-white/20 shadow-inner' : '' }}">
-                <i class="ri-car-line mr-2"></i> Fleet Management
-            </a>
+                <a href="{{ route('admin.vehicle.index') }}" 
+                   class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.vehicle*') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
+                    <i class="ri-car-line mr-2"></i> Fleet Management
+                </a>
     
-            <a href="{{ route('admin.customers.index') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition {{ request()->routeIs('admin.customers.*') ? 'bg-white/20 shadow-inner' : '' }}">
-                <i class="ri-group-line mr-2"></i> Customers
-            </a>
+                <a href="{{ route('admin.customers.index') }}" 
+                   class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.customers*') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
+                    <i class="ri-group-line mr-2"></i> Customers
+                </a>
 
-            <a href="#" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition">
-                <i class="ri-file-chart-line mr-2"></i> Reports
-            </a>
+                @if(Auth::user()->isTopManagement())
+                <a href="{{ route('admin.reports') }}" 
+                   class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.reports') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
+                     <i class="ri-file-chart-line mr-2"></i> Reports
+                </a>
+                @endif
             </nav>
-               
 
             <div class="p-4 border-t border-white/20">
                 <form method="POST" action="{{ route('logout') }}">
