@@ -31,8 +31,6 @@ return new class extends Migration
             $table->string('emergency_contact')->nullable(); //ok
             $table->string('emergency_relationship')->nullable(); //ok
 
-          
-            $table->string('role')->default('customer'); //ok
             $table->boolean('is_blacklisted')->default(false); //ok
             $table->foreignId('college_id')->nullable()->constrained(); //ok
             $table->foreignId('faculty_id')->nullable()->constrained();

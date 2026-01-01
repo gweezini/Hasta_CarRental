@@ -17,6 +17,8 @@ class Voucher extends Model
         'value',  // e.g. 10.00
         'is_active',
         'user_id',
+        'single_use',
+        'uses_remaining',
     ];
 
     public function user()
@@ -28,5 +30,12 @@ class Voucher extends Model
     public function getAmountAttribute()
     {
         return $this->attributes['value'] ?? null;
+    }
+
+    public function getLabelAttribute()
+    {
+        if ($this->type === 'percent') return $this->value . '% Off';
+        if ($this->type === 'fixed') return 'RM ' . number_format($this->value, 2) . ' Off';
+        return $this->value . ' (custom)';
     }
 }
