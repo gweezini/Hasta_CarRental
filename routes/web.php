@@ -7,6 +7,8 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\UserVoucherController;
 
 Route::get('/', function () {
     $vehicles = Vehicle::all(); 
@@ -53,6 +55,14 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/booking/{id}/verify', [AdminController::class, 'verifyPayment'])->name('admin.payment.verify');
     Route::post('/booking/{id}/approve', [AdminController::class, 'approvePayment'])->name('admin.payment.approve');
     Route::post('/booking/{id}/reject', [AdminController::class, 'rejectPayment'])->name('admin.payment.reject');
+
+    // Voucher management (staff)
+    Route::get('/vouchers', [VoucherController::class, 'index'])->name('admin.vouchers.index');
+    Route::get('/vouchers/create', [VoucherController::class, 'create'])->name('admin.vouchers.create');
+    Route::post('/vouchers', [VoucherController::class, 'store'])->name('admin.vouchers.store');
+    Route::get('/vouchers/{voucher}/edit', [VoucherController::class, 'edit'])->name('admin.vouchers.edit');
+    Route::put('/vouchers/{voucher}', [VoucherController::class, 'update'])->name('admin.vouchers.update');
+    Route::delete('/vouchers/{voucher}', [VoucherController::class, 'destroy'])->name('admin.vouchers.destroy');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -60,6 +70,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/booking/{id}', [BookingController::class, 'show'])->name('booking.show');
 
     Route::post('/confirm-booking', [BookingController::class, 'store'])->name('booking.store');
+
+    // User voucher pages & actions
+    Route::get('/my-vouchers', [UserVoucherController::class, 'index'])->name('vouchers.index');
+    Route::post('/voucher/redeem-code', [UserVoucherController::class, 'redeemCode'])->name('vouchers.redeem.code');
+    Route::post('/voucher/redeem-loyalty', [UserVoucherController::class, 'redeemLoyalty'])->name('vouchers.redeem.loyalty');
 });
 
 require __DIR__.'/auth.php';
