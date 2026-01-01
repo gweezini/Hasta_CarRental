@@ -11,7 +11,7 @@
       @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Syncopate:wght@400;700&display=swap");
 
       :root {
-        --primary-color: #ec5a29; /* Theme Color */
+        --primary-color: #ec5a29;
         --primary-color-dark: #d14a1e;
         --text-dark: #15191d;
         --text-light: #737373;
@@ -33,7 +33,6 @@
         padding: 5rem 1rem;
       }
 
-      /* Centered Section Headers */
       .section__header {
         font-size: 3.25rem;
         font-weight: 700;
@@ -45,7 +44,6 @@
         margin-bottom: 4rem;
       }
 
-      /* Base Button Style */
       .btn {
         padding: 1rem 1.5rem;
         outline: none;
@@ -66,7 +64,6 @@
         background-color: var(--primary-color);
       }
 
-      /* Specific Button Styles (Moved from inline HTML) */
       .btn-transparent {
         background: transparent;
         color: var(--white);
@@ -101,7 +98,6 @@
         font-family: "Poppins", sans-serif;
       }
 
-      /* --- HEADER & BACKGROUND --- */
       header {
         position: relative;
         background-image: linear-gradient(
@@ -115,7 +111,6 @@
         min-height: 100vh;
       }
 
-      /* --- NAVIGATION --- */
       nav {
         position: fixed;
         isolation: isolate;
@@ -174,12 +169,10 @@
         gap: 1rem;
       }
 
-      /* Desktop only utility class for new links */
       .mobile-only {
         display: none;
       }
 
-      /* --- HERO CONTAINER & FORM --- */
       .header__container {
         position: relative;
         padding: 12rem 1rem 5rem;
@@ -234,7 +227,6 @@
         outline: none;
       }
 
-      /* Helper for Time Inputs */
       .date-time-wrapper {
         display: flex;
         gap: 5px;
@@ -256,7 +248,7 @@
 
       .dropoff_group {
         grid-column: 1 / span 2;
-        display: none; /* Controlled by JS */
+        display: none;
         flex-direction: column;
         gap: 8px;
         margin-top: 10px;
@@ -291,15 +283,14 @@
         z-index: 2;
       }
 
-      /* --- RANGE SECTION (CENTERED LAYOUT) --- */
       .range__container {
-        scroll-margin-top: 100px; /* Offset for fixed navbar */
+        scroll-margin-top: 100px;
       }
 
       .range__grid {
-        display: flex; /* Flex allows centering items in the last row */
+        display: flex;
         flex-wrap: wrap;
-        justify-content: center; /* Centers the cards horizontally */
+        justify-content: center;
         gap: 2rem;
       }
 
@@ -411,7 +402,6 @@
         background-color: #999;
       }
 
-      /* --- FOOTER --- */
       footer {
         background-color: var(--text-dark);
         padding-top: 5rem;
@@ -458,16 +448,13 @@
         border-color: var(--primary-color);
       }
 
-      /* --- MEDIA QUERIES --- */
       @media (max-width: 1024px) {
         .range__card {
-          flex: 0 1 calc(50% - 2rem); /* 2 cards per row on tablet */
+          flex: 0 1 calc(50% - 2rem);
         }
       }
 
-      /* Consolidated Mobile Styles */
       @media (max-width: 768px) {
-        /* Nav Layout */
         .nav__menu__btn {
           display: block;
         }
@@ -490,7 +477,6 @@
           display: none;
         }
 
-        /* Hero Layout */
         .header__container h1 {
           font-size: 2.5rem;
         }
@@ -505,17 +491,14 @@
           grid-column: 1;
         }
 
-        /* Range Section */
         .range__card {
-          flex: 0 1 100%; /* 1 card per row on mobile */
+          flex: 0 1 100%;
         }
 
-        /* Footer */
         .footer__container {
           grid-template-columns: repeat(2, 1fr);
         }
 
-        /* Mobile Login/Register Links */
         .mobile-only {
           display: block;
           width: 100%;
@@ -573,32 +556,41 @@
 
       <div class="header__container" id="home">
         <h1>AFFORDABLE CAR RENTAL SERVICE</h1>
-        <form action="/">
+        
+       <form action="{{ route('home') }}" method="GET">
           <div class="input__group">
             <label for="pickup">Pick up location</label>
             <input
               type="text"
               id="pickup"
+              name="location"
+              value="{{ request('location') }}" 
               placeholder="Student Mall, UTM"
               required
             />
           </div>
 
-      <div class="input__group">
-        <label for="start">Start Date & Time</label>
-          <div class="date-time-wrapper">
-            <input type="date" name="start_date" id="start_date" min="{{ date('Y-m-d') }}" required />
-            <input type="time" name="start_time" required />
+          <div class="input__group">
+            <label for="start">Start Date & Time</label>
+              <div class="date-time-wrapper">
+                <input type="date" name="start_date" id="start_date" 
+                       value="{{ request('start_date') }}" 
+                       min="{{ date('Y-m-d') }}" required />
+                <input type="time" name="start_time" 
+                       value="{{ request('start_time') }}" required />
+              </div>
           </div>
-      </div>
-      
-      <div class="input__group">
-        <label for="stop">End Date & Time</label>
-          <div class="date-time-wrapper">
-            <input type="date" name="stop_date" id="stop_date" min="{{ date('Y-m-d') }}" required />
-            <input type="time" name="stop_time" required />
+          
+          <div class="input__group">
+            <label for="stop">End Date & Time</label>
+              <div class="date-time-wrapper">
+                <input type="date" name="stop_date" id="stop_date" 
+                       value="{{ request('stop_date') }}" 
+                       min="{{ date('Y-m-d') }}" required />
+                <input type="time" name="stop_time" 
+                       value="{{ request('stop_time') }}" required />
+              </div>
           </div>
-      </div>
 
           <div class="checkbox_group">
             <input type="checkbox" id="same-location" checked />
@@ -610,7 +602,7 @@
             <input type="text" id="dropoff" placeholder="Different location" />
           </div>
 
-          <button class="btn">
+          <button type="submit" class="btn">
             <i class="ri-search-line"></i>
           </button>
         </form>
@@ -743,7 +735,6 @@
     </footer>
 
     <script>
-      // Navigation Toggle
       const menuBtn = document.getElementById("menu-btn");
       const navLinks = document.getElementById("nav-links");
 
@@ -751,7 +742,6 @@
         navLinks.classList.toggle("open");
       });
 
-      // Navbar Scroll Transition
       const navbar = document.getElementById("navbar");
       window.addEventListener("scroll", () => {
         if (window.scrollY > 50) {
@@ -761,7 +751,6 @@
         }
       });
 
-      // Drop-off Location Visibility Logic (Optimized)
       const sameLocationCheckbox = document.getElementById("same-location");
       const dropoffInputGroup = document.getElementById("dropoff-input-group");
 
@@ -773,10 +762,7 @@
         }
       }
 
-      // 1. Add Event Listener
       sameLocationCheckbox.addEventListener("change", toggleDropoff);
-
-      // 2. Initial state check (Call function immediately)
       toggleDropoff();
     </script>
     <script>
