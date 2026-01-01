@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password'); //ok
 
+            $table->string('role')->default('customer');
             $table->string('matric_staff_id')->unique(); //ok
             $table->string('nric_passport'); //ok
             $table->string('driving_license')->nullable(); //ok
