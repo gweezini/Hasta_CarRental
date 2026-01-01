@@ -846,9 +846,9 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
                 <select name="selected_voucher_id" style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
                     <option value="">-- Select a Reward --</option>
                     @foreach($myVouchers as $v)
-                        <option value="{{ $v->id }}" {{ request('selected_voucher_id') == $v->id ? 'selected' : '' }}>
-                            {{ $v->name }} (RM {{ $v->amount }} Off)
-                        </option>
+                      <option value="{{ $v->id }}" {{ request('selected_voucher_id') == $v->id ? 'selected' : '' }}>
+                        {{ $v->name }} ({{ $v->label }})
+                      </option>
                     @endforeach
                 </select>
             </div>
