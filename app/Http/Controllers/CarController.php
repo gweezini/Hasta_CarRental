@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Vehicle;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class CarController extends Controller
 {
@@ -22,10 +23,9 @@ class CarController extends Controller
 
     public function create()
     {
-        $types = \Illuminate\Support\Facades\DB::table('vehicle_types')->get();
+        $types = DB::table('vehicle_types')->get();
         return view('admin.vehicle.create', compact('types'));
     }
-
 
     public function store(Request $request)
     {
@@ -43,7 +43,7 @@ class CarController extends Controller
             'insurance_expiry'  => 'nullable|date',
             'price_per_hour'    => 'required|numeric',
             'status'            => 'required|string',
-            'vehicle_image'     => 'required|nullable|image|max:2048',
+            'vehicle_image'     => 'required|image|max:2048', // 创建时还是必须要有图片的
         ]);
 
         if ($request->hasFile('vehicle_image')) {
@@ -56,7 +56,7 @@ class CarController extends Controller
     public function edit($id)
     {
         $vehicle = Vehicle::findOrFail($id);
-        $types = \Illuminate\Support\Facades\DB::table('vehicle_types')->get();
+        $types = DB::table('vehicle_types')->get();
         return view('admin.vehicle.edit', compact('vehicle', 'types'));
     }
 
@@ -78,8 +78,12 @@ class CarController extends Controller
             'insurance_expiry' => 'required|date',
             'price_per_hour' => 'required|numeric',
             'status' => 'required|string',
-            'vehicle_image' => 'required|nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'vehicle_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        if (!$request->hasFile('vehicle_image')) {
+            unset($data['vehicle_image']);
+        }
 
         if ($request->hasFile('vehicle_image')) {
             if ($vehicle->vehicle_image) {
@@ -99,7 +103,7 @@ class CarController extends Controller
         $vehicle = Vehicle::findOrFail($id);
         
         if ($vehicle->vehicle_image) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($vehicle->vehicle_image);
+            Storage::disk('public')->delete($vehicle->vehicle_image);
         }
 
         $vehicle->delete();
