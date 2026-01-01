@@ -7,6 +7,7 @@ use App\Models\Vehicle;
 use App\Models\Voucher; 
 use App\Models\Booking;
 use App\Models\LoyaltyCard;
+use App\Models\UserVoucher;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -18,10 +19,10 @@ class BookingController extends Controller
     // =========================================================
     // In BookingController.php
 
-public function show($id, Request $request)
+    public function show($id, Request $request)
 {
     $vehicle = Vehicle::findOrFail($id);
-    $myVouchers = Auth::user()->vouchers()->get();
+    $myVouchers = Auth::user()->userVouchers()->where('is_active', true)->get();
 
     // 1. Define Delivery Prices (Per Trip)
     $prices = [
@@ -61,11 +62,19 @@ public function show($id, Request $request)
             $subtotal = $hours * $vehicle->price_per_hour;
             $stamps = floor($hours / 3);
 
-            // Voucher Logic
+            // Voucher Logic (user-specific vouchers)
             if ($request->has('selected_voucher_id') && $request->selected_voucher_id) {
-                $voucher = Voucher::find($request->selected_voucher_id);
-                if ($voucher && $voucher->user_id == Auth::id()) {
-                    $discount = $voucher->amount;
+                $voucher = UserVoucher::find($request->selected_voucher_id);
+                if ($voucher && $voucher->user_id == Auth::id() && $voucher->is_active) {
+                    if ($voucher->type === 'percent') {
+                        $discount = ($subtotal * $voucher->value) / 100;
+                    } elseif ($voucher->type === 'fixed') {
+                        $discount = $voucher->value;
+                    } elseif ($voucher->type === 'free_hours') {
+                        $freeHours = (int)$voucher->value;
+                        $applicable = min($hours, $freeHours);
+                        $discount = $applicable * $vehicle->price_per_hour;
+                    }
                     $voucherMessage = "Voucher Applied: " . $voucher->name;
                 }
             } elseif ($request->has('manual_code') && $request->manual_code) {
@@ -87,7 +96,7 @@ public function show($id, Request $request)
     ));
 }
 
-public function store(Request $request)
+    public function store(Request $request)
 {
     Log::info('BookingController@store called', ['input' => $request->all()]);
     $request->validate([
@@ -141,11 +150,20 @@ public function store(Request $request)
     // 3. Calculate Discount & Voucher ID
     $discount = 0;
     $voucherId = null;
+    $userVoucher = null;
     if ($request->filled('selected_voucher_id')) {
-        $voucher = Voucher::find($request->selected_voucher_id);
-        if ($voucher && $voucher->user_id == Auth::id()) {
-            $discount = $voucher->amount;
-            $voucherId = $voucher->id;
+        $userVoucher = UserVoucher::find($request->selected_voucher_id);
+        if ($userVoucher && $userVoucher->user_id == Auth::id() && $userVoucher->is_active) {
+            if ($userVoucher->type === 'percent') {
+                $discount = ($subtotal * $userVoucher->value) / 100;
+            } elseif ($userVoucher->type === 'fixed') {
+                $discount = $userVoucher->value;
+            } elseif ($userVoucher->type === 'free_hours') {
+                $freeHours = (int)$userVoucher->value;
+                $applicable = min($hours, $freeHours);
+                $discount = $applicable * $vehicle->price_per_hour;
+            }
+            $voucherId = $userVoucher->id;
         }
     } elseif ($request->filled('manual_code')) {
          if (strtoupper($request->manual_code) === 'WELCOME10') $discount = 10;
@@ -204,6 +222,13 @@ public function store(Request $request)
             $card = Auth::user()->loyaltyCard ?? LoyaltyCard::create(['user_id' => Auth::id()]);
             $card->stamps += $stampsEarned;
             $card->save();
+        }
+
+        // 7. Mark voucher as used (if user used one)
+        if ($userVoucher) {
+            $userVoucher->is_active = false;
+            $userVoucher->used_at = now();
+            $userVoucher->save();
         }
 
         return redirect(route('profile.edit'))->with('success', 'Booking ID #' . $booking->id . ' created successfully! Awaiting payment verification.');
