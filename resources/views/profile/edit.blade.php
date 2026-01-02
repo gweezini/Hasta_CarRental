@@ -193,7 +193,7 @@
                 $allBookings = $bookings ?? collect();
                 // 筛选逻辑
                 $pastBookings = $allBookings->filter(function($b) {
-                    return in_array($b->status, ['Rejected', 'Returned', 'Completed']) || ($b->return_date_time && \Carbon\Carbon::parse($b->return_date_time)->lt(now()));
+                    return in_array($b->status, ['Rejected', 'Returned', 'Completed', 'Cancelled']) || ($b->return_date_time && \Carbon\Carbon::parse($b->return_date_time)->lt(now()));
                 });
                 $ongoingBookings = $allBookings->diff($pastBookings);
             @endphp
@@ -230,11 +230,30 @@
                                         </div>
                                     </div>
                                     <div class="mt-4 pt-4 border-t border-blue-100 flex justify-between items-center">
-                                        <div>
-                                            @if($booking->status == 'Approved' && \Carbon\Carbon::now()->diffInHours($booking->pickup_date_time, false) > 24)
-                                                <a href="{{ route('booking.edit', $booking->id) }}" class="text-sm text-white bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg transition font-medium">
-                                                    <i class="ri-edit-line mr-1"></i> Modify
-                                                </a>
+                                        <div class="flex gap-2">
+                                            @if($booking->status == 'Approved')
+                                                @php
+                                                    $now = \Carbon\Carbon::now();
+                                                    $pickup = \Carbon\Carbon::parse($booking->pickup_date_time);
+                                                    $canModify = $now->lt($pickup);
+                                                    $canCancel = $now->diffInHours($pickup, false) > 24;
+                                                @endphp
+                                                
+                                                @if($canModify)
+                                                    <a href="{{ route('booking.edit', $booking->id) }}" class="text-xs md:text-sm text-white bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded-lg transition font-medium flex items-center">
+                                                        <i class="ri-edit-line mr-1"></i> Modify
+                                                    </a>
+                                                @endif
+
+                                                @if($canCancel)
+                                                    <form action="{{ route('booking.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking? If you have made a payment, please contact us for a refund.');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-xs md:text-sm text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-2 rounded-lg transition font-medium flex items-center">
+                                                            <i class="ri-delete-bin-line mr-1"></i> Cancel
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             @endif
                                         </div>
                                         <p class="text-lg font-bold text-gray-900">RM {{ number_format($booking->total_rental_fee, 2) }}</p>
