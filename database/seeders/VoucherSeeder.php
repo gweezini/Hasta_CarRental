@@ -44,8 +44,10 @@ class VoucherSeeder extends Seeder
         );
 
         // 2. Assign to the Logged-In User (Ali Student)
-        // We try to find the specific user from the screenshot, or fall back to the first user.
-        $user = \App\Models\User::where('email', 'student@utm.my')->first() ?? \App\Models\User::first();
+        // Targeting the Matric ID from UserSeeder
+        $user = \App\Models\User::where('matric_staff_id', 'A19EC0001')->first() 
+                ?? \App\Models\User::where('email', 'student@utm.my')->first()
+                ?? \App\Models\User::first();
 
         if ($user) {
             $this->command->info("Found User: " . $user->id . " | Matric: " . $user->matric_staff_id);
