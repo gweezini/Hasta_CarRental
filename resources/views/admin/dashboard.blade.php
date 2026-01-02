@@ -148,7 +148,12 @@
                     <div>
                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Today's Revenue</p>
                         <p class="text-3xl font-extrabold text-gray-800 mt-1">RM {{ number_format($todayRevenue, 2) }}</p>
-                        <p class="text-[10px] text-green-600 font-bold mt-1">Total: RM {{ number_format($totalRevenue, 2) }}</p>
+                        
+                        @if(Auth::user()->isTopManagement())
+                            <p class="text-[10px] font-bold text-green-600 mt-1 bg-green-50 px-2 py-0.5 rounded w-fit">
+                                Total: RM {{ number_format($totalRevenue, 2) }}
+                            </p>
+                        @endif
                     </div>
                     <div class="p-3 bg-red-50 rounded-lg text-[#cd5c5c] text-2xl"><i class="ri-money-dollar-circle-line"></i></div>
                 </div>
@@ -244,19 +249,77 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // High-contrast Palette
-        const distinctPalette = ['#2E59FF', '#FFB800', '#8E44AD', '#FF5E13', '#00B8D9', '#E91E63', '#34495E', '#F39C12', '#2980B9', '#C0392B'];
+        const barColors = ['#3B82F6', '#10B981', '#F59E0B', '#6366F1', '#EC4899', '#8B5CF6', '#14B8A6', '#F97316', '#06B6D4', '#84CC16', '#D946EF', '#EAB308', '#A855F7', '#22C55E', '#64748B'];
+        const pieColors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316', '#6366F1', '#14B8A6', '#84CC16', '#D946EF', '#64748B', '#A855F7', '#EAB308'];
+
+        // Clean Labels logic
+        const rawFacultyLabels = {!! json_encode($facultyLabels) !!};
+        const cleanFacultyLabels = rawFacultyLabels.map(label => label.replace('Faculty of ', ''));
 
         new Chart(document.getElementById('facultyChart'), {
             type: 'bar',
-            data: { labels: {!! json_encode($facultyLabels) !!}, datasets: [{ data: {!! json_encode($facultyCounts) !!}, backgroundColor: distinctPalette, borderRadius: 5 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } } }
+            data: { 
+                labels: cleanFacultyLabels, 
+                datasets: [{ 
+                    data: {!! json_encode($facultyCounts) !!}, 
+                    backgroundColor: barColors, 
+                    borderRadius: 4, 
+                    barThickness: 25 
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } }, 
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: '#f3f4f6', drawBorder: false }, 
+                        ticks: { font: { size: 10, family: 'Poppins' }, color: '#6b7280' }
+                    }, 
+                    x: { 
+                        grid: { display: false },
+                        ticks: { 
+                            font: { size: 9, family: 'Poppins' }, 
+                            color: '#6b7280',
+                            autoSkip: false,
+                            maxRotation: 0,
+                            minRotation: 0
+                        } 
+                    } 
+                } 
+            }
         });
 
         new Chart(document.getElementById('collegeChart'), {
             type: 'doughnut',
-            data: { labels: {!! json_encode($collegeLabels) !!}, datasets: [{ data: {!! json_encode($collegeCounts) !!}, backgroundColor: distinctPalette, borderWidth: 2, borderColor: '#ffffff' }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { weight: 'bold', size: 10 } } } }, cutout: '70%' }
+            data: { 
+                labels: {!! json_encode($collegeLabels) !!}, 
+                datasets: [{ 
+                    data: {!! json_encode($collegeCounts) !!}, 
+                    backgroundColor: pieColors, 
+                    borderWidth: 2, 
+                    borderColor: '#ffffff',
+                    hoverOffset: 5 
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { 
+                        position: 'right', 
+                        labels: { 
+                            usePointStyle: true, 
+                            boxWidth: 8, 
+                            font: { size: 11, family: 'Poppins', weight: '500' },
+                            padding: 12, 
+                            color: '#4b5563' 
+                        } 
+                    } 
+                }, 
+                cutout: '65%' 
+            }
         });
     </script>
 </body>
