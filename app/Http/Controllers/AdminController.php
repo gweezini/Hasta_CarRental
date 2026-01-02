@@ -12,6 +12,7 @@ use App\Models\College;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\BookingStatusUpdated;
 
 class AdminController extends Controller
 {
@@ -19,19 +20,19 @@ class AdminController extends Controller
     {
         $totalRevenue = Payment::where('status', 'Verified')->sum('amount'); 
         $todayRevenue = Payment::where('status', 'Verified')
-                               ->whereDate('created_at', Carbon::today())
-                               ->sum('amount');
+                                       ->whereDate('created_at', Carbon::today())
+                                       ->sum('amount');
         $pendingCount = Booking::where('status', 'Waiting for Verification')->count();
         $totalCars = Vehicle::count();
         $totalCustomers = User::where('role', 'customer')->count();
 
         $roadTaxAlerts = Vehicle::where('road_tax_expiry', '<=', Carbon::now()->addDays(30))
-                                ->orderBy('road_tax_expiry', 'asc')
-                                ->get();
+                                        ->orderBy('road_tax_expiry', 'asc')
+                                        ->get();
 
         $insuranceAlerts = Vehicle::where('insurance_expiry', '<=', Carbon::now()->addDays(30))
-                                  ->orderBy('insurance_expiry', 'asc')
-                                  ->get();
+                                          ->orderBy('insurance_expiry', 'asc')
+                                          ->get();
 
         $facultyStats = User::where('role', 'customer')
                             ->select('faculty_id', DB::raw('count(*) as total'))
@@ -59,7 +60,7 @@ class AdminController extends Controller
         return view('admin.dashboard', compact(
             'totalRevenue', 'todayRevenue', 'pendingCount', 
             'totalCars', 'totalCustomers', 'bookings',
-            'roadTaxAlerts', 'insuranceAlerts', // 👈 两个提醒都在这里了
+            'roadTaxAlerts', 'insuranceAlerts',
             'facultyLabels', 'facultyCounts', 'collegeLabels', 'collegeCounts'
         ));
     }
@@ -151,7 +152,11 @@ class AdminController extends Controller
             $booking->payment->update(['status' => 'Verified']);
         }
 
-        return redirect()->route('admin.dashboard')->with('success', 'Booking approved successfully!');
+        if($booking->user) {
+            $booking->user->notify(new BookingStatusUpdated($booking, 'Approved'));
+        }
+
+        return redirect()->route('admin.dashboard')->with('success', 'Booking approved & User notified!');
     }
 
     public function rejectPayment($id)
@@ -163,12 +168,30 @@ class AdminController extends Controller
             $booking->payment->update(['status' => 'Rejected']);
         }
 
-        return redirect()->route('admin.dashboard')->with('error', 'Booking has been rejected.');
+        if($booking->user) {
+            $booking->user->notify(new BookingStatusUpdated($booking, 'Rejected'));
+        }
+
+        return redirect()->route('admin.dashboard')->with('error', 'Booking rejected & User notified.');
     }
 
     public function allBookings()
     {
         $bookings = Booking::with(['user', 'vehicle'])->orderBy('created_at', 'desc')->paginate(10);
         return view('admin.bookings.index', compact('bookings'));
+    }
+
+    public function markAsReturned($id)
+    {
+        try {
+            $booking = Booking::findOrFail($id);
+            
+            $booking->status = 'Completed';
+            $booking->save();
+
+            return redirect()->back()->with('success', 'Vehicle marked as returned successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
     }
 }
