@@ -431,12 +431,14 @@
                             <p class="text-gray-400 text-xs mb-4 relative z-10">Enter your code to claim special rewards.</p>
                             
                             <div class="relative z-10">
-                                <div class="flex gap-2">
-                                    <input type="text" placeholder="Entet Voucher Code" class="bg-gray-700/50 border border-gray-600 text-white text-sm rounded-lg focus:ring-[#ec5a29] focus:border-[#ec5a29] block w-full p-2.5 placeholder-gray-500 uppercase tracking-wider">
-                                    <button class="bg-[#ec5a29] hover:bg-[#d14a1e] text-white font-bold rounded-lg text-sm px-4 py-2 transition shadow-lg shadow-orange-900/20">
+                                <form action="{{ route('vouchers.redeem.code') }}" method="POST" class="flex gap-2">
+                                    @csrf
+                                    <input type="text" name="code" placeholder="ENTER VOUCHER CODE" required
+                                        class="bg-gray-700/50 border border-gray-600 text-white text-sm rounded-lg focus:ring-[#ec5a29] focus:border-[#ec5a29] block w-full p-2.5 placeholder-gray-500 uppercase tracking-wider">
+                                    <button type="submit" class="bg-[#ec5a29] hover:bg-[#d14a1e] text-white font-bold rounded-lg text-sm px-4 py-2 transition shadow-lg shadow-orange-900/20">
                                         Redeem
                                     </button>
-                                </div>
+                                </form>
                             </div>
                         </div>
 
@@ -571,6 +573,8 @@
 
             if (tabParam === 'notifications') {
                 openTab('notifications');
+            } else if (tabParam === 'rewards') {
+                openTab('rewards');
             } else if ("{{ session('status') }}" === 'profile-updated' || "{{ $errors->any() }}") {
                 openTab('personal');
             } else {
