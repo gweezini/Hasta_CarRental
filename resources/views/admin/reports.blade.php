@@ -19,7 +19,7 @@
 
     <div class="min-h-screen flex">
         
-        <aside class="w-64 bg-[#cb5c55] text-white flex flex-col fixed h-full shadow-lg z-50">
+        <aside class="w-64 bg-[#cb5c55] text-white flex flex-col fixed top-0 left-0 h-full shadow-lg z-50 overflow-y-auto">
             <div class="p-6 text-center border-b border-white/20">
                 <a href="{{ route('admin.dashboard') }}">
                     <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Hasta Logo" class="w-32 mx-auto rounded-lg shadow-sm">
@@ -50,12 +50,13 @@
                 @if(Auth::user()->isTopManagement())
                 <a href="{{ route('admin.reports') }}" 
                    class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.reports') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
-                     <i class="ri-file-chart-line mr-2"></i> Reports
+                      <i class="ri-file-chart-line mr-2"></i> Reports
                 </a>
                 @endif
-            </nav>
+                
+                </nav>
 
-            <div class="p-4 border-t border-white/20">
+            <div class="p-4 border-t border-white/20 mt-auto">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button class="w-full py-2 bg-white text-[#cb5c55] rounded hover:bg-gray-100 transition font-bold shadow-md">
