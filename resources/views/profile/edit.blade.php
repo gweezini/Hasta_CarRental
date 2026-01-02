@@ -312,10 +312,6 @@
                         15 => '12 Hours Free Rental'
                     ];
 
-                    // Mock Vouchers for "My Vouchers" section
-                    $myVouchers = [
-                        ['code' => 'WELCOME10', 'desc' => '10% Welcome Discount', 'expiry' => '2025-12-31'],
-                    ];
                 @endphp
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -405,20 +401,17 @@
                              </h3>
                              
                              <div class="space-y-3 max-h-[180px] overflow-y-auto pr-2 custom-scrollbar">
-                                @forelse($myVouchers as $voucher)
+                                @forelse($myVouchers as $userVoucher)
                                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed group hover:border-[#ec5a29] transition-colors cursor-pointer relative overflow-hidden">
                                         <div class="absolute top-0 right-0 p-1">
                                             <div class="w-16 h-16 bg-[#ec5a29]/5 rounded-full -mr-8 -mt-8"></div>
                                         </div>
                                         
                                         <div>
-                                            <p class="font-bold text-gray-800 text-sm">{{ $voucher['desc'] }}</p>
-                                            <p class="text-[10px] text-gray-400 font-mono tracking-wider mt-0.5">CODE: {{ $voucher['code'] }}</p>
-                                            <p class="text-[9px] text-red-400 mt-1">Expires {{ \Carbon\Carbon::parse($voucher['expiry'])->format('d M Y') }}</p>
+                                            <p class="font-bold text-gray-800 text-sm">{{ $userVoucher->voucher->name }}</p>
+                                            <p class="text-[10px] text-gray-400 font-mono tracking-wider mt-0.5">CODE: {{ $userVoucher->voucher->code }}</p>
+                                            <p class="text-[9px] text-red-400 mt-1">{{ $userVoucher->voucher->type == 'percent' ? $userVoucher->voucher->value . '% Off' : 'RM ' . $userVoucher->voucher->value . ' Off' }}</p>
                                         </div>
-                                        <button class="z-10 bg-white border border-gray-200 text-gray-600 hover:text-[#ec5a29] hover:border-[#ec5a29] p-1.5 rounded-md transition shadow-sm" title="Copy Code">
-                                            <i class="ri-file-copy-line"></i>
-                                        </button>
                                     </div>
                                 @empty
                                     <div class="text-center py-8 text-gray-400 bg-gray-50 rounded-lg border border-dashed">
