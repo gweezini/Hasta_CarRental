@@ -59,10 +59,6 @@
             <a href="{{ route('admin.vouchers.index') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition {{ request()->routeIs('admin.vouchers.*') ? 'bg-white/20 shadow-inner' : '' }}">
                 <i class="ri-ticket-line mr-2"></i> Vouchers
             </a>
-
-            <a href="#" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition">
-                <i class="ri-file-chart-line mr-2"></i> Reports
-            </a>
             </nav>
 
             <div class="p-4 border-t border-white/20">
