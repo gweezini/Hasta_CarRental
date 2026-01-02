@@ -538,176 +538,121 @@
       }
 
       /* Booking Page Specific Styles */
-.booking__grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 2rem;
-  align-items: flex-start;
-}
+      .booking__grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        align-items: flex-start;
+      }
 
-.booking__form {
-  background-color: var(--white);
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-}
+      .booking__form {
+        background-color: var(--white);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      }
 
-.booking__summary {
-  background-color: #f9f9f9;
-  padding: 2rem;
-  border-radius: 12px;
-  border: 1px solid var(--extra-light);
-  position: sticky;
-  top: 100px;
-}
+      .booking__summary {
+        background-color: #f9f9f9;
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px solid var(--extra-light);
+        position: sticky;
+        top: 100px;
+      }
 
-.form__section {
-  margin-bottom: 2rem;
-}
+      .form__section {
+        margin-bottom: 2rem;
+      }
 
-.form__section h3 {
-  border-bottom: 2px solid var(--primary-color);
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  font-size: 1.2rem;
-}
+      .form__section h3 {
+        border-bottom: 2px solid var(--primary-color);
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+      }
 
-/* Responsive for Mobile */
-/* Responsive for Mobile */
-/* Responsive for Mobile & Tablet */
-/* Responsive for Mobile & Tablet */
-@media (max-width: 992px) {
-  .booking__grid {
-    grid-template-columns: 1fr !important;
-  }
+      /* Custom Radio Circle for CSS-only toggle */
+      .radio-circle {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ccc;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-  .booking__summary {
-    position: static !important;
-    margin-top: 2rem !important;
-    
-    /* Force these colors to apply */
-    background-color: #fff8f5 !important; 
-    border: 2px solid #ec5a29 !important;
-    box-shadow: 0 8px 20px rgba(236, 90, 41, 0.15) !important;
-    
-    z-index: 100 !important;
-    display: block !important;
-    width: 100% !important;
-  }
-}
+      /* Checked State */
+      input[type="radio"]:checked + .payment-label-content .radio-circle {
+        border-color: var(--primary-color);
+      }
+      input[type="radio"]:checked
+        + .payment-label-content
+        .radio-circle::after {
+        content: "";
+        width: 10px;
+        height: 10px;
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        display: block;
+      }
 
-/* Custom Radio Circle for CSS-only toggle */
-.radio-circle {
-    width: 20px; 
-    height: 20px; 
-    border: 2px solid #ccc; 
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Checked State */
-input[type="radio"]:checked + .payment-label-content .radio-circle {
-    border-color: var(--primary-color);
-}
-input[type="radio"]:checked + .payment-label-content .radio-circle::after {
-    content: "";
-    width: 10px;
-    height: 10px;
-    background-color: var(--primary-color);
-    border-radius: 50%;
-    display: block;
-}
-
-/* --- PASTE THIS TO REPLACE THE BOTTOM CHUNK OF YOUR CSS --- */
-
-.form__section h3 {
-  border-bottom: 2px solid var(--primary-color);
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  font-size: 1.2rem;
-}
-
-/* Custom Radio Circle for CSS-only toggle */
-.radio-circle {
-    width: 20px; 
-    height: 20px; 
-    border: 2px solid #ccc; 
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Checked State */
-input[type="radio"]:checked + .payment-label-content .radio-circle {
-    border-color: var(--primary-color);
-}
-input[type="radio"]:checked + .payment-label-content .radio-circle::after {
-    content: "";
-    width: 10px;
-    height: 10px;
-    background-color: var(--primary-color);
-    border-radius: 50%;
-    display: block;
-}
-
-/* =========================================
+      /* =========================================
    MOBILE RESPONSIVE STYLES (The Fix)
    ========================================= */
-@media (max-width: 992px) {
-  /* 1. Stack the layout */
-  .booking__grid {
-    grid-template-columns: 1fr !important;
-  }
+      @media (max-width: 992px) {
+        /* 1. Stack the layout */
+        .booking__grid {
+          grid-template-columns: 1fr !important;
+        }
 
-  /* 2. Style the Summary Box to be visible */
-  .booking__summary {
-    position: static !important;
-    margin-top: 2rem !important;
-    
-    /* Colors and Borders */
-    background-color: #fff8f5 !important; 
-    border: 2px solid #ec5a29 !important;
-    box-shadow: 0 8px 20px rgba(236, 90, 41, 0.15) !important;
-    
-    /* Ensure visibility */
-    z-index: 100 !important;
-    display: block !important;
-    width: 100% !important;
-    padding: 1.5rem !important;
-    border-radius: 12px !important;
-  }
-  
-  /* 3. Make the total price text larger on mobile */
-  .booking__summary strong {
-    font-size: 1.4rem !important;
-  }
-}
+        /* 2. Style the Summary Box to be visible */
+        .booking__summary {
+          position: static !important;
+          margin-top: 2rem !important;
 
-  /* Ensure typed form text is dark for readability */
-  input[type="text"],
-  input[type="tel"],
-  input[type="datetime-local"],
-  input[type="date"],
-  input[type="time"],
-  input[type="file"],
-  input[type="search"],
-  select,
-  textarea {
-    color: #111 !important;
-  }
+          /* Colors and Borders */
+          background-color: #fff8f5 !important;
+          border: 2px solid #ec5a29 !important;
+          box-shadow: 0 8px 20px rgba(236, 90, 41, 0.15) !important;
 
-  /* keep placeholders light */
-  input::placeholder,
-  textarea::placeholder {
-    color: #999 !important;
-  }
+          /* Ensure visibility */
+          z-index: 100 !important;
+          display: block !important;
+          width: 100% !important;
+          padding: 1.5rem !important;
+          border-radius: 12px !important;
+        }
+
+        /* 3. Make the total price text larger on mobile */
+        .booking__summary strong {
+          font-size: 1.4rem !important;
+        }
+      }
+
+      /* Ensure typed form text is dark for readability */
+      input[type="text"],
+      input[type="tel"],
+      input[type="datetime-local"],
+      input[type="date"],
+      input[type="time"],
+      input[type="file"],
+      input[type="search"],
+      select,
+      textarea {
+        color: #111 !important;
+      }
+
+      /* keep placeholders light */
+      input::placeholder,
+      textarea::placeholder {
+        color: #999 !important;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <header>
       <nav id="navbar">
         <div class="nav__header">
@@ -726,388 +671,622 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
           <li><a href="#contact">Contact</a></li>
           <li><a href="#about">About Us</a></li>
 
-<li class="mobile-only">
+          <li class="mobile-only">
             <a href="{{ route('profile.edit') }}">Profile</a>
           </li>
 
           <li class="mobile-only">
-             <form method="POST" action="{{ route('logout') }}" class="inline">
-                @csrf
-                <button type="submit" style="background:none; border:none; padding:0; color:inherit; font:inherit; cursor:pointer;">
-                    Logout
-                </button>
-             </form>
+            <form method="POST" action="{{ route('logout') }}" class="inline">
+              @csrf
+              <button
+                type="submit"
+                style="background:none; border:none; padding:0; color:inherit; font:inherit; cursor:pointer;"
+              >
+                Logout
+              </button>
+            </form>
           </li>
         </ul>
 
         <div class="nav__btn">
-          
           <a href="{{ route('profile.edit') }}" class="btn btn-transparent">
-             Profile
+            Profile
           </a>
 
-          <form method="POST" action="{{ route('logout') }}" style="display: inline-block;">
+          <form
+            method="POST"
+            action="{{ route('logout') }}"
+            style="display: inline-block;"
+          >
             @csrf
             <button type="submit" class="btn btn-primary" style="padding: 20px">
-                Logout
+              Logout
             </button>
           </form>
-
         </div>
       </nav>
       <section class="section__container">
-        <br><br><br><br><br>
-  <h2 class="section__header" style="text-align: left; margin-bottom: 2rem; color: #ffb273ff">Complete Your Booking</h2>
-  
-  <div class="booking__grid">
-  
-  <div class="booking__form">
-   <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" enctype="multipart/form-data">
-      @csrf
-      
-      <input type="hidden" name="vehicle_id" value="{{ $vehicle->id }}">
+        <br /><br /><br /><br /><br />
+        <h2
+          class="section__header"
+          style="text-align: left; margin-bottom: 2rem; color: #ffb273ff"
+        >
+          Complete Your Booking
+        </h2>
 
-      <div class="form__section">
-        <h3><i class="ri-calendar-check-line"></i> Rental Period</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div class="input__group">
-                <label>Start Date</label>
-                <input type="datetime-local" name="start_time" value="{{ request('start_time') }}" required />
-            </div>
-            <div class="input__group">
-                <label>End Date</label>
-                <input type="datetime-local" name="end_time" value="{{ request('end_time') }}" required />
-            </div>
-        </div>
-      </div>
+        <div class="booking__grid">
+          <div class="booking__form">
+            <form
+              id="bookingForm"
+              action="{{ route('booking.store') }}"
+              method="POST"
+              enctype="multipart/form-data"
+            >
+              @csrf
 
-      <div class="form__section">
-    <h3><i class="ri-map-pin-line"></i> Pickup & Dropoff</h3>
-    <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
-        Additional fees apply for delivery outside Student Mall.
-    </p>
-    
-    <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
-        <div class="input__group">
-            <label>Pickup Location</label>
-            <select name="pickup_location" id="pickup_location" onchange="handlePickupChange()" required style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
-                <option value="office" {{ $pickupLoc == 'office' ? 'selected' : '' }}>Student Mall (Free)</option>
-                <option value="campus" {{ $pickupLoc == 'campus' ? 'selected' : '' }}>In Campus (+RM 2.50)</option>
-                <option value="taman_u" {{ $pickupLoc == 'taman_u' ? 'selected' : '' }}>Taman Universiti (+RM 7.50)</option>
-                <option value="jb" {{ $pickupLoc == 'jb' ? 'selected' : '' }}>Other Area JB (+RM 25)</option>
-            </select>
-        </div>
+              <input type="hidden" name="vehicle_id" value="{{ $vehicle->id }}" />
 
-        <!-- Custom Pickup Address (shown if not Student Mall) -->
-        <div class="input__group" id="custom_pickup_group" style="display: none;">
-            <label>Specific Pickup Address</label>
-            <input type="text" name="custom_pickup_address" id="custom_pickup_address" placeholder="Enter your specific pickup address" style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;" />
-        </div>
+              <div class="form__section">
+                <h3><i class="ri-calendar-check-line"></i> Rental Period</h3>
+                <div
+                  style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;"
+                >
+                  <div class="input__group">
+                    <label>Start Date</label>
+                    {{-- 🔥 修复重点：如果 URL 里有 start_date 和 start_time，自动合并成 'YYYY-MM-DDTHH:MM' 填入 --}}
+                    <input
+                      type="datetime-local"
+                      name="start_time"
+                      value="{{ request('start_date') && request('start_time') ? request('start_date').'T'.request('start_time') : request('start_time') }}"
+                      required
+                    />
+                  </div>
+                  <div class="input__group">
+                    <label>End Date</label>
+                    {{-- 🔥 修复重点：同上，自动合并 stop_date 和 stop_time --}}
+                    <input
+                      type="datetime-local"
+                      name="end_time"
+                      value="{{ request('stop_date') && request('stop_time') ? request('stop_date').'T'.request('stop_time') : request('end_time') }}"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
 
-        <!-- Checkbox for Same Location -->
-        <div style="display: flex; align-items: center; gap: 10px; margin: 1rem 0;">
-            <input type="checkbox" id="same_location_checkbox" checked onchange="handleSameLocationChange()" />
-            <label for="same_location_checkbox" style="margin: 0; cursor: pointer;">Drop off location same as pick up location</label>
-        </div>
+              <div class="form__section">
+                <h3><i class="ri-map-pin-line"></i> Pickup & Dropoff</h3>
+                <p
+                  style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;"
+                >
+                  Additional fees apply for delivery outside Student Mall.
+                </p>
 
-        <!-- Hidden input to always submit dropoff_location -->
-        <input type="hidden" name="dropoff_location" id="dropoff_location_hidden" value="office" />
+                <div
+                  style="display: grid; grid-template-columns: 1fr; gap: 1rem;"
+                >
+                  <div class="input__group">
+                    <label>Pickup Location</label>
+                    <select
+                      name="pickup_location"
+                      id="pickup_location"
+                      onchange="handlePickupChange()"
+                      required
+                      style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;"
+                    >
+                      <option
+                        value="office"
+                        {{ $pickupLoc == 'office' ? 'selected' : '' }}
+                        >Student Mall (Free)</option
+                      >
+                      <option
+                        value="campus"
+                        {{ $pickupLoc == 'campus' ? 'selected' : '' }}
+                        >In Campus (+RM 2.50)</option
+                      >
+                      <option
+                        value="taman_u"
+                        {{ $pickupLoc == 'taman_u' ? 'selected' : '' }}
+                        >Taman Universiti (+RM 7.50)</option
+                      >
+                      <option
+                        value="jb"
+                        {{ $pickupLoc == 'jb' ? 'selected' : '' }}
+                        >Other Area JB (+RM 25)</option
+                      >
+                    </select>
+                  </div>
 
-        <!-- Dropoff Location (hidden by default, shown if checkbox unchecked) -->
-        <div id="dropoff_section" style="display: none;">
-            <div class="input__group">
-                <label>Dropoff Location</label>
-                <select name="dropoff_location" id="dropoff_location" onchange="handleDropoffChange()" style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
-                    <option value="">-- Select Dropoff Location --</option>
-                    <option value="office" {{ $dropoffLoc == 'office' ? 'selected' : '' }}>Student Mall (Free)</option>
-                    <option value="campus" {{ $dropoffLoc == 'campus' ? 'selected' : '' }}>In Campus (+RM 2.50)</option>
-                    <option value="taman_u" {{ $dropoffLoc == 'taman_u' ? 'selected' : '' }}>Taman Universiti (+RM 7.50)</option>
-                    <option value="jb" {{ $dropoffLoc == 'jb' ? 'selected' : '' }}>Other Area JB (+RM 25)</option>
-                </select>
-            </div>
+                  <div
+                    class="input__group"
+                    id="custom_pickup_group"
+                    style="display: none;"
+                  >
+                    <label>Specific Pickup Address</label>
+                    <input
+                      type="text"
+                      name="custom_pickup_address"
+                      id="custom_pickup_address"
+                      placeholder="Enter your specific pickup address"
+                      style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;"
+                    />
+                  </div>
 
-            <!-- Custom Dropoff Address (shown if not Student Mall) -->
-            <div class="input__group" id="custom_dropoff_group" style="display: none;">
-                <label>Specific Dropoff Address</label>
-                <input type="text" name="custom_dropoff_address" id="custom_dropoff_address" placeholder="Enter your specific dropoff address" style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;" />
-            </div>
-        </div>
-    </div>
-</div>
-      <div class="form__section">
-        <h3><i class="ri-ticket-line"></i> Vouchers</h3>
-        <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
-            Select a claimed voucher OR enter a code.
-        </p>
+                  <div
+                    style="display: flex; align-items: center; gap: 10px; margin: 1rem 0;"
+                  >
+                    <input
+                      type="checkbox"
+                      id="same_location_checkbox"
+                      checked
+                      onchange="handleSameLocationChange()"
+                    />
+                    <label
+                      for="same_location_checkbox"
+                      style="margin: 0; cursor: pointer;"
+                      >Drop off location same as pick up location</label
+                    >
+                  </div>
 
-        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
-            <div class="input__group">
-                <label>My Rewards</label>
-                <select name="selected_voucher_id" style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
-                    <option value="">-- Select a Reward --</option>
-                    @foreach($myVouchers as $v)
-                      <option value="{{ $v->id }}" {{ request('selected_voucher_id') == $v->id ? 'selected' : '' }}>
+                  <input
+                    type="hidden"
+                    name="dropoff_location"
+                    id="dropoff_location_hidden"
+                    value="office"
+                  />
+
+                  <div id="dropoff_section" style="display: none;">
+                    <div class="input__group">
+                      <label>Dropoff Location</label>
+                      <select
+                        name="dropoff_location"
+                        id="dropoff_location"
+                        onchange="handleDropoffChange()"
+                        style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;"
+                      >
+                        <option value="">-- Select Dropoff Location --</option>
+                        <option
+                          value="office"
+                          {{ $dropoffLoc == 'office' ? 'selected' : '' }}
+                          >Student Mall (Free)</option
+                        >
+                        <option
+                          value="campus"
+                          {{ $dropoffLoc == 'campus' ? 'selected' : '' }}
+                          >In Campus (+RM 2.50)</option
+                        >
+                        <option
+                          value="taman_u"
+                          {{ $dropoffLoc == 'taman_u' ? 'selected' : '' }}
+                          >Taman Universiti (+RM 7.50)</option
+                        >
+                        <option
+                          value="jb"
+                          {{ $dropoffLoc == 'jb' ? 'selected' : '' }}
+                          >Other Area JB (+RM 25)</option
+                        >
+                      </select>
+                    </div>
+
+                    <div
+                      class="input__group"
+                      id="custom_dropoff_group"
+                      style="display: none;"
+                    >
+                      <label>Specific Dropoff Address</label>
+                      <input
+                        type="text"
+                        name="custom_dropoff_address"
+                        id="custom_dropoff_address"
+                        placeholder="Enter your specific dropoff address"
+                        style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form__section">
+                <h3><i class="ri-ticket-line"></i> Vouchers</h3>
+                <p
+                  style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;"
+                >
+                  Select a claimed voucher OR enter a code.
+                </p>
+
+                <div
+                  style="display: grid; grid-template-columns: 1fr; gap: 1rem;"
+                >
+                  <div class="input__group">
+                    <label>My Rewards</label>
+                    <select
+                      name="selected_voucher_id"
+                      style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;"
+                    >
+                      <option value="">-- Select a Reward --</option>
+                      @foreach($myVouchers as $v)
+                      <option
+                        value="{{ $v->id }}"
+                        {{ request('selected_voucher_id') == $v->id ? 'selected' : '' }}
+                      >
                         {{ $v->name }} ({{ $v->label }})
                       </option>
-                    @endforeach
-                </select>
-            </div>
+                      @endforeach
+                    </select>
+                  </div>
 
-            <div class="input__group">
-                <label>Or Enter Promo Code</label>
-                <input type="text" name="manual_code" value="{{ request('manual_code') }}" placeholder="e.g. HASTA2024" style="text-transform: uppercase;">
-            </div>
-        </div>
-
-        <button 
-            type="button" 
-            onclick="updatePrice()"
-            class="btn btn-transparent" 
-            style="margin-top: 15px; width: 100%; border: 1px solid var(--primary-color); color: var(--primary-color);">
-            <i class="ri-refresh-line"></i> Apply Voucher & Update Price
-        </button>
-        <small style="color: red; display: block; margin-top: 5px;">* Apply voucher BEFORE uploading receipt/license.</small>
-      </div>
-
-      <div class="form__section">
-        <h3><i class="ri-user-line"></i> Personal Information</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div class="input__group">
-            <label>Full Name</label>
-            <input type="text" name="name" value="{{ Auth::user()->name }}" required />
-          </div>
-          <div class="input__group">
-            <label>Phone Number</label>
-            <input type="tel" name="phone" value="{{ Auth::user()->phone }}" placeholder="+60..." required />
-          </div>
-        </div>
-      </div>
-
-      <div class="form__section">
-        <h3><i class="ri-alarm-warning-line"></i> Emergency Contact</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div class="input__group">
-                <label>Contact Name</label>
-                <input type="text" name="emergency_name" value="{{ Auth::user()->emergency_name }}" required />
-            </div>
-            <div class="input__group">
-                <label>Contact Number</label>
-                <input type="tel" name="emergency_contact" value="{{ Auth::user()->emergency_contact }}" required />
-            </div>
-        </div>
-        <div class="input__group" style="margin-top: 1rem;">
-            <label>Relationship</label>
-            <input type="text" name="emergency_relationship" value="{{ Auth::user()->emergency_relationship }}" required />
-        </div>
-      </div>
-
-      <div class="form__section">
-        <h3><i class="ri-bank-card-line"></i> Payment Method</h3>
-        
-        <div class="payment-card">
-            <input type="radio" name="payment_method" id="pay-qr" value="qr_pay" checked style="display: none;">
-            <label for="pay-qr" class="payment-label-content">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div class="radio-circle"></div>
-                    <div style="flex: 1;"><strong>DuitNow QR</strong></div>
-                    <i class="ri-qr-code-line" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+                  <div class="input__group">
+                    <label>Or Enter Promo Code</label>
+                    <input
+                      type="text"
+                      name="manual_code"
+                      value="{{ request('manual_code') }}"
+                      placeholder="e.g. HASTA2024"
+                      style="text-transform: uppercase;"
+                    />
+                  </div>
                 </div>
-                <div class="payment-details-box" style="text-align: center;">
-                    <img src="{{ asset('images/paymentqr.png') }}" alt="QR" style="max-width: 200px;">
-                </div>
-            </label>
-        </div>
 
-        <div class="payment-card">
-            <input type="radio" name="payment_method" id="pay-bank" value="bank_transfer" style="display: none;">
-            <label for="pay-bank" class="payment-label-content">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                     <div class="radio-circle"></div>
-                    <div style="flex: 1;"><strong>Manual Transfer</strong></div>
-                    <i class="ri-bank-line" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+                <button
+                  type="button"
+                  onclick="updatePrice()"
+                  class="btn btn-transparent"
+                  style="margin-top: 15px; width: 100%; border: 1px solid var(--primary-color); color: var(--primary-color);"
+                >
+                  <i class="ri-refresh-line"></i> Apply Voucher & Update Price
+                </button>
+                <small style="color: red; display: block; margin-top: 5px;"
+                  >* Apply voucher BEFORE uploading receipt/license.</small
+                >
+              </div>
+
+              <div class="form__section">
+                <h3><i class="ri-user-line"></i> Personal Information</h3>
+                <div
+                  style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;"
+                >
+                  <div class="input__group">
+                    <label>Full Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value="{{ Auth::user()->name }}"
+                      required
+                    />
+                  </div>
+                  <div class="input__group">
+                    <label>Phone Number</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value="{{ Auth::user()->phone }}"
+                      placeholder="+60..."
+                      required
+                    />
+                  </div>
                 </div>
-                <div class="payment-details-box">
-                    <div style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid var(--primary-color);">
-                        <p><strong>CIMB Bank</strong> | Hasta Car Rental</p>
-                        <p style="font-size: 1.1rem; color: var(--primary-color); font-weight: 700;">8600123456</p>
+              </div>
+
+              <div class="form__section">
+                <h3><i class="ri-alarm-warning-line"></i> Emergency Contact</h3>
+                <div
+                  style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;"
+                >
+                  <div class="input__group">
+                    <label>Contact Name</label>
+                    <input
+                      type="text"
+                      name="emergency_name"
+                      value="{{ Auth::user()->emergency_name }}"
+                      required
+                    />
+                  </div>
+                  <div class="input__group">
+                    <label>Contact Number</label>
+                    <input
+                      type="tel"
+                      name="emergency_contact"
+                      value="{{ Auth::user()->emergency_contact }}"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="input__group" style="margin-top: 1rem;">
+                  <label>Relationship</label>
+                  <input
+                    type="text"
+                    name="emergency_relationship"
+                    value="{{ Auth::user()->emergency_relationship }}"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form__section">
+                <h3><i class="ri-bank-card-line"></i> Payment Method</h3>
+
+                <div class="payment-card">
+                  <input
+                    type="radio"
+                    name="payment_method"
+                    id="pay-qr"
+                    value="qr_pay"
+                    checked
+                    style="display: none;"
+                  />
+                  <label for="pay-qr" class="payment-label-content">
+                    <div
+                      style="display: flex; align-items: center; gap: 15px;"
+                    >
+                      <div class="radio-circle"></div>
+                      <div style="flex: 1;"><strong>DuitNow QR</strong></div>
+                      <i
+                        class="ri-qr-code-line"
+                        style="font-size: 1.5rem; color: var(--primary-color);"
+                      ></i>
                     </div>
+                    <div
+                      class="payment-details-box"
+                      style="text-align: center;"
+                    >
+                      <img
+                        src="{{ asset('images/paymentqr.png') }}"
+                        alt="QR"
+                        style="max-width: 200px;"
+                      />
+                    </div>
+                  </label>
                 </div>
-            </label>
+
+                <div class="payment-card">
+                  <input
+                    type="radio"
+                    name="payment_method"
+                    id="pay-bank"
+                    value="bank_transfer"
+                    style="display: none;"
+                  />
+                  <label for="pay-bank" class="payment-label-content">
+                    <div
+                      style="display: flex; align-items: center; gap: 15px;"
+                    >
+                      <div class="radio-circle"></div>
+                      <div style="flex: 1;">
+                        <strong>Manual Transfer</strong>
+                      </div>
+                      <i
+                        class="ri-bank-line"
+                        style="font-size: 1.5rem; color: var(--primary-color);"
+                      ></i>
+                    </div>
+                    <div class="payment-details-box">
+                      <div
+                        style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid var(--primary-color);"
+                      >
+                        <p><strong>CIMB Bank</strong> | Hasta Car Rental</p>
+                        <p
+                          style="font-size: 1.1rem; color: var(--primary-color); font-weight: 700;"
+                        >
+                          8600123456
+                        </p>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="input__group" style="margin-top: 1rem;">
+                  <label>Upload Payment Receipt</label>
+                  <input
+                    type="file"
+                    name="receipt_image"
+                    required
+                    accept="image/*, .pdf"
+                  />
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Confirm Booking
+              </button>
+              {{-- ERROR DISPLAY BLOCK --}}
+              @if ($errors->any())
+              <div
+                style="background-color: #ffe6e6; border: 1px solid #d93025; color: #d93025; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;"
+              >
+                <h4 style="margin: 0 0 0.5rem 0; font-weight: bold;">
+                  <i class="ri-error-warning-line"></i> Please fix the
+                  following:
+                </h4>
+                <ul style="margin-left: 1.5rem; list-style: disc;">
+                  @foreach ($errors->all() as $error)
+                  <li>{{ $error }}</li>
+                  @endforeach
+                </ul>
+              </div>
+              @endif
+            </form>
+          </div>
+
+          <div class="booking__summary">
+            <h3>Booking Summary</h3>
+            <img
+              src="{{ asset('images/' . $vehicle->vehicle_image) }}"
+              alt="Car"
+              style="border-radius: 8px; margin-bottom: 1rem; width: 100%; object-fit: cover;"
+            />
+
+            <div
+              style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"
+            >
+              <span>Rate</span>
+              <strong>RM {{ $vehicle->price_per_hour }} / hr</strong>
+            </div>
+
+            <div
+              style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"
+            >
+              <span>Duration</span>
+              <strong>{{ $hours ?? 0 }} hours</strong>
+            </div>
+
+            <div
+              style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"
+            >
+              <span>Subtotal</span>
+              <strong>RM {{ number_format($subtotal ?? 0, 2) }}</strong>
+            </div>
+
+            @if(isset($deliveryFee) && $deliveryFee > 0)
+            <div
+              style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--primary-color);"
+            >
+              <span>Delivery Fee</span>
+              <strong>+ RM {{ number_format($deliveryFee, 2) }}</strong>
+            </div>
+            @endif @if(isset($discount) && $discount > 0)
+            <div
+              style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #28a745;"
+            >
+              <span>Discount</span>
+              <strong>- RM {{ number_format($discount, 2) }}</strong>
+            </div>
+            @endif
+            <hr style="margin: 1rem 0; opacity: 0.2;" />
+
+            <div
+              style="display: flex; justify-content: space-between; font-size: 1.4rem; color: var(--primary-color);"
+            >
+              <span>Total</span>
+              <strong>RM {{ number_format($total ?? 0, 2) }}</strong>
+            </div>
+          </div>
         </div>
 
-        <div class="input__group" style="margin-top: 1rem;">
-            <label>Upload Payment Receipt</label>
-            <input type="file" name="receipt_image" required accept="image/*, .pdf" />
-        </div>
-      </div>
+        <script>
+          // --- 1. MOBILE MENU LOGIC (Add This) ---
+          const menuBtn = document.getElementById("menu-btn");
+          const navLinks = document.getElementById("nav-links");
+          const menuBtnIcon = menuBtn.querySelector("i");
 
-      <button type="submit" class="btn btn-primary">Confirm Booking</button>
-    {{-- ERROR DISPLAY BLOCK --}}
-@if ($errors->any())
-    <div style="background-color: #ffe6e6; border: 1px solid #d93025; color: #d93025; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
-        <h4 style="margin: 0 0 0.5rem 0; font-weight: bold;">
-            <i class="ri-error-warning-line"></i> Please fix the following:
-        </h4>
-        <ul style="margin-left: 1.5rem; list-style: disc;">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-    </form>
-  </div>
+          menuBtn.addEventListener("click", (e) => {
+            navLinks.classList.toggle("open");
 
-  <div class="booking__summary">
-    <h3>Booking Summary</h3>
-    <img src="{{ asset('images/' . $vehicle->vehicle_image) }}" alt="Car" style="border-radius: 8px; margin-bottom: 1rem; width: 100%; object-fit: cover;">
-    
-    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-        <span>Rate</span>
-        <strong>RM {{ $vehicle->price_per_hour }} / hr</strong>
-    </div>
+            const isOpen = navLinks.classList.contains("open");
+            menuBtnIcon.setAttribute(
+              "class",
+              isOpen ? "ri-close-line" : "ri-menu-line"
+            );
+          });
 
-    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-        <span>Duration</span>
-        <strong>{{ $hours ?? 0 }} hours</strong>
-    </div>
+          // Close menu when a link is clicked
+          navLinks.addEventListener("click", (e) => {
+            navLinks.classList.remove("open");
+            menuBtnIcon.setAttribute("class", "ri-menu-line");
+          });
 
-    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-        <span>Subtotal</span>
-        <strong>RM {{ number_format($subtotal ?? 0, 2) }}</strong>
-    </div>
+          // --- 2. NAVBAR SCROLL EFFECT ---
+          const navbar = document.getElementById("navbar");
+          window.addEventListener("scroll", () => {
+            if (window.scrollY > 50) {
+              navbar.classList.add("nav__fixed");
+            } else {
+              navbar.classList.remove("nav__fixed");
+            }
+          });
 
-    @if(isset($deliveryFee) && $deliveryFee > 0)
-    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--primary-color);">
-        <span>Delivery Fee</span>
-        <strong>+ RM {{ number_format($deliveryFee, 2) }}</strong>
-    </div>
-    @endif
-    
-    @if(isset($discount) && $discount > 0)
-    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #28a745;">
-        <span>Discount</span>
-        <strong>- RM {{ number_format($discount, 2) }}</strong>
-    </div>
-    @endif
-    <hr style="margin: 1rem 0; opacity: 0.2;">
+          // --- 3. PICKUP & DROPOFF LOCATION LOGIC ---
+          function handlePickupChange() {
+            const pickupValue = document.getElementById("pickup_location")
+              .value;
+            const customPickupGroup = document.getElementById(
+              "custom_pickup_group"
+            );
+            const customPickupInput = document.getElementById(
+              "custom_pickup_address"
+            );
 
-    <div style="display: flex; justify-content: space-between; font-size: 1.4rem; color: var(--primary-color);">
-        <span>Total</span>
-        <strong>RM {{ number_format($total ?? 0, 2) }}</strong>
-    </div>
-  </div>
-</div>
+            if (pickupValue !== "office") {
+              customPickupGroup.style.display = "block";
+              customPickupInput.setAttribute("required", "required");
+            } else {
+              customPickupGroup.style.display = "none";
+              customPickupInput.removeAttribute("required");
+              customPickupInput.value = "";
+            }
+          }
 
-<script>
-    // --- 1. MOBILE MENU LOGIC (Add This) ---
-    const menuBtn = document.getElementById("menu-btn");
-    const navLinks = document.getElementById("nav-links");
-    const menuBtnIcon = menuBtn.querySelector("i");
+          function handleDropoffChange() {
+            const dropoffValue = document.getElementById("dropoff_location")
+              .value;
+            const dropoffHidden = document.getElementById(
+              "dropoff_location_hidden"
+            );
+            const customDropoffGroup = document.getElementById(
+              "custom_dropoff_group"
+            );
+            const customDropoffInput = document.getElementById(
+              "custom_dropoff_address"
+            );
 
-    menuBtn.addEventListener("click", (e) => {
-        navLinks.classList.toggle("open");
+            // Always sync the hidden input
+            dropoffHidden.value = dropoffValue;
 
-        const isOpen = navLinks.classList.contains("open");
-        menuBtnIcon.setAttribute("class", isOpen ? "ri-close-line" : "ri-menu-line");
-    });
+            if (dropoffValue !== "office") {
+              customDropoffGroup.style.display = "block";
+              customDropoffInput.setAttribute("required", "required");
+            } else {
+              customDropoffGroup.style.display = "none";
+              customDropoffInput.removeAttribute("required");
+              customDropoffInput.value = "";
+            }
+          }
 
-    // Close menu when a link is clicked
-    navLinks.addEventListener("click", (e) => {
-        navLinks.classList.remove("open");
-        menuBtnIcon.setAttribute("class", "ri-menu-line");
-    });
+          function handleSameLocationChange() {
+            const checkbox = document.getElementById("same_location_checkbox");
+            const dropoffSection = document.getElementById("dropoff_section");
+            const dropoffSelect = document.getElementById("dropoff_location");
+            const dropoffHidden = document.getElementById(
+              "dropoff_location_hidden"
+            );
+            const pickupValue = document.getElementById("pickup_location")
+              .value;
 
-    // --- 2. NAVBAR SCROLL EFFECT ---
-    const navbar = document.getElementById("navbar");
-    window.addEventListener("scroll", () => {
-        if (window.scrollY > 50) {
-            navbar.classList.add("nav__fixed");
-        } else {
-            navbar.classList.remove("nav__fixed");
-        }
-    });
+            if (checkbox.checked) {
+              dropoffSection.style.display = "none";
+              dropoffSelect.removeAttribute("required");
+              // Remove name so it does not override the hidden input on submit
+              dropoffSelect.removeAttribute("name");
+              dropoffSelect.value = "";
+              dropoffHidden.value = pickupValue; // Set to same as pickup
+              document.getElementById("custom_dropoff_address").value = "";
+              document.getElementById("custom_dropoff_group").style.display =
+                "none";
+            } else {
+              dropoffSection.style.display = "block";
+              dropoffSelect.setAttribute("required", "required");
+              // Ensure the select will submit its value when visible
+              dropoffSelect.setAttribute("name", "dropoff_location");
+              dropoffHidden.value = dropoffSelect.value;
+            }
+          }
 
-    // --- 3. PICKUP & DROPOFF LOCATION LOGIC ---
-    function handlePickupChange() {
-        const pickupValue = document.getElementById("pickup_location").value;
-        const customPickupGroup = document.getElementById("custom_pickup_group");
-        const customPickupInput = document.getElementById("custom_pickup_address");
-        
-        if (pickupValue !== "office") {
-            customPickupGroup.style.display = "block";
-            customPickupInput.setAttribute("required", "required");
-        } else {
-            customPickupGroup.style.display = "none";
-            customPickupInput.removeAttribute("required");
-            customPickupInput.value = "";
-        }
-    }
+          // Initialize on page load
+          document.addEventListener("DOMContentLoaded", function () {
+            handlePickupChange();
+            handleSameLocationChange();
+          });
 
-    function handleDropoffChange() {
-        const dropoffValue = document.getElementById("dropoff_location").value;
-        const dropoffHidden = document.getElementById("dropoff_location_hidden");
-        const customDropoffGroup = document.getElementById("custom_dropoff_group");
-        const customDropoffInput = document.getElementById("custom_dropoff_address");
-        
-        // Always sync the hidden input
-        dropoffHidden.value = dropoffValue;
-        
-        if (dropoffValue !== "office") {
-            customDropoffGroup.style.display = "block";
-            customDropoffInput.setAttribute("required", "required");
-        } else {
-            customDropoffGroup.style.display = "none";
-            customDropoffInput.removeAttribute("required");
-            customDropoffInput.value = "";
-        }
-    }
-
-    function handleSameLocationChange() {
-        const checkbox = document.getElementById("same_location_checkbox");
-        const dropoffSection = document.getElementById("dropoff_section");
-        const dropoffSelect = document.getElementById("dropoff_location");
-        const dropoffHidden = document.getElementById("dropoff_location_hidden");
-        const pickupValue = document.getElementById("pickup_location").value;
-        
-        if (checkbox.checked) {
-            dropoffSection.style.display = "none";
-        dropoffSelect.removeAttribute("required");
-        // Remove name so it does not override the hidden input on submit
-        dropoffSelect.removeAttribute('name');
-        dropoffSelect.value = "";
-        dropoffHidden.value = pickupValue; // Set to same as pickup
-            document.getElementById("custom_dropoff_address").value = "";
-            document.getElementById("custom_dropoff_group").style.display = "none";
-        } else {
-            dropoffSection.style.display = "block";
-        dropoffSelect.setAttribute("required", "required");
-        // Ensure the select will submit its value when visible
-        dropoffSelect.setAttribute('name', 'dropoff_location');
-        dropoffHidden.value = dropoffSelect.value;
-        }
-    }
-
-    // Initialize on page load
-    document.addEventListener("DOMContentLoaded", function() {
-        handlePickupChange();
-        handleSameLocationChange();
-    });
-
-    // --- 4. EXISTING PRICE UPDATE LOGIC ---
-    function updatePrice() {
-        var form = document.getElementById('bookingForm');
-        // Force URL to current page (Booking Page)
-        form.action = "{{ url('/booking/' . $vehicle->id) }}";
-        // Force method to GET
-        form.method = "GET";
-        // Submit
-        form.submit();
-    }
-</script>
-</section>
-</body>
-
-
-
+          // --- 4. EXISTING PRICE UPDATE LOGIC ---
+          function updatePrice() {
+            var form = document.getElementById("bookingForm");
+            // Force URL to current page (Booking Page)
+            form.action = "{{ url('/booking/' . $vehicle->id) }}";
+            // Force method to GET
+            form.method = "GET";
+            // Submit
+            form.submit();
+          }
+        </script>
+      </section>
+    </header>
+  </body>
 </html>
