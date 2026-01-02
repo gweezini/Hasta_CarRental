@@ -1,348 +1,325 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard - Hasta</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Hasta Car Rental</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet"/>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="//unpkg.com/alpinejs" defer></script>
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
-        body { font-family: 'Poppins', sans-serif; }
-        .theme-text { color: #cb5c55; }
-        .theme-bg { background-color: #cb5c55; }
-        
-        .nav-active { background-color: rgba(255,255,255,0.2); box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
+        .sidebar-active { background-color: rgba(255, 255, 255, 0.2); border-left: 4px solid #fff; }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="flex h-screen overflow-hidden">
 
-    <div class="min-h-screen flex">
-        
-        <aside class="w-64 bg-[#cb5c55] text-white flex flex-col fixed h-full shadow-lg z-50">
-            <div class="p-6 text-center border-b border-white/20">
-                <a href="{{ route('admin.dashboard') }}">
-                    <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Hasta Logo" class="w-32 mx-auto rounded-lg shadow-sm">
-                </a>
-            </div>
+    <aside class="w-64 bg-[#cb5c55] text-white flex flex-col flex-shrink-0 transition-all duration-300">
+        <div class="p-6 flex items-center justify-center border-b border-white/10">
+            <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Logo" class="h-10 rounded shadow-lg border-2 border-white/30">
+        </div>
 
-            <nav class="flex-1 p-4 space-y-2">
-                <a href="{{ route('admin.dashboard') }}" 
-                   class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.dashboard') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
-                    <i class="ri-dashboard-line mr-2"></i> Dashboard
-                </a>
-
-                <a href="{{ route('admin.bookings.index') }}" 
-                   class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.bookings*') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
-                    <i class="ri-list-check-2 mr-2"></i> Bookings
-                </a>
-
-                <a href="{{ route('admin.vehicle.index') }}" 
-                   class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.vehicle*') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
-                    <i class="ri-car-line mr-2"></i> Fleet Management
-                </a>
-    
-                <a href="{{ route('admin.customers.index') }}" 
-                   class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.customers*') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
-                    <i class="ri-group-line mr-2"></i> Customers
-                </a>
-
-                @if(Auth::user()->isTopManagement())
-                <a href="{{ route('admin.reports') }}" 
-                   class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.reports') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
-                      <i class="ri-file-chart-line mr-2"></i> Reports
-                </a>
-                @endif
-
-            <a href="{{ route('admin.vouchers.index') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition {{ request()->routeIs('admin.vouchers.*') ? 'bg-white/20 shadow-inner' : '' }}">
-                <i class="ri-coupon-3-line mr-2"></i> Vouchers
+        <nav class="flex-1 overflow-y-auto py-6 space-y-1">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center px-6 py-3 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.dashboard') ? 'sidebar-active' : '' }}">
+                <i class="ri-dashboard-line mr-3 text-lg"></i> Dashboard
             </a>
-            </nav>
-
-            <div class="p-4 border-t border-white/20">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button class="w-full py-2 bg-white text-[#cb5c55] rounded hover:bg-gray-100 transition font-bold shadow-md">
-                        <i class="ri-logout-box-line mr-1"></i> Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
-
-        <main class="flex-1 p-8 ml-64">
             
-            <div class="flex justify-between items-center mb-8">
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-800">Admin Dashboard</h2>
-                    <p class="text-gray-500 text-sm">Welcome back, {{ Auth::user()->name }}</p>
-                </div>
+            <a href="{{ route('admin.bookings.index') }}" class="flex items-center px-6 py-3 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.bookings*') ? 'sidebar-active' : '' }}">
+                <i class="ri-list-check mr-3 text-lg"></i> Bookings
+            </a>
+
+            <a href="{{ route('admin.vehicle.index') }}" class="flex items-center px-6 py-3 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle*') ? 'sidebar-active' : '' }}">
+                <i class="ri-car-line mr-3 text-lg"></i> Fleet Management
+            </a>
+
+            <a href="{{ route('admin.customers.index') }}" class="flex items-center px-6 py-3 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.customers*') ? 'sidebar-active' : '' }}">
+                <i class="ri-user-line mr-3 text-lg"></i> Customers
+            </a>
+
+            <a href="{{ route('admin.reports') }}" class="flex items-center px-6 py-3 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.reports') ? 'sidebar-active' : '' }}">
+                <i class="ri-file-chart-line mr-3 text-lg"></i> Reports
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-white/10">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="w-full flex items-center justify-center px-4 py-2 bg-white text-[#cb5c55] rounded-lg font-bold hover:bg-gray-100 transition shadow-sm">
+                    <i class="ri-logout-box-r-line mr-2"></i> Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 z-10">
+            <h2 class="text-2xl font-bold text-gray-800">Admin Dashboard</h2>
+            
+            <div class="flex items-center gap-6">
                 
-                <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
-                    <div class="text-right hidden md:block">
-                        <p class="text-sm font-bold text-gray-700">{{ Auth::user()->name }}</p>
-                        <p class="text-[10px] text-green-500 font-bold uppercase tracking-wider bg-green-50 px-2 py-0.5 rounded-full inline-block">Online</p>
+                <div x-data="{ open: false }" class="relative">
+                    @php
+                        // 防止变量未定义报错
+                        $roadTaxAlerts = $roadTaxAlerts ?? collect();
+                        $insuranceAlerts = $insuranceAlerts ?? collect();
+                        $alertCount = $roadTaxAlerts->count() + $insuranceAlerts->count();
+                    @endphp
+
+                    <button @click="open = !open" @click.away="open = false" class="relative p-2 text-gray-400 hover:text-[#cd5c5c] transition focus:outline-none">
+                        <i class="ri-notification-3-line text-2xl"></i>
+                        @if($alertCount > 0)
+                            <span class="absolute top-1 right-1 flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 border-2 border-white"></span>
+                            </span>
+                        @endif
+                    </button>
+
+                    <div x-show="open" style="display: none;" 
+                         x-transition.origin.top.right
+                         class="absolute right-0 mt-3 w-96 bg-white rounded-xl shadow-2xl overflow-hidden z-50 border border-gray-100">
+                        
+                        <div class="px-5 py-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                            <h3 class="font-bold text-gray-700">Expiry Alerts</h3>
+                            @if($alertCount > 0)
+                                <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded-full">{{ $alertCount }} Issues</span>
+                            @endif
+                        </div>
+
+                        <div class="max-h-80 overflow-y-auto">
+                            @if($alertCount == 0)
+                                <div class="p-8 text-center text-gray-400">
+                                    <i class="ri-checkbox-circle-line text-4xl mb-2 text-green-400 block"></i>
+                                    <p class="text-sm">All vehicles are up to date!</p>
+                                </div>
+                            @else
+                                @foreach($roadTaxAlerts as $car)
+                                    <div class="px-5 py-4 border-b border-gray-50 hover:bg-red-50/30 transition flex items-start gap-3">
+                                        <div class="mt-1 w-8 h-8 rounded-full bg-red-100 text-red-500 flex items-center justify-center flex-shrink-0">
+                                            <i class="ri-file-warning-line"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-gray-800">Road Tax Expiring</p>
+                                            <p class="text-xs text-gray-600 mt-0.5">
+                                                <span class="font-mono font-bold">{{ $car->plate_number }}</span> ({{ $car->brand }} {{ $car->model }})
+                                            </p>
+                                            <p class="text-xs text-red-500 font-medium mt-1">
+                                                Expires: {{ \Carbon\Carbon::parse($car->road_tax_expiry)->format('d M Y') }} 
+                                                ({{ \Carbon\Carbon::parse($car->road_tax_expiry)->diffForHumans() }})
+                                            </p>
+                                        </div>
+                                    </div>
+                                @endforeach
+
+                                @foreach($insuranceAlerts as $car)
+                                    <div class="px-5 py-4 border-b border-gray-50 hover:bg-orange-50/30 transition flex items-start gap-3">
+                                        <div class="mt-1 w-8 h-8 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center flex-shrink-0">
+                                            <i class="ri-shield-alert-line"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-gray-800">Insurance Expiring</p>
+                                            <p class="text-xs text-gray-600 mt-0.5">
+                                                <span class="font-mono font-bold">{{ $car->plate_number }}</span> ({{ $car->brand }} {{ $car->model }})
+                                            </p>
+                                            <p class="text-xs text-orange-500 font-medium mt-1">
+                                                Expires: {{ \Carbon\Carbon::parse($car->insurance_expiry)->format('d M Y') }} 
+                                                ({{ \Carbon\Carbon::parse($car->insurance_expiry)->diffForHumans() }})
+                                            </p>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+                        
+                        <a href="{{ route('admin.vehicle.index') }}" class="block text-center py-3 text-xs font-bold text-[#cd5c5c] hover:bg-gray-50 transition border-t border-gray-100">
+                            Manage Fleet &rarr;
+                        </a>
                     </div>
-                    <div class="w-10 h-10 bg-[#cb5c55] rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                </div>
+                <div class="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-full border border-gray-200">
+                    <div class="text-right hidden md:block">
+                        <p class="text-sm font-bold text-gray-800">{{ Auth::user()->name }}</p>
+                        <p class="text-[10px] text-green-500 font-bold uppercase tracking-wide">● Online</p>
+                    </div>
+                    <div class="h-9 w-9 rounded-full bg-[#cd5c5c] text-white flex items-center justify-center font-bold text-sm shadow-md">
                         {{ substr(Auth::user()->name, 0, 1) }}
                     </div>
                 </div>
-            </div>
 
-            @if(isset($roadTaxAlerts) && $roadTaxAlerts->count() > 0)
-            <div class="mb-4 bg-red-50 border-l-4 border-red-500 p-4 rounded-r shadow-sm">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <i class="ri-alarm-warning-fill text-red-500 text-xl"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-bold text-red-800">Warning: Vehicle Road Tax Expiring Soon</h3>
-                        <div class="mt-2 text-sm text-red-700">
-                            <ul class="list-disc pl-5 space-y-1">
-                                @foreach($roadTaxAlerts as $car)
-                                    <li>
-                                        <span class="font-bold">{{ $car->plate_number }}</span> ({{ $car->brand }}) 
-                                        - Expires: {{ \Carbon\Carbon::parse($car->road_tax_expiry)->format('d M Y') }}
-                                        <span class="text-xs bg-white text-red-800 px-2 py-0.5 rounded-full ml-2 border border-red-200 font-bold">
-                                            {{ \Carbon\Carbon::parse($car->road_tax_expiry)->diffForHumans() }}
-                                        </span>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </div>
             </div>
-            @endif
+        </header>
 
-            @if(isset($insuranceAlerts) && $insuranceAlerts->count() > 0)
-            <div class="mb-8 bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r shadow-sm">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <i class="ri-shield-alert-fill text-orange-500 text-xl"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-bold text-orange-800">Warning: Vehicle Insurance Expiring Soon</h3>
-                        <div class="mt-2 text-sm text-orange-700">
-                            <ul class="list-disc pl-5 space-y-1">
-                                @foreach($insuranceAlerts as $car)
-                                    <li>
-                                        <span class="font-bold">{{ $car->plate_number }}</span> ({{ $car->brand }}) 
-                                        - Expires: {{ \Carbon\Carbon::parse($car->insurance_expiry)->format('d M Y') }}
-                                        <span class="text-xs bg-white text-orange-800 px-2 py-0.5 rounded-full ml-2 border border-orange-200 font-bold">
-                                            {{ \Carbon\Carbon::parse($car->insurance_expiry)->diffForHumans() }}
-                                        </span>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
-
+        <main class="flex-1 overflow-y-auto p-8 bg-[#f3f4f6]">
+            
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-400 flex items-center justify-between hover:-translate-y-1 transition duration-300">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-yellow-400 flex justify-between items-center hover:shadow-md transition">
                     <div>
-                        <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">Pending</p>
-                        <h3 class="text-2xl font-bold text-gray-800">{{ $pendingCount ?? 0 }}</h3>
-                        <p class="text-[10px] text-yellow-600 mt-1">Verifications Needed</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Pending</p>
+                        <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $pendingCount }}</p>
+                        <p class="text-xs text-yellow-600 mt-1">Verifications needed</p>
                     </div>
-                    <div class="p-3 bg-yellow-50 text-yellow-500 rounded-lg"><i class="ri-time-line text-2xl"></i></div>
+                    <div class="p-3 bg-yellow-50 rounded-lg text-yellow-500 text-2xl">
+                        <i class="ri-time-line"></i>
+                    </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500 flex items-center justify-between hover:-translate-y-1 transition duration-300">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-500 flex justify-between items-center hover:shadow-md transition">
                     <div>
-                        <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total Fleet</p>
-                        <h3 class="text-2xl font-bold text-gray-800">{{ $totalCars ?? 0 }}</h3>
-                        <p class="text-[10px] text-blue-600 mt-1">Vehicles in system</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Fleet</p>
+                        <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $totalCars }}</p>
+                        <p class="text-xs text-blue-600 mt-1">Vehicles in system</p>
                     </div>
-                    <div class="p-3 bg-blue-50 text-blue-500 rounded-lg"><i class="ri-roadster-line text-2xl"></i></div>
+                    <div class="p-3 bg-blue-50 rounded-lg text-blue-500 text-2xl">
+                        <i class="ri-roadster-line"></i>
+                    </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500 flex items-center justify-between hover:-translate-y-1 transition duration-300">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-purple-500 flex justify-between items-center hover:shadow-md transition">
                     <div>
-                        <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">Customers</p>
-                        <h3 class="text-2xl font-bold text-gray-800">{{ $totalCustomers ?? 0 }}</h3>
-                        <p class="text-[10px] text-purple-600 mt-1">Registered users</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Customers</p>
+                        <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $totalCustomers }}</p>
+                        <p class="text-xs text-purple-600 mt-1">Registered users</p>
                     </div>
-                    <div class="p-3 bg-purple-50 text-purple-500 rounded-lg"><i class="ri-group-line text-2xl"></i></div>
+                    <div class="p-3 bg-purple-50 rounded-lg text-purple-500 text-2xl">
+                        <i class="ri-group-line"></i>
+                    </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-[#cb5c55] flex items-center justify-between hover:-translate-y-1 transition duration-300">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-[#cd5c5c] flex justify-between items-center hover:shadow-md transition">
                     <div>
-                        @if(Auth::user()->isTopManagement())
-                            <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">Total Revenue</p>
-                            <h3 class="text-2xl font-bold text-gray-800">RM {{ number_format($totalRevenue ?? 0, 2) }}</h3>
-                            <p class="text-[10px] theme-text mt-1">Lifetime Earnings</p>
-                        @else
-                            <p class="text-gray-500 text-xs font-bold uppercase tracking-wider">Today's Revenue</p>
-                            <h3 class="text-2xl font-bold text-gray-800">RM {{ number_format($todayRevenue ?? 0, 2) }}</h3>
-                            <p class="text-[10px] theme-text mt-1">Daily Earnings</p>
-                        @endif
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Today's Revenue</p>
+                        <p class="text-3xl font-extrabold text-gray-800 mt-1">RM {{ number_format($todayRevenue, 2) }}</p>
+                        <p class="text-xs text-green-600 mt-1">Total: RM {{ number_format($totalRevenue, 2) }}</p>
                     </div>
-                    <div class="p-3 bg-red-50 theme-text rounded-lg"><i class="ri-money-dollar-circle-line text-2xl"></i></div>
+                    <div class="p-3 bg-red-50 rounded-lg text-[#cd5c5c] text-2xl">
+                        <i class="ri-money-dollar-circle-line"></i>
+                    </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-4 flex items-center text-sm uppercase tracking-wide">
-                        <i class="ri-pie-chart-line mr-2 text-[#cb5c55]"></i> Student by Faculty
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="ri-pie-chart-line mr-2 text-[#cd5c5c]"></i> Student by Faculty
                     </h3>
                     <div class="h-64">
                         <canvas id="facultyChart"></canvas>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-4 flex items-center text-sm uppercase tracking-wide">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
                         <i class="ri-building-4-line mr-2 text-blue-500"></i> Student by College
                     </h3>
-                    <div class="h-64">
+                    <div class="h-64 flex justify-center">
                         <canvas id="collegeChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-800">Recent Bookings</h3>
-                        <p class="text-xs text-gray-400">Latest transactions</p>
-                    </div>
-                    <a href="{{ route('admin.bookings.index') }}" class="text-sm theme-text font-medium hover:underline">View All</a>
+                    <h3 class="text-lg font-bold text-gray-800">Recent Bookings</h3>
+                    
+                    <a href="{{ route('admin.bookings.index') }}" class="text-sm font-bold text-[#cd5c5c] hover:underline">View All</a>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50 text-gray-500 text-xs uppercase font-bold tracking-wider">
-                                <th class="p-4 border-b">Customer</th>
-                                <th class="p-4 border-b">Vehicle</th>
-                                <th class="p-4 border-b">Dates</th>
-                                <th class="p-4 border-b">Status</th>
-                                <th class="p-4 border-b text-center">Action</th>
+                    <table class="w-full text-left text-sm text-gray-600">
+                        <thead class="bg-gray-50 text-xs uppercase text-gray-500 font-bold">
+                            <tr>
+                                <th class="px-6 py-4">Booking ID</th>
+                                <th class="px-6 py-4">Customer</th>
+                                <th class="px-6 py-4">Vehicle</th>
+                                <th class="px-6 py-4">Date</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4 text-right">Amount</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 text-sm">
-                            @forelse($bookings as $booking)
-                            <tr class="hover:bg-red-50 transition">
-                                <td class="p-4">
-                                    <p class="font-bold text-gray-800">{{ $booking->customer_name }}</p>
-                                    <p class="text-xs text-gray-400">{{ $booking->user->phone_number }}</p>
+                        <tbody class="divide-y divide-gray-50">
+                            @foreach($bookings as $booking)
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 font-bold text-gray-800">#{{ $booking->id }}</td>
+                                <td class="px-6 py-4">
+                                    <p class="font-medium text-gray-900">{{ $booking->user->name }}</p>
+                                    <p class="text-xs text-gray-400">{{ $booking->user->email }}</p>
                                 </td>
-                                
-                                <td class="p-4 text-gray-600">
-                                    {{ $booking->vehicle->brand }} {{ $booking->vehicle->model }}
-                                    <span class="block text-xs text-gray-400">{{ $booking->vehicle->plate_number }}</span>
+                                <td class="px-6 py-4">
+                                    <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-mono font-bold">{{ $booking->vehicle->plate_number }}</span>
+                                    <span class="ml-1 text-xs">{{ $booking->vehicle->model }}</span>
                                 </td>
-
-                                <td class="p-4 text-gray-500 text-xs">
-                                    <div><i class="ri-arrow-right-s-line text-green-500"></i> {{ $booking->pickup_date_time ? \Carbon\Carbon::parse($booking->pickup_date_time)->format('d M') : 'N/A' }}</div>
-                                    <div><i class="ri-arrow-left-s-line text-red-500"></i> {{ $booking->return_date_time ? \Carbon\Carbon::parse($booking->return_date_time)->format('d M') : 'N/A' }}</div>
+                                <td class="px-6 py-4">{{ \Carbon\Carbon::parse($booking->created_at)->format('d M Y') }}</td>
+                                <td class="px-6 py-4">
+                                    @php
+                                        $statusColor = match($booking->status) {
+                                            'Approved' => 'bg-green-100 text-green-700',
+                                            'Rejected' => 'bg-red-100 text-red-700',
+                                            'Waiting for Verification' => 'bg-yellow-100 text-yellow-700',
+                                            'Completed' => 'bg-gray-100 text-gray-700',
+                                            default => 'bg-gray-100 text-gray-600'
+                                        };
+                                    @endphp
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold {{ $statusColor }}">
+                                        {{ $booking->status }}
+                                    </span>
                                 </td>
-
-                                <td class="p-4">
-                                    @if($booking->status === 'Waiting for Verification')
-                                        <span class="px-2 py-1 text-xs font-bold text-blue-700 bg-blue-100 rounded-full border border-blue-200 animate-pulse">Verify Receipt</span>
-                                    @elseif($booking->status === 'Approved')
-                                        <span class="px-2 py-1 text-xs font-bold text-green-700 bg-green-100 rounded-full border border-green-200">Approved</span>
-                                    @elseif($booking->status === 'Rejected')
-                                        <span class="px-2 py-1 text-xs font-bold text-red-700 bg-red-100 rounded-full border border-red-200">Rejected</span>
-                                    @elseif($booking->status === 'Completed')
-                                        <span class="px-2 py-1 text-xs font-bold text-gray-700 bg-gray-100 rounded-full border border-gray-200">Completed</span>
-                                    @else
-                                        <span class="px-2 py-1 text-xs font-bold text-gray-600 bg-gray-100 rounded-full">{{ $booking->status }}</span>
-                                    @endif
-                                </td>
-
-                                <td class="p-4 text-center">
-                                    @if($booking->status == 'Waiting for Verification')
-                                        <a href="{{ route('admin.payment.verify', $booking->id) }}" class="text-blue-600 hover:text-blue-800 font-bold text-xs border border-blue-200 bg-blue-50 px-3 py-1.5 rounded-md transition inline-block">
-                                            Verify Payment
-                                        </a>
-                                    @elseif($booking->status == 'Approved')
-                                        {{-- 🔥🔥🔥 这里换成了更漂亮的勾勾图标 ri-checkbox-circle-line 🔥🔥🔥 --}}
-                                        <form action="{{ route('admin.booking.return', $booking->id) }}" method="POST" onsubmit="return confirm('Confirm vehicle return? This will complete the booking.');">
-                                            @csrf
-                                            <button type="submit" class="text-white bg-green-500 hover:bg-green-600 font-medium text-xs px-4 py-1.5 rounded-md shadow-sm transition flex items-center gap-2 mx-auto tracking-wide">
-                                                <i class="ri-checkbox-circle-line text-sm"></i> Confirm Return
-                                            </button>
-                                        </form>
-                                    @elseif($booking->status == 'Completed')
-                                        <span class="text-gray-400 text-xs flex items-center justify-center gap-1 font-medium">
-                                            <i class="ri-checkbox-circle-fill text-lg text-gray-300"></i> Done
-                                        </span>
-                                    @else
-                                         <a href="{{ route('admin.payment.verify', $booking->id) }}" class="text-gray-600 hover:text-gray-800 font-bold text-xs border border-gray-200 bg-gray-50 px-3 py-1.5 rounded-md transition inline-block">
-                                            View
-                                        </a>
-                                    @endif
+                                <td class="px-6 py-4 text-right font-bold text-gray-800">
+                                    RM {{ number_format($booking->total_rental_fee, 2) }}
                                 </td>
                             </tr>
-                            @empty
-                            <tr>
-                                <td colspan="5" class="p-8 text-center text-gray-400">
-                                    <i class="ri-inbox-line text-3xl mb-2 block opacity-50"></i> No bookings found.
-                                </td>
-                            </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
 
+            <div class="mt-8 text-center text-xs text-gray-400">
+                &copy; 2026 Hasta Car Rental Admin Panel
+            </div>
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const facultyLabels = {!! json_encode($facultyLabels ?? []) !!};
-        const facultyCounts = {!! json_encode($facultyCounts ?? []) !!};
-        const collegeLabels = {!! json_encode($collegeLabels ?? []) !!};
-        const collegeCounts = {!! json_encode($collegeCounts ?? []) !!};
-
-        const ctxFaculty = document.getElementById('facultyChart').getContext('2d');
-        new Chart(ctxFaculty, {
+        // Faculty Chart
+        const facultyCtx = document.getElementById('facultyChart').getContext('2d');
+        new Chart(facultyCtx, {
             type: 'bar',
             data: {
-                labels: facultyLabels,
+                labels: {!! json_encode($facultyLabels) !!},
                 datasets: [{
                     label: 'Students',
-                    data: facultyCounts,
-                    backgroundColor: 'rgba(203, 92, 85, 0.8)', 
-                    borderRadius: 4,
-                    barThickness: 30
+                    data: {!! json_encode($facultyCounts) !!},
+                    backgroundColor: '#cd5c5c',
+                    borderRadius: 5
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true } },
+                scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } },
                 plugins: { legend: { display: false } }
             }
         });
 
-        const ctxCollege = document.getElementById('collegeChart').getContext('2d');
-        new Chart(ctxCollege, {
+        // College Chart
+        const collegeCtx = document.getElementById('collegeChart').getContext('2d');
+        new Chart(collegeCtx, {
             type: 'doughnut',
             data: {
-                labels: collegeLabels,
+                labels: {!! json_encode($collegeLabels) !!},
                 datasets: [{
-                    data: collegeCounts,
-                    backgroundColor: [
-                        '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1'
-                    ],
+                    data: {!! json_encode($collegeCounts) !!},
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'],
                     borderWidth: 0
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'right' }
-                }
+                plugins: { legend: { position: 'right', labels: { usePointStyle: true, font: { size: 11 } } } },
+                cutout: '70%'
             }
         });
     </script>

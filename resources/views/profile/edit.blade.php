@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - Hasta Car Rental</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet"/>
     <script src="//unpkg.com/alpinejs" defer></script>
@@ -22,10 +23,10 @@
 
         body { font-family: 'Poppins', sans-serif; background-color: #f9fafb; }
 
-        /* --- NAVIGATION STYLES (MATCHING HOMEPAGE) --- */
+        /* --- NAVIGATION STYLES --- */
         nav {
-            background-color: var(--text-dark);
-            padding: 1rem 2rem;
+            background-color: var(--text-dark); /* 黑色背景 */
+            padding: 0.8rem 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -35,33 +36,7 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
-        .nav__links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .nav__links a {
-            color: var(--white);
-            text-decoration: none;
-            font-weight: 500;
-            transition: 0.3s;
-        }
-
-        .nav__links a:hover { color: var(--primary-color); }
-
         .nav__btn { display: flex; align-items: center; gap: 1.5rem; }
-
-        /* Logout Button Style */
-        .btn-logout {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 0.6rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-        .btn-logout:hover { background-color: #d14a1e; }
 
         /* Footer Style */
         footer { background-color: var(--text-dark); padding-top: 3rem; color: #fff; margin-top: auto; }
@@ -75,9 +50,12 @@
         .footer__links a { color: var(--text-light); text-decoration: none; }
         .footer__links a:hover { color: var(--primary-color); }
 
+        /* Animation */
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
         /* Responsive */
         @media (max-width: 768px) {
-            .nav__links { display: none; }
             .footer__container { grid-template-columns: 1fr 1fr; }
         }
     </style>
@@ -85,21 +63,15 @@
 <body class="flex flex-col min-h-screen">
 
     <nav>
-        <div class="flex items-center gap-4">
-            <a href="{{ route('dashboard') }}">
+        <div class="flex items-center">
+            <a href="{{ route('dashboard') }}" class="hover:opacity-80 transition">
                 <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Hasta Logo" class="h-10 rounded shadow border-2 border-white/20">
             </a>
         </div>
 
-        <ul class="nav__links hidden md:flex">
-            <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ route('dashboard') }}#vehicles">Vehicles</a></li>
-            <li><a href="{{ route('dashboard') }}#contact">Contact</a></li>
-        </ul>
-
         <div class="nav__btn">
             
-            <div x-data="{ open: false }" class="relative">
+            <div x-data="{ open: false }" class="relative flex items-center">
                 <button @click="open = !open" @click.away="open = false" class="relative text-white hover:text-[#ec5a29] transition p-1">
                     <i class="ri-notification-3-line text-2xl"></i>
                     @if(Auth::user()->unreadNotifications->count() > 0)
@@ -112,7 +84,7 @@
 
                 <div x-show="open" style="display: none;" 
                      x-transition.origin.top.right
-                     class="absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-2xl overflow-hidden z-50 border border-gray-100 text-gray-800">
+                     class="absolute right-0 top-full mt-3 w-80 bg-white rounded-xl shadow-2xl overflow-hidden z-50 border border-gray-100 text-gray-800">
                     
                     <div class="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50">
                         <span class="text-xs font-bold uppercase text-gray-500 tracking-wider">Notifications</span>
@@ -142,40 +114,58 @@
                             <div class="px-4 py-6 text-center text-xs text-gray-400">No notifications</div>
                         @endforelse
                     </div>
-
                     <button onclick="openTab('notifications');" class="w-full text-center text-xs font-bold text-[#ec5a29] py-3 hover:bg-gray-50 transition border-t border-gray-100 block">
                         View All
                     </button>
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="btn-logout">
-                    Logout
+            <div x-data="{ userOpen: false }" class="relative">
+                <button @click="userOpen = !userOpen" @click.away="userOpen = false" class="flex items-center gap-2 group focus:outline-none">
+                    <img class="h-9 w-9 rounded-full object-cover border-2 border-transparent group-hover:border-[#ec5a29] transition" 
+                         src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=ec5a29&color=fff" 
+                         alt="Profile">
+                    <span class="text-white text-sm font-medium hidden md:block group-hover:text-[#ec5a29] transition">{{ Auth::user()->name }}</span>
+                    <i class="ri-arrow-down-s-line text-gray-400 group-hover:text-[#ec5a29] transition"></i>
                 </button>
-            </form>
+
+                <div x-show="userOpen" style="display: none;"
+                     x-transition.origin.top.right
+                     class="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-xl overflow-hidden z-50 border border-gray-100 py-1">
+                    
+                    <div class="px-4 py-3 border-b border-gray-50">
+                        <p class="text-xs text-gray-500">Signed in as</p>
+                        <p class="text-sm font-bold text-gray-800 truncate">{{ Auth::user()->email }}</p>
+                    </div>
+
+                    <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#ec5a29]">
+                        <i class="ri-home-line mr-2 align-middle"></i> Home
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium">
+                            <i class="ri-logout-box-r-line mr-2 align-middle"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </nav>
 
-    <main class="flex-grow py-10 px-4 sm:px-6 lg:px-8">
+    <main class="flex-grow py-8 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto">
             
-            <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-900">My Profile</h1>
-                    <p class="text-sm text-gray-500 mt-1">Manage your bookings and personal information</p>
-                </div>
-
-                <div class="flex items-center gap-3 bg-white p-2 pr-4 rounded-full shadow-sm border border-gray-200 w-fit">
-                    <img class="h-10 w-10 rounded-full object-cover border-2 border-indigo-100" 
-                         src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=ec5a29&color=fff" 
-                         alt="Profile">
-                    <div class="leading-none">
-                        <p class="text-sm font-bold text-gray-800">{{ Auth::user()->name }}</p>
-                        <p class="text-[10px] text-gray-500">{{ Auth::user()->email }}</p>
-                    </div>
-                </div>
+            <div class="mb-6">
+                <a href="{{ route('dashboard') }}" class="inline-flex items-center px-5 py-2.5 bg-[#15191d] text-white text-xs font-bold uppercase tracking-widest rounded-lg hover:bg-[#ec5a29] transition shadow-md hover:shadow-lg transform active:scale-95">
+                    <i class="ri-arrow-left-line mr-2 text-base"></i> 
+                    Back to Dashboard
+                </a>
+            </div>
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">My Profile</h1>
+                <p class="text-sm text-gray-500 mt-1">Manage your bookings and personal information</p>
             </div>
 
             <div class="bg-white p-1.5 rounded-xl shadow-sm border border-gray-100 inline-flex items-center mb-6 overflow-x-auto max-w-full">
@@ -201,14 +191,16 @@
 
             @php
                 $allBookings = $bookings ?? collect();
+                // 筛选逻辑
                 $pastBookings = $allBookings->filter(function($b) {
-                    return in_array($b->status, ['Rejected', 'Returned', 'Completed', 'Cancelled']) || ($b->return_date_time && \Carbon\Carbon::parse($b->return_date_time)->lt(now()));
+                    return in_array($b->status, ['Rejected', 'Returned', 'Completed']) || ($b->return_date_time && \Carbon\Carbon::parse($b->return_date_time)->lt(now()));
                 });
                 $ongoingBookings = $allBookings->diff($pastBookings);
             @endphp
 
             <div id="content-booking" class="animate-fade-in">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-6 md:p-8">
+                    
                     <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                         <i class="ri-car-line text-[#ec5a29]"></i> Ongoing Bookings
                     </h2>
@@ -238,30 +230,11 @@
                                         </div>
                                     </div>
                                     <div class="mt-4 pt-4 border-t border-blue-100 flex justify-between items-center">
-                                        <div class="flex gap-2">
-                                            @if($booking->status == 'Approved')
-                                                @php
-                                                    $now = \Carbon\Carbon::now();
-                                                    $pickup = \Carbon\Carbon::parse($booking->pickup_date_time);
-                                                    $canModify = $now->lt($pickup);
-                                                    $canCancel = $now->diffInHours($pickup, false) > 24;
-                                                @endphp
-                                                
-                                                @if($canModify)
-                                                    <a href="{{ route('booking.edit', $booking->id) }}" class="text-xs md:text-sm text-white bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded-lg transition font-medium flex items-center">
-                                                        <i class="ri-edit-line mr-1"></i> Modify
-                                                    </a>
-                                                @endif
-
-                                                @if($canCancel)
-                                                    <form action="{{ route('booking.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking? If you have made a payment, please contact us for a refund.');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="text-xs md:text-sm text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-2 rounded-lg transition font-medium flex items-center">
-                                                            <i class="ri-delete-bin-line mr-1"></i> Cancel
-                                                        </button>
-                                                    </form>
-                                                @endif
+                                        <div>
+                                            @if($booking->status == 'Approved' && \Carbon\Carbon::now()->diffInHours($booking->pickup_date_time, false) > 24)
+                                                <a href="{{ route('booking.edit', $booking->id) }}" class="text-sm text-white bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg transition font-medium">
+                                                    <i class="ri-edit-line mr-1"></i> Modify
+                                                </a>
                                             @endif
                                         </div>
                                         <p class="text-lg font-bold text-gray-900">RM {{ number_format($booking->total_rental_fee, 2) }}</p>
