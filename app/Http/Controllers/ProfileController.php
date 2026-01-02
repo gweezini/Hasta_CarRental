@@ -28,11 +28,15 @@ class ProfileController extends Controller
             ->orderBy('created_at', 'desc') // 最新下的单排在最前面
             ->get();
 
+        // Fetch User's Vouchers
+        $myVouchers = $user->userVouchers()->with('voucher')->whereNull('used_at')->get();
+
         return view('profile.edit', [
             'user' => $user,
             'colleges' => $colleges,
             'faculties' => $faculties,
-            'bookings' => $bookings, // 🔥 传给前端统一的 $bookings 变量
+            'bookings' => $bookings,
+            'myVouchers' => $myVouchers,
         ]);
     }
 
