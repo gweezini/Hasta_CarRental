@@ -12,22 +12,54 @@ class VoucherSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Create a Fixed Discount (RM 10 OFF)
-        \App\Models\Voucher::create([
-            'code' => 'WELCOME10',
-            'name' => 'New User Promo',
-            'type' => 'fixed',
-            'value' => 10.00,
-            'is_active' => true
-        ]);
+        // 1. Create Master Vouchers
+        $v1 = \App\Models\Voucher::firstOrCreate(
+            ['code' => 'WELCOME10'],
+            [
+                'name' => '10% Welcome Discount',
+                'type' => 'percent',
+                'value' => 10.00,
+                'is_active' => true
+            ]
+        );
 
-        // 2. Create a Percentage Discount (20% OFF)
-        \App\Models\Voucher::create([
-            'code' => 'RAYA2025',
-            'name' => 'Raya Special',
-            'type' => 'percent',
-            'value' => 20.00,
-            'is_active' => true
-        ]);
+        $v2 = \App\Models\Voucher::firstOrCreate(
+            ['code' => 'BDAY25'],
+            [
+                'name' => 'Birthday Special',
+                'type' => 'percent',
+                'value' => 25.00,
+                'is_active' => true
+            ]
+        );
+
+        $v3 = \App\Models\Voucher::firstOrCreate(
+            ['code' => 'FREEHOUR'],
+            [
+                'name' => '1 Free Hour',
+                'type' => 'fixed',
+                'value' => 10.00, // Assuming 10 is the value of 1 hour, or just symbolic
+                'is_active' => true
+            ]
+        );
+
+        // 2. Assign to First User (for testing)
+        $user = \App\Models\User::first();
+        if ($user) {
+            // Check if already assigned to avoid duplicates
+            if (!$user->userVouchers()->where('voucher_id', $v1->id)->exists()) {
+                \App\Models\UserVoucher::create([
+                    'user_id' => $user->matric_staff_id,
+                    'voucher_id' => $v1->id,
+                ]);
+            }
+
+            if (!$user->userVouchers()->where('voucher_id', $v2->id)->exists()) {
+                \App\Models\UserVoucher::create([
+                    'user_id' => $user->matric_staff_id,
+                    'voucher_id' => $v2->id,
+                ]);
+            }
+        }
     }
 }
