@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Voucher; // Add this line at the top
+use App\Models\Voucher;
 use App\Models\UserVoucher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
