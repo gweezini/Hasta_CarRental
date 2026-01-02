@@ -509,31 +509,70 @@
              const dropoffSelect = document.getElementById('dropoff_location'); 
              const sameLocCheckbox = document.getElementById('same_location_checkbox');
 
-             // Set Min Start Date to NOW (Relaxed constraint for modification)
+             // Helper to get Local ISO String (YYYY-MM-DDTHH:MM)
+             function getLocalISOString(date) {
+                 const offset = date.getTimezoneOffset() * 60000;
+                 const localDate = new Date(date.getTime() - offset);
+                 return localDate.toISOString().slice(0, 16);
+             }
+
+             // Set Min Start Date to NOW (Relaxed constraint)
              const now = new Date();
-             const minStart = now.toISOString().slice(0, 16);
+             const minStart = getLocalISOString(now);
              startTimeInput.setAttribute("min", minStart);
 
+             // Function to update End Date Constraints
+             function updateEndConstraint() {
+                 if(startTimeInput.value) {
+                    const start = new Date(startTimeInput.value);
+                    const minEnd = new Date(start.getTime() + 60 * 60 * 1000); // +1 Hour
+                    const minEndStr = getLocalISOString(minEnd);
+                    endTimeInput.setAttribute("min", minEndStr);
+                 }
+             }
+
+             // Listen to 'input' for immediate updates
+             startTimeInput.addEventListener("input", updateEndConstraint);
              startTimeInput.addEventListener("change", function() {
+                updateEndConstraint();
                 if(this.value) {
                     const start = new Date(this.value);
-                    const minEnd = new Date(start.getTime() + 60 * 60 * 1000); // +1 Hour
-                    endTimeInput.setAttribute("min", minEnd.toISOString().slice(0, 16));
-                    
+                    const minEnd = new Date(start.getTime() + 60 * 60 * 1000);
                     if(endTimeInput.value && new Date(endTimeInput.value) < minEnd) {
                         endTimeInput.value = "";
                         alert("End time has been reset because it must be at least 1 hour after start time.");
                     }
-                    calculatePrice();
                 }
+                calculatePrice();
              });
+             
+             // Ensure constraint is fresh
+             endTimeInput.addEventListener("focus", updateEndConstraint);
+             endTimeInput.addEventListener("click", updateEndConstraint);
+             
+             // Initial Check
+             updateEndConstraint();
 
-             endTimeInput.addEventListener("change", calculatePrice);
+             endTimeInput.addEventListener("change", function() {
+                 if(this.value && startTimeInput.value) {
+                     const start = new Date(startTimeInput.value);
+                     const end = new Date(this.value);
+                     const minEnd = new Date(start.getTime() + 60 * 60 * 1000);
+                     
+                     if(end < minEnd) {
+                         this.value = "";
+                         alert("Invalid Selection: Return time must be at least 1 hour after pickup time.");
+                         return;
+                     }
+                 }
+                 calculatePrice();
+             });
              pickupSelect.addEventListener("change", calculatePrice);
              dropoffSelect.addEventListener("change", calculatePrice);
              sameLocCheckbox.addEventListener("change", calculatePrice);
              
-             // Initial Calc
+             // Initial Check
+             updateEndConstraint();
              if(startTimeInput.value && endTimeInput.value) calculatePrice();
              
              function calculatePrice() {

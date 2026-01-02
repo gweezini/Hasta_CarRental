@@ -1300,20 +1300,37 @@
              const promoInput = document.getElementById('manual_code'); // Assuming ID
 
              // 1. DATE CONSTRAINTS
-             // Set Min Start Date to NOW + 24h
+             // Helper to get Local ISO String (YYYY-MM-DDTHH:MM)
+             function getLocalISOString(date) {
+                 const offset = date.getTimezoneOffset() * 60000; // offset in milliseconds
+                 const localDate = new Date(date.getTime() - offset);
+                 return localDate.toISOString().slice(0, 16);
+             }
+
+             // Set Min Start Date to NOW + 24h (Local Time)
              const now = new Date();
              now.setHours(now.getHours() + 24);
-             // Format needed: YYYY-MM-DDTHH:MM
-             const minStart = now.toISOString().slice(0, 16);
+             const minStart = getLocalISOString(now);
              startTimeInput.setAttribute("min", minStart);
 
+             function updateEndConstraint() {
+                 if(startTimeInput.value) {
+                    const start = new Date(startTimeInput.value);
+                    const minEnd = new Date(start.getTime() + 60 * 60 * 1000); // +1 Hour
+                    const minEndStr = getLocalISOString(minEnd);
+                    startTimeInput.setAttribute("min", minStart); // Ensure min is always set
+                    endTimeInput.setAttribute("min", minEndStr);
+                 }
+             }
+
+             // Listen to 'input' for immediate updates during scrolling/typing
+             startTimeInput.addEventListener("input", updateEndConstraint);
              startTimeInput.addEventListener("change", function() {
+                updateEndConstraint();
                 if(this.value) {
                     const start = new Date(this.value);
-                    const minEnd = new Date(start.getTime() + 60 * 60 * 1000); // +1 Hour
-                    endTimeInput.setAttribute("min", minEnd.toISOString().slice(0, 16));
+                    const minEnd = new Date(start.getTime() + 60 * 60 * 1000);
                     
-                    // Specific logic: If end time is before new min, clear it
                     if(endTimeInput.value && new Date(endTimeInput.value) < minEnd) {
                         endTimeInput.value = "";
                         alert("End time has been reset because it must be at least 1 hour after start time.");
@@ -1321,8 +1338,28 @@
                     calculatePrice();
                 }
              });
+             
+             // Ensure constraint is fresh when user touches End Input
+             endTimeInput.addEventListener("focus", updateEndConstraint);
+             endTimeInput.addEventListener("click", updateEndConstraint);
+             
+             // Initial Check
+             updateEndConstraint();
 
-             endTimeInput.addEventListener("change", calculatePrice);
+             endTimeInput.addEventListener("change", function() {
+                 if(this.value && startTimeInput.value) {
+                     const start = new Date(startTimeInput.value);
+                     const end = new Date(this.value);
+                     const minEnd = new Date(start.getTime() + 60 * 60 * 1000);
+                     
+                     if(end < minEnd) {
+                         this.value = "";
+                         alert("Invalid Selection: Return time must be at least 1 hour after pickup time.");
+                         return;
+                     }
+                 }
+                 calculatePrice();
+             });
              pickupSelect.addEventListener("change", calculatePrice);
              // handle same location logic change triggering calc?
              // Assuming existing handlePickupChange() handles visibility, we need to hook into it or add listener
