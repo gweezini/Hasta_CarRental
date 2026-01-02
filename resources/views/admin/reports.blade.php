@@ -47,6 +47,10 @@
                     <i class="ri-group-line mr-2"></i> Customers
                 </a>
 
+                <a href="{{ route('admin.vouchers.index') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition {{ request()->routeIs('admin.vouchers.*') ? 'bg-white/20 shadow-inner' : '' }}">
+                    <i class="ri-ticket-line mr-2"></i> Vouchers
+                </a>
+
                 @if(Auth::user()->isTopManagement())
                 <a href="{{ route('admin.reports') }}" 
                    class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.reports') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
