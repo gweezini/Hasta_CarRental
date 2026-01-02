@@ -75,7 +75,7 @@
                 <div class="col-span-2 md:col-span-1 flex items-end pb-3">
                     <div class="flex items-start">
                         <div class="flex items-center h-5">
-                            <input id="single_use" name="single_use" type="checkbox" value="1" {{ old('single_use') ? 'checked' : '' }} 
+                            <input id="single_use" name="single_use" type="checkbox" value="1" {{ old('single_use', '1') ? 'checked' : '' }} 
                                 class="focus:ring-[#cb5c55] h-4 w-4 text-[#cb5c55] border-gray-300 rounded">
                         </div>
                         <div class="ml-3 text-sm">
