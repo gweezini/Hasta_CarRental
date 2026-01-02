@@ -78,6 +78,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/booking/{id}', [BookingController::class, 'show'])->name('booking.show');
     Route::post('/confirm-booking', [BookingController::class, 'store'])->name('booking.store');
+    Route::get('/booking/{id}/edit', [BookingController::class, 'edit'])->name('booking.edit');
+    Route::put('/booking/{id}', [BookingController::class, 'update'])->name('booking.update');
     Route::get('/my-vouchers', [UserVoucherController::class, 'index'])->name('vouchers.index');
     Route::post('/voucher/redeem-code', [UserVoucherController::class, 'redeemCode'])->name('vouchers.redeem.code');
     Route::post('/voucher/redeem-loyalty', [UserVoucherController::class, 'redeemLoyalty'])->name('vouchers.redeem.loyalty');

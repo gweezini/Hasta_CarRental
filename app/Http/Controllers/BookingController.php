@@ -231,4 +231,127 @@ class BookingController extends Controller
             return redirect()->back()->with('error', 'Booking failed: ' . $e->getMessage());
         }
     }
+    // 3. EDIT METHOD
+    public function edit($id)
+    {
+        $booking = Booking::with('vehicle')->findOrFail($id);
+
+        if ($booking->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($booking->status !== 'Approved') {
+            return redirect()->route('profile.edit')->with('error', 'Only approved bookings can be modified.');
+        }
+
+        // Check 24h constraint
+        // Use 'false' in diffInHours to get negative values if past
+        $hoursUntilPickup = now()->diffInHours($booking->pickup_date_time, false);
+        if ($hoursUntilPickup < 24) {
+            return redirect()->route('profile.edit')->with('error', 'Bookings can only be modified 24 hours in advance.');
+        }
+
+        return view('bookings.edit', compact('booking'));
+    }
+
+    // 4. UPDATE METHOD
+    public function update(Request $request, $id)
+    {
+        $booking = Booking::findOrFail($id);
+        
+        if ($booking->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($booking->status !== 'Approved') {
+             return redirect()->route('profile.edit')->with('error', 'Only approved bookings can be modified.');
+        }
+
+        // Check 24h constraint based on ORIGINAL pickup time
+        $hoursUntilPickup = now()->diffInHours($booking->pickup_date_time, false);
+        if ($hoursUntilPickup < 24) {
+            return redirect()->route('profile.edit')->with('error', 'Bookings can only be modified 24 hours in advance.');
+        }
+
+        $request->validate([
+            'start_time' => 'required', 
+            'end_time'   => 'required', 
+            'pickup_location' => 'required|string',
+            'name' => 'required|string',
+            'phone' => 'required|string',
+        ]);
+
+        try {
+            // Format dates
+            $pickupDateTime = Carbon::parse($request->start_time)->format('Y-m-d H:i:s');
+            $returnDateTime = Carbon::parse($request->end_time)->format('Y-m-d H:i:s');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Invalid date format.');
+        }
+
+        // Price Calculation Logic (Recalculate based on new details)
+        $vehicle = $booking->vehicle;
+        
+        $start = Carbon::parse($pickupDateTime);
+        $end = Carbon::parse($returnDateTime);
+        
+        if ($end->lte($start)) {
+            return redirect()->back()->with('error', 'Return time must be after pickup time.');
+        }
+
+        $hours = ceil($start->floatDiffInHours($end));
+        if ($hours < 1) $hours = 1;
+        $subtotal = $hours * $vehicle->price_per_hour;
+
+        // Delivery Fee
+        $prices = ['office' => 0, 'campus' => 2.50, 'taman_u' => 7.50, 'jb' => 25];
+        $pickupFee = $prices[$request->pickup_location] ?? 0;
+        
+        $isSameLocation = $request->has('same_location_checkbox') || $request->input('same_location_checkbox') == 'on';
+        $dropoffLocation = $isSameLocation ? $request->pickup_location : $request->dropoff_location;
+        $dropoffLocation = $dropoffLocation ?: 'office';
+
+        $dropoffFee = $prices[$dropoffLocation] ?? 0;
+        $deliveryFee = $pickupFee + $dropoffFee;
+
+        // Apply existing discount if any (Assuming percentage logic, if it was fixed amount it might be tricky)
+        // For simplicity, we'll re-apply the voucher logic if voucher_id exists
+        $discount = 0;
+        if ($booking->voucher_id) {
+            $userVoucher = \App\Models\UserVoucher::find($booking->voucher_id); // Assuming we can trace back to user voucher, but strictly speaking voucher_id in booking might just point to Voucher model or UserVoucher.
+            // Actually, existing store method uses 'voucher_id' which seems to be UserVoucher ID.
+            if ($userVoucher) {
+                 if ($userVoucher->type === 'percent') $discount = ($subtotal * $userVoucher->value) / 100;
+                 elseif ($userVoucher->type === 'fixed') $discount = $userVoucher->value;
+                 elseif ($userVoucher->type === 'free_hours') {
+                    $applicable = min($hours, (int)$userVoucher->value);
+                    $discount = $applicable * $vehicle->price_per_hour;
+                 }
+            }
+        } elseif ($booking->promo_code === 'WELCOME10') {
+            $discount = 10;
+        }
+
+        $final_total = max(0, $subtotal + $deliveryFee - $discount);
+
+        // Update Booking
+        $booking->pickup_date_time = $pickupDateTime;
+        $booking->return_date_time = $returnDateTime;
+        $booking->pickup_location = $request->pickup_location;
+        $booking->custom_pickup_address = $request->custom_pickup_address ?? null;
+        $booking->dropoff_location = $dropoffLocation;
+        $booking->custom_dropoff_address = $request->custom_dropoff_address ?? null;
+        
+        $booking->customer_name = $request->name;
+        $booking->customer_phone = $request->phone;
+        $booking->emergency_contact_name = $request->emergency_name;
+        $booking->emergency_contact_phone = $request->emergency_contact;
+        
+        $booking->total_rental_fee = $final_total;
+        // Don't change deposit or payment receipt or status
+        
+        $booking->save();
+
+        return redirect()->route('profile.edit')->with('success', 'Booking updated successfully!');
+    }
 }

@@ -237,7 +237,14 @@
                                             <p class="font-medium text-gray-800">{{ $booking->return_date_time ? \Carbon\Carbon::parse($booking->return_date_time)->format('M d, Y h:i A') : '-' }}</p>
                                         </div>
                                     </div>
-                                    <div class="mt-4 pt-4 border-t border-blue-100 text-right">
+                                    <div class="mt-4 pt-4 border-t border-blue-100 flex justify-between items-center">
+                                        <div>
+                                            @if($booking->status == 'Approved' && \Carbon\Carbon::now()->diffInHours($booking->pickup_date_time, false) > 24)
+                                                <a href="{{ route('booking.edit', $booking->id) }}" class="text-sm text-white bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg transition font-medium">
+                                                    <i class="ri-edit-line mr-1"></i> Modify
+                                                </a>
+                                            @endif
+                                        </div>
                                         <p class="text-lg font-bold text-gray-900">RM {{ number_format($booking->total_rental_fee, 2) }}</p>
                                     </div>
                                 </div>
