@@ -8,10 +8,15 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CustomerController;
-
 use Illuminate\Support\Facades\Auth; 
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\UserVoucherController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -25,14 +30,12 @@ Route::get('/dashboard', function () {
 
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// 3. 用户资料 Profile
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// 4. Admin 路由组
 Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
@@ -61,7 +64,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::post('/booking/{id}/approve', [AdminController::class, 'approvePayment'])->name('admin.payment.approve');
     Route::post('/booking/{id}/reject', [AdminController::class, 'rejectPayment'])->name('admin.payment.reject');
 
-    // Voucher Management (Staff) - 保留了原本的 Voucher 功能
+    Route::post('/booking/{id}/return', [AdminController::class, 'markAsReturned'])->name('admin.booking.return');
+    
+    // Voucher Management (Staff)
     Route::get('/vouchers', [VoucherController::class, 'index'])->name('admin.vouchers.index');
     Route::get('/vouchers/create', [VoucherController::class, 'create'])->name('admin.vouchers.create');
     Route::post('/vouchers', [VoucherController::class, 'store'])->name('admin.vouchers.store');
