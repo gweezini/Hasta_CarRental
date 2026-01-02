@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-
+use App\Models\Booking; // 确保引入 Booking 模型
 
 class ProfileController extends Controller
 {
@@ -17,45 +17,33 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        // 1. 保留原本的逻辑：获取学院和系
         $colleges = \App\Models\College::all();
         $faculties = \App\Models\Faculty::all();
         $user = $request->user();
 
-        // Fetch ongoing bookings (status = pending or confirmed, return_date_time >= now)
-        $ongoingBookings = $user->bookings()
-            ->whereIn('status', ['pending', 'confirmed'])
-            ->orWhere(function ($query) {
-                $query->whereIn('status', ['ongoing', 'returning'])
-                    ->where('return_date_time', '>=', now());
-            })
+
+        $bookings = Booking::where('user_id', $user->id)
             ->with('vehicle')
-            ->orderBy('pickup_date_time', 'desc')
+            ->orderBy('created_at', 'desc') // 最新下的单排在最前面
             ->get();
 
-        // Fetch past bookings (status = completed or return_date_time < now)
-        $pastBookings = $user->bookings()
-            ->where(function ($query) {
-                $query->where('status', 'completed')
-                    ->orWhere('return_date_time', '<', now());
-            })
-            ->with('vehicle')
-            ->orderBy('return_date_time', 'desc')
-            ->get();
-        
         return view('profile.edit', [
             'user' => $user,
             'colleges' => $colleges,
             'faculties' => $faculties,
-            'ongoingBookings' => $ongoingBookings,
-            'pastBookings' => $pastBookings,
+            'bookings' => $bookings, // 🔥 传给前端统一的 $bookings 变量
         ]);
     }
 
+    /**
+     * Update the user's profile information.
+     * (保留你原本的上传逻辑，不做任何修改)
+     */
     public function update(Request $request): RedirectResponse
     {
         $user = $request->user();
 
-    
         $user->forceFill($request->except([
             '_token', 
             '_method', 
