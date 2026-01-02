@@ -19,7 +19,7 @@ class UserVoucher extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'matric_staff_id');
     }
 
     public function voucher()
