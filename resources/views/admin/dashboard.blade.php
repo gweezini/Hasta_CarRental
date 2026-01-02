@@ -230,7 +230,7 @@
                             @forelse($bookings as $booking)
                             <tr class="hover:bg-red-50 transition">
                                 <td class="p-4">
-                                    <p class="font-bold text-gray-800">{{ $booking->user->name }}</p>
+                                    <p class="font-bold text-gray-800">{{ $booking->customer_name }}</p>
                                     <p class="text-xs text-gray-400">{{ $booking->user->phone_number }}</p>
                                 </td>
                                 
@@ -240,8 +240,8 @@
                                 </td>
 
                                 <td class="p-4 text-gray-500 text-xs">
-                                    <div><i class="ri-arrow-right-s-line text-green-500"></i> {{ \Carbon\Carbon::parse($booking->start_time)->format('d M') }}</div>
-                                    <div><i class="ri-arrow-left-s-line text-red-500"></i> {{ \Carbon\Carbon::parse($booking->end_time)->format('d M') }}</div>
+                                    <div><i class="ri-arrow-right-s-line text-green-500"></i> {{ $booking->pickup_date_time ? \Carbon\Carbon::parse($booking->pickup_date_time)->format('d M') : 'N/A' }}</div>
+                                    <div><i class="ri-arrow-left-s-line text-red-500"></i> {{ $booking->return_date_time ? \Carbon\Carbon::parse($booking->return_date_time)->format('d M') : 'N/A' }}</div>
                                 </td>
 
                                 <td class="p-4">
@@ -251,22 +251,35 @@
                                         <span class="px-2 py-1 text-xs font-bold text-green-700 bg-green-100 rounded-full border border-green-200">Approved</span>
                                     @elseif($booking->status === 'Rejected')
                                         <span class="px-2 py-1 text-xs font-bold text-red-700 bg-red-100 rounded-full border border-red-200">Rejected</span>
+                                    @elseif($booking->status === 'Completed')
+                                        <span class="px-2 py-1 text-xs font-bold text-gray-700 bg-gray-100 rounded-full border border-gray-200">Completed</span>
                                     @else
                                         <span class="px-2 py-1 text-xs font-bold text-gray-600 bg-gray-100 rounded-full">{{ $booking->status }}</span>
                                     @endif
                                 </td>
 
-                                {{-- 🔥🔥🔥 修改了这里！让所有状态都能点击 🔥🔥🔥 --}}
                                 <td class="p-4 text-center">
-                                    <a href="{{ route('admin.payment.verify', $booking->id) }}" 
-                                       class="inline-block px-3 py-1 rounded text-xs font-bold border transition
-                                       {{ $booking->status === 'Waiting for Verification' ? 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100' }}">
-                                        @if($booking->status === 'Waiting for Verification')
-                                            Verify
-                                        @else
+                                    @if($booking->status == 'Waiting for Verification')
+                                        <a href="{{ route('admin.payment.verify', $booking->id) }}" class="text-blue-600 hover:text-blue-800 font-bold text-xs border border-blue-200 bg-blue-50 px-3 py-1.5 rounded-md transition inline-block">
+                                            Verify Payment
+                                        </a>
+                                    @elseif($booking->status == 'Approved')
+                                        {{-- 🔥🔥🔥 这里换成了更漂亮的勾勾图标 ri-checkbox-circle-line 🔥🔥🔥 --}}
+                                        <form action="{{ route('admin.booking.return', $booking->id) }}" method="POST" onsubmit="return confirm('Confirm vehicle return? This will complete the booking.');">
+                                            @csrf
+                                            <button type="submit" class="text-white bg-green-500 hover:bg-green-600 font-medium text-xs px-4 py-1.5 rounded-md shadow-sm transition flex items-center gap-2 mx-auto tracking-wide">
+                                                <i class="ri-checkbox-circle-line text-sm"></i> Confirm Return
+                                            </button>
+                                        </form>
+                                    @elseif($booking->status == 'Completed')
+                                        <span class="text-gray-400 text-xs flex items-center justify-center gap-1 font-medium">
+                                            <i class="ri-checkbox-circle-fill text-lg text-gray-300"></i> Done
+                                        </span>
+                                    @else
+                                         <a href="{{ route('admin.payment.verify', $booking->id) }}" class="text-gray-600 hover:text-gray-800 font-bold text-xs border border-gray-200 bg-gray-50 px-3 py-1.5 rounded-md transition inline-block">
                                             View
-                                        @endif
-                                    </a>
+                                        </a>
+                                    @endif
                                 </td>
                             </tr>
                             @empty
@@ -298,7 +311,7 @@
                 datasets: [{
                     label: 'Students',
                     data: facultyCounts,
-                    backgroundColor: 'rgba(203, 92, 85, 0.8)', // #cb5c55
+                    backgroundColor: 'rgba(203, 92, 85, 0.8)', 
                     borderRadius: 4,
                     barThickness: 30
                 }]
