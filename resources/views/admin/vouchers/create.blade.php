@@ -1,5 +1,14 @@
 @extends('layouts.admin')
 
+@section('header_title')
+    <div class="flex items-center gap-2">
+        <a href="{{ route('admin.vouchers.index') }}" class="text-gray-400 hover:text-[#cb5c55] transition" title="Back to List">
+            <i class="ri-arrow-left-line text-xl align-middle"></i>
+        </a>
+        <span class="align-middle">Create Voucher</span>
+    </div>
+@endsection
+
 @section('content')
 <div class="max-w-4xl mx-auto">
     <div class="bg-white rounded-lg shadow p-6">
@@ -32,6 +41,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 
+                {{-- Code --}}
                 <div class="col-span-2 md:col-span-1">
                     <label for="code" class="block text-sm font-medium text-gray-700 mb-1">Voucher Code <span class="text-red-500">*</span></label>
                     <div class="relative">
@@ -42,6 +52,7 @@
                     </div>
                 </div>
 
+                {{-- Name --}}
                 <div class="col-span-2 md:col-span-1">
                     <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Voucher Name <span class="text-red-500">*</span></label>
                     <input type="text" name="name" id="name" value="{{ old('name') }}" 
@@ -49,6 +60,7 @@
                         placeholder="e.g. CNY Special Discount" required>
                 </div>
 
+                {{-- Type --}}
                 <div class="col-span-2 md:col-span-1">
                     <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Discount Type <span class="text-red-500">*</span></label>
                     <select name="type" id="type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#cb5c55] focus:ring-[#cb5c55] py-2 px-3 border bg-white">
@@ -57,6 +69,7 @@
                     </select>
                 </div>
 
+                {{-- Value --}}
                 <div class="col-span-2 md:col-span-1">
                     <label for="value" class="block text-sm font-medium text-gray-700 mb-1">Discount Value <span class="text-red-500">*</span></label>
                     <input type="number" step="0.01" name="value" id="value" value="{{ old('value') }}" 
@@ -64,6 +77,7 @@
                         placeholder="e.g. 10 or 50" required>
                 </div>
 
+                {{-- Uses Remaining --}}
                 <div class="col-span-2 md:col-span-1">
                     <label for="uses_remaining" class="block text-sm font-medium text-gray-700 mb-1">Total Uses Limit</label>
                     <input type="number" name="uses_remaining" id="uses_remaining" value="{{ old('uses_remaining') }}" 
@@ -72,7 +86,8 @@
                     <p class="text-xs text-gray-500 mt-1">Limit how many times this voucher can be used in total.</p>
                 </div>
 
-                <div class="col-span-2 md:col-span-1 flex items-end pb-3">
+                {{-- Checkboxes --}}
+                <div class="col-span-2 md:col-span-1 flex flex-col justify-center gap-2">
                     <div class="flex items-start">
                         <div class="flex items-center h-5">
                             <input id="single_use" name="single_use" type="checkbox" value="1" {{ old('single_use', '1') ? 'checked' : '' }} 
@@ -80,20 +95,17 @@
                         </div>
                         <div class="ml-3 text-sm">
                             <label for="single_use" class="font-medium text-gray-700">Single Use Per User?</label>
-                            <p class="text-gray-500">If checked, each customer can only use this code once.</p>
+                            <p class="text-xs text-gray-500">Each customer uses code once.</p>
                         </div>
                     </div>
-                </div>
 
-                <div class="col-span-2 md:col-span-1 flex items-end pb-3">
-                    <div class="flex items-start">
+                    <div class="flex items-start mt-2">
                         <div class="flex items-center h-5">
                             <input id="is_active" name="is_active" type="checkbox" value="1" checked
                                 class="focus:ring-[#cb5c55] h-4 w-4 text-[#cb5c55] border-gray-300 rounded">
                         </div>
                         <div class="ml-3 text-sm">
                             <label for="is_active" class="font-medium text-gray-700">Active Immediately?</label>
-                            <p class="text-gray-500">Uncheck to save as draft (customers can't use it yet).</p>
                         </div>
                     </div>
                 </div>
