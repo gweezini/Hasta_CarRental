@@ -38,25 +38,51 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div>
                 
+                {{-- 🔥 TAB 按钮区域 (新增了 Notifications) 🔥 --}}
                 <div class="bg-gray-200 p-1 rounded-lg inline-flex items-center mb-0 overflow-x-auto max-w-full">
                     
-                    <button onclick="openTab('booking')" id="tab-booking" class="px-6 py-2 text-sm font-bold rounded-md shadow bg-white text-gray-900 transition-all whitespace-nowrap">
+                    <button onclick="openTab('booking')" id="tab-booking" class="px-6 py-2 text-sm font-bold rounded-md shadow bg-white text-gray-900 transition-all whitespace-nowrap mr-2">
                         Booking History
                     </button>
 
-                    <button onclick="openTab('rewards')" id="tab-rewards" class="px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all whitespace-nowrap">
+                    <button onclick="openTab('rewards')" id="tab-rewards" class="px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all whitespace-nowrap mr-2">
                         My Rewards
                     </button>
 
-                    <button onclick="openTab('personal')" id="tab-personal" class="px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all whitespace-nowrap">
-                        Personal Information
+                    <button onclick="openTab('personal')" id="tab-personal" class="px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all whitespace-nowrap mr-2">
+                        Personal Info
+                    </button>
+
+                    {{-- 🔥 Notification Tab 按钮 🔥 --}}
+                    <button onclick="openTab('notifications')" id="tab-notifications" class="relative px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all whitespace-nowrap">
+                        <i class="ri-notification-3-line text-lg align-middle"></i> Notifications
+                        @if(Auth::user()->unreadNotifications->count() > 0)
+                            <span class="absolute top-1 right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-red-100 transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
+                                {{ Auth::user()->unreadNotifications->count() }}
+                            </span>
+                        @endif
                     </button>
                     
                 </div>
 
+                @php
+                    $allBookings = $bookings ?? collect();
+                    $now = \Carbon\Carbon::now();
+
+                    // Past: 状态已结束 OR 时间已过期
+                    $pastBookings = $allBookings->filter(function($b) use ($now) {
+                        $isClosed = in_array($b->status, ['Rejected', 'Returned', 'Completed']);
+                        $isExpired = $b->return_date_time && \Carbon\Carbon::parse($b->return_date_time)->lt($now);
+                        return $isClosed || $isExpired;
+                    });
+
+                    // Ongoing: 剩下的都是进行中
+                    $ongoingBookings = $allBookings->diff($pastBookings);
+                @endphp
+
+                {{-- 1. Booking History Content --}}
                 <div id="content-booking" class="mt-4">
                     <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                        <!-- Ongoing Bookings -->
                         <h2 class="text-lg font-medium text-gray-900 mb-4">Ongoing Bookings</h2>
                         
                         @if($ongoingBookings->count() > 0)
@@ -68,18 +94,23 @@
                                                 <h3 class="font-semibold text-gray-900">Booking ID: #{{ $booking->id }}</h3>
                                                 <p class="text-sm text-gray-600">{{ $booking->vehicle?->model ?? 'N/A' }} ({{ $booking->vehicle?->plate_number ?? 'N/A' }})</p>
                                             </div>
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                                                {{ $booking->status == 'Waiting for Verification' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800' }}">
                                                 {{ ucfirst($booking->status) }}
                                             </span>
                                         </div>
                                         <div class="grid grid-cols-2 gap-4 text-sm">
                                             <div>
                                                 <p class="text-gray-500">Pickup</p>
-                                                <p class="font-medium text-gray-900">{{ $booking->pickup_date_time->format('M d, Y h:i A') }}</p>
+                                                <p class="font-medium text-gray-900">
+                                                    {{ $booking->pickup_date_time ? \Carbon\Carbon::parse($booking->pickup_date_time)->format('M d, Y h:i A') : 'Not Set' }}
+                                                </p>
                                             </div>
                                             <div>
                                                 <p class="text-gray-500">Return</p>
-                                                <p class="font-medium text-gray-900">{{ $booking->return_date_time->format('M d, Y h:i A') }}</p>
+                                                <p class="font-medium text-gray-900">
+                                                    {{ $booking->return_date_time ? \Carbon\Carbon::parse($booking->return_date_time)->format('M d, Y h:i A') : 'Not Set' }}
+                                                </p>
                                             </div>
                                         </div>
                                         <div class="mt-3 pt-3 border-t border-blue-200">
@@ -94,7 +125,6 @@
                             </div>
                         @endif
 
-                        <!-- Past Bookings -->
                         <h2 class="text-lg font-medium text-gray-900 mb-4 mt-8">Past Bookings</h2>
                         
                         @if($pastBookings->count() > 0)
@@ -107,18 +137,24 @@
                                                 <p class="text-sm text-gray-600">{{ $booking->vehicle?->model ?? 'N/A' }} ({{ $booking->vehicle?->plate_number ?? 'N/A' }})</p>
                                             </div>
                                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
-                                                @if($booking->status === 'completed') bg-green-100 text-green-800 @else bg-gray-100 text-gray-800 @endif">
+                                                @if($booking->status === 'Completed' || $booking->status === 'Returned') bg-green-100 text-green-800 
+                                                @elseif($booking->status === 'Rejected') bg-red-100 text-red-800 
+                                                @else bg-gray-100 text-gray-800 @endif">
                                                 {{ ucfirst($booking->status) }}
                                             </span>
                                         </div>
                                         <div class="grid grid-cols-2 gap-4 text-sm">
                                             <div>
                                                 <p class="text-gray-500">Pickup</p>
-                                                <p class="font-medium text-gray-900">{{ $booking->pickup_date_time->format('M d, Y h:i A') }}</p>
+                                                <p class="font-medium text-gray-900">
+                                                    {{ $booking->pickup_date_time ? \Carbon\Carbon::parse($booking->pickup_date_time)->format('M d, Y h:i A') : 'Not Set' }}
+                                                </p>
                                             </div>
                                             <div>
                                                 <p class="text-gray-500">Return</p>
-                                                <p class="font-medium text-gray-900">{{ $booking->return_date_time->format('M d, Y h:i A') }}</p>
+                                                <p class="font-medium text-gray-900">
+                                                    {{ $booking->return_date_time ? \Carbon\Carbon::parse($booking->return_date_time)->format('M d, Y h:i A') : 'Not Set' }}
+                                                </p>
                                             </div>
                                         </div>
                                         <div class="mt-3 pt-3 border-t border-gray-200">
@@ -140,6 +176,7 @@
                     </div>
                 </div>
 
+                {{-- 2. Rewards Content --}}
                 <div id="content-rewards" class="hidden mt-4">
                     <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                         <h2 class="text-lg font-medium text-gray-900 mb-4">My Rewards & Loyalty Stamps</h2>
@@ -176,6 +213,7 @@
                     </div>
                 </div>
 
+                {{-- 3. Personal Content --}}
                 <div id="content-personal" class="space-y-6 mt-4 hidden">
                     <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                         <div class="max-w-xl">
@@ -196,6 +234,59 @@
                     </div>
                 </div>
 
+                {{-- 🔥 4. Notification Content (新增部分) 🔥 --}}
+                <div id="content-notifications" class="hidden mt-4">
+                    <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-medium text-gray-900">Notifications</h2>
+                            @if(Auth::user()->unreadNotifications->count() > 0)
+                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                    {{ Auth::user()->unreadNotifications->count() }} new
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="space-y-4">
+                            @forelse(Auth::user()->notifications as $notification)
+                                <div class="flex items-start p-4 rounded-lg border {{ $notification->read_at ? 'bg-white border-gray-200' : 'bg-blue-50 border-blue-200' }}">
+                                    <div class="flex-shrink-0 mr-3">
+                                        @if(isset($notification->data['status']) && $notification->data['status'] == 'Approved')
+                                            <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+                                                <i class="ri-check-line"></i>
+                                            </div>
+                                        @elseif(isset($notification->data['status']) && $notification->data['status'] == 'Rejected')
+                                            <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
+                                                <i class="ri-close-line"></i>
+                                            </div>
+                                        @else
+                                            <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center">
+                                                <i class="ri-notification-line"></i>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">
+                                            {{ $notification->data['message'] ?? 'No message' }}
+                                        </p>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
+                                        </p>
+                                    </div>
+                                    @if(!$notification->read_at)
+                                        <div class="w-2 h-2 bg-blue-500 rounded-full mt-2" title="Unread"></div>
+                                        {{ $notification->markAsRead() }} 
+                                    @endif
+                                </div>
+                            @empty
+                                <div class="text-center py-12 text-gray-400">
+                                    <i class="ri-notification-off-line text-4xl mb-2 block"></i>
+                                    <p>No notifications yet.</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -203,48 +294,59 @@
 
     <script>
         function openTab(tabName) {
-            // Get Content Divs
-            const contentBooking = document.getElementById('content-booking');
-            const contentRewards = document.getElementById('content-rewards');
-            const contentPersonal = document.getElementById('content-personal');
+            const tabs = ['booking', 'rewards', 'personal', 'notifications'];
             
-            // Get Buttons
-            const btnBooking = document.getElementById('tab-booking');
-            const btnRewards = document.getElementById('tab-rewards');
-            const btnPersonal = document.getElementById('tab-personal');
+            // 样式定义
+            const activeClass = "px-6 py-2 text-sm font-bold rounded-md shadow bg-white text-gray-900 transition-all whitespace-nowrap mr-2";
+            const inactiveClass = "px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all whitespace-nowrap mr-2";
+            
+            // Notification 特殊样式 (因为它带红点)
+            const notifActive = "relative px-6 py-2 text-sm font-bold rounded-md shadow bg-white text-gray-900 transition-all whitespace-nowrap";
+            const notifInactive = "relative px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all whitespace-nowrap";
 
-            // Styles
-            const activeClass = "px-6 py-2 text-sm font-bold rounded-md shadow bg-white text-gray-900 transition-all whitespace-nowrap";
-            const inactiveClass = "px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all whitespace-nowrap";
+            tabs.forEach(t => {
+                // 隐藏所有内容
+                const content = document.getElementById('content-' + t);
+                if(content) content.classList.add('hidden');
+                
+                // 重置所有按钮
+                const btn = document.getElementById('tab-' + t);
+                if(btn) {
+                    if(t === 'notifications') {
+                        btn.className = notifInactive;
+                    } else {
+                        btn.className = inactiveClass;
+                    }
+                }
+            });
 
-            // Hide Everything First
-            contentBooking.classList.add('hidden');
-            contentRewards.classList.add('hidden');
-            contentPersonal.classList.add('hidden');
+            // 显示选中内容
+            const activeContent = document.getElementById('content-' + tabName);
+            if(activeContent) activeContent.classList.remove('hidden');
 
-            // Reset All Buttons
-            btnBooking.className = inactiveClass;
-            btnRewards.className = inactiveClass;
-            btnPersonal.className = inactiveClass;
-
-            // Show Selected
-            if (tabName === 'booking') {
-                contentBooking.classList.remove('hidden');
-                btnBooking.className = activeClass;
-            } else if (tabName === 'rewards') {
-                contentRewards.classList.remove('hidden');
-                btnRewards.className = activeClass;
-            } else if (tabName === 'personal') {
-                contentPersonal.classList.remove('hidden');
-                btnPersonal.className = activeClass;
+            // 激活选中按钮
+            const activeBtn = document.getElementById('tab-' + tabName);
+            if(activeBtn) {
+                if(tabName === 'notifications') {
+                    activeBtn.className = notifActive;
+                } else {
+                    activeBtn.className = activeClass;
+                }
             }
         }
 
-        // Logic to keep Personal tab open after saving
         document.addEventListener("DOMContentLoaded", function() {
-            @if (session('status') === 'profile-updated' || $errors->any())
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+
+            if (tabParam === 'notifications') {
+                openTab('notifications');
+            } else if ("{{ session('status') }}" === 'profile-updated' || "{{ $errors->any() }}") {
                 openTab('personal');
-            @endif
+            } else {
+                openTab('booking');
+            }
         });
     </script>
 </x-app-layout>
