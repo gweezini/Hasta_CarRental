@@ -244,11 +244,9 @@ class BookingController extends Controller
             return redirect()->route('profile.edit')->with('error', 'Only approved bookings can be modified.');
         }
 
-        // Check 24h constraint
-        // Use 'false' in diffInHours to get negative values if past
-        $hoursUntilPickup = now()->diffInHours($booking->pickup_date_time, false);
-        if ($hoursUntilPickup < 24) {
-            return redirect()->route('profile.edit')->with('error', 'Bookings can only be modified 24 hours in advance.');
+        // Check time constraint: Modification allowed anytime BEFORE pickup
+        if (now()->gte($booking->pickup_date_time)) {
+            return redirect()->route('profile.edit')->with('error', 'Past bookings cannot be modified.');
         }
 
         return view('bookings.edit', compact('booking'));
@@ -267,10 +265,9 @@ class BookingController extends Controller
              return redirect()->route('profile.edit')->with('error', 'Only approved bookings can be modified.');
         }
 
-        // Check 24h constraint based on ORIGINAL pickup time
-        $hoursUntilPickup = now()->diffInHours($booking->pickup_date_time, false);
-        if ($hoursUntilPickup < 24) {
-            return redirect()->route('profile.edit')->with('error', 'Bookings can only be modified 24 hours in advance.');
+        // Check time constraint based on ORIGINAL pickup time
+        if (now()->gte($booking->pickup_date_time)) {
+             return redirect()->route('profile.edit')->with('error', 'Past bookings cannot be modified.');
         }
 
         $request->validate([
@@ -348,10 +345,38 @@ class BookingController extends Controller
         $booking->emergency_contact_phone = $request->emergency_contact;
         
         $booking->total_rental_fee = $final_total;
-        // Don't change deposit or payment receipt or status
+        
+        // Reset status for re-approval
+        $booking->status = 'Waiting for Verification';
+        $booking->payment_verified = false;
         
         $booking->save();
 
-        return redirect()->route('profile.edit')->with('success', 'Booking updated successfully!');
+        return redirect()->route('profile.edit')->with('success', 'Booking updated successfully! It has been submitted for re-approval.');
+    }
+
+    // 5. DELETE METHOD (Cancellation)
+    public function destroy($id)
+    {
+        $booking = Booking::findOrFail($id);
+        
+        if ($booking->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // Check 24h constraint
+        // now() + 24h should be BEFORE pickup time. 
+        // Equiv: diffInHours between now and pickup must be > 24.
+        $hoursUntilPickup = now()->diffInHours($booking->pickup_date_time, false);
+        
+        if ($hoursUntilPickup < 24) {
+             return redirect()->back()->with('error', 'Bookings can only be cancelled 24 hours in advance.');
+        }
+
+        // Update status to Cancelled instead of deleting record
+        $booking->status = 'Cancelled';
+        $booking->save();
+
+        return redirect()->route('profile.edit')->with('success', 'Booking cancelled successfully. If you have made a payment, please contact admin for refund.');
     }
 }
