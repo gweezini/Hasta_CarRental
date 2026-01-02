@@ -29,6 +29,7 @@ class User extends Authenticatable
         // --- Role & Status ---
         'role',             // 'customer', 'admin', 'topmanagement'
         'is_blacklisted',   // From ERD (Boolean)
+        'blacklist_reason',
 
         // --- Student Specific (Nullable for Staff) ---
         'driving_license',  // Renamed from 'license_number' to match ERD 'DrivingLicense'
