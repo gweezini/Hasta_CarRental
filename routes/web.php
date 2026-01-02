@@ -36,6 +36,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+//  Admin Routes (Staff Access)
 Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
@@ -66,6 +67,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     Route::post('/booking/{id}/return', [AdminController::class, 'markAsReturned'])->name('admin.booking.return');
     
+    // 🔥🔥🔥 Notification Center 
+    Route::get('/notifications', [AdminController::class, 'notifications'])->name('admin.notifications');
+
     // Voucher Management (Staff)
     Route::get('/vouchers', [VoucherController::class, 'index'])->name('admin.vouchers.index');
     Route::get('/vouchers/create', [VoucherController::class, 'create'])->name('admin.vouchers.create');
@@ -75,6 +79,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::delete('/vouchers/{voucher}', [VoucherController::class, 'destroy'])->name('admin.vouchers.destroy');
 });
 
+// 🔥 User Booking Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/booking/{id}', [BookingController::class, 'show'])->name('booking.show');
     Route::post('/confirm-booking', [BookingController::class, 'store'])->name('booking.store');

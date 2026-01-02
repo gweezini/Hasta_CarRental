@@ -194,4 +194,53 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
+
+    public function notifications()
+    {
+        $now = \Carbon\Carbon::now();
+        $threshold = $now->copy()->addDays(30);
+
+        $activeList = \App\Models\Vehicle::where('road_tax_expiry', '<=', $threshold)
+            ->orWhere('insurance_expiry', '<=', $threshold)
+            ->get()->flatMap(function ($car) use ($threshold) {
+                $items = [];
+                if ($car->road_tax_expiry <= $threshold) {
+                    $items[] = (object)[
+                        'status_type' => 'active',
+                        'type' => 'Road Tax',
+                        'message' => "Road Tax for {$car->brand} {$car->model} ({$car->plate_number})",
+                        'date' => $car->road_tax_expiry,
+                        'car_id' => $car->id,
+                        'is_expired' => \Carbon\Carbon::parse($car->road_tax_expiry)->isPast()
+                    ];
+                }
+                if ($car->insurance_expiry <= $threshold) {
+                    $items[] = (object)[
+                        'status_type' => 'active',
+                        'type' => 'Insurance',
+                        'message' => "Insurance for {$car->brand} {$car->model} ({$car->plate_number})",
+                        'date' => $car->insurance_expiry,
+                        'car_id' => $car->id,
+                        'is_expired' => \Carbon\Carbon::parse($car->insurance_expiry)->isPast()
+                    ];
+                }
+                return $items;
+            })->sortBy('date');
+
+        $resolvedList = \App\Models\Vehicle::where('road_tax_expiry', '>', $threshold)
+            ->where('insurance_expiry', '>', $threshold)
+            ->orderBy('updated_at', 'desc') 
+            ->get()->map(function ($car) {
+                return (object)[
+                    'status_type' => 'resolved',
+                    'type' => 'Updated',
+                    'message' => "Documents verified for {$car->brand} {$car->model} ({$car->plate_number})",
+                    'date' => $car->updated_at, 
+                    'car_id' => $car->id,
+                    'is_expired' => false
+                ];
+            });
+
+        return view('admin.notifications', compact('activeList', 'resolvedList'));
+    }
 }
