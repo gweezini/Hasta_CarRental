@@ -133,6 +133,16 @@ class BookingController extends Controller
             return redirect()->back()->with('error', 'Return time must be after pickup time.');
         }
 
+        // 24h Lead Time Check
+        if (now()->diffInHours($start, false) < 24) {
+            return redirect()->back()->with('error', 'Bookings must be made at least 24 hours in advance.');
+        }
+        
+        // Minimum 1 Hour Check
+        if ($start->diffInMinutes($end, false) < 60) {
+            return redirect()->back()->with('error', 'Minimum rental time is 1 hour.');
+        }
+
         $hours = ceil($start->floatDiffInHours($end));
         if ($hours < 1) $hours = 1;
         $subtotal = $hours * $vehicle->price_per_hour;
@@ -294,6 +304,11 @@ class BookingController extends Controller
         
         if ($end->lte($start)) {
             return redirect()->back()->with('error', 'Return time must be after pickup time.');
+        }
+
+        // Minimum 1 Hour Check
+        if ($start->diffInMinutes($end, false) < 60) {
+             return redirect()->back()->with('error', 'Minimum rental time is 1 hour.');
         }
 
         $hours = ceil($start->floatDiffInHours($end));
