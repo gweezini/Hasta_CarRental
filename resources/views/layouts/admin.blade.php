@@ -11,58 +11,71 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
         .sidebar-active { background-color: rgba(255, 255, 255, 0.2); border-left: 4px solid #fff; }
+
+        @media print {
+            aside, header, button, form, .no-print {
+                display: none !important;
+            }
+            main {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                overflow: visible !important;
+                background-color: white !important;
+            }
+            .shadow-sm, .shadow-md, .shadow-lg, .shadow-2xl {
+                box-shadow: none !important;
+                border: 1px solid #eee !important;
+            }
+            .bg-[#cb5c55], .theme-bg, .bg-red-50, .bg-blue-50, .bg-green-50, .bg-purple-50 {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
 
     <aside class="w-64 bg-[#cb5c55] text-white flex flex-col flex-shrink-0 transition-all duration-300">
-    <div class="p-6 flex items-center justify-center border-b border-white/10">
-        <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Logo" class="h-10 rounded shadow-lg border-2 border-white/30">
-    </div>
+        <div class="p-6 flex items-center justify-center border-b border-white/10">
+            <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Logo" class="h-10 rounded shadow-lg border-2 border-white/30">
+        </div>
 
-    <nav class="flex-1 overflow-y-auto py-8 space-y-2">
+        <nav class="flex-1 overflow-y-auto py-8 space-y-2">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.dashboard') ? 'sidebar-active' : '' }}">
+                <i class="ri-dashboard-line mr-3 text-xl"></i> Dashboard
+            </a>
+            <a href="{{ route('admin.bookings.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.bookings*') ? 'sidebar-active' : '' }}">
+                <i class="ri-list-check mr-3 text-xl"></i> Bookings
+            </a>
+            <a href="{{ route('admin.vehicle.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle*') ? 'sidebar-active' : '' }}">
+                <i class="ri-car-line mr-3 text-xl"></i> Fleet Management
+            </a>
+            <a href="{{ route('admin.customers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.customers*') ? 'sidebar-active' : '' }}">
+                <i class="ri-user-line mr-3 text-xl"></i> Customers
+            </a>
+            @if(Auth::user()->isTopManagement())
+            <a href="{{ route('admin.reports') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.reports') ? 'sidebar-active' : '' }}">
+                <i class="ri-file-chart-line mr-3 text-xl"></i> Reports
+            </a>
+            @endif
+            <a href="{{ route('admin.vouchers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vouchers*') ? 'sidebar-active' : '' }}">
+                <i class="ri-coupon-3-line mr-3 text-xl"></i> Vouchers
+            </a>
+        </nav>
         
-        <a href="{{ route('admin.dashboard') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.dashboard') ? 'sidebar-active' : '' }}">
-            <i class="ri-dashboard-line mr-3 text-xl"></i> Dashboard
-        </a>
-
-        <a href="{{ route('admin.bookings.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.bookings*') ? 'sidebar-active' : '' }}">
-            <i class="ri-list-check mr-3 text-xl"></i> Bookings
-        </a>
-
-        <a href="{{ route('admin.vehicle.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle*') ? 'sidebar-active' : '' }}">
-            <i class="ri-car-line mr-3 text-xl"></i> Fleet Management
-        </a>
-
-        <a href="{{ route('admin.customers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.customers*') ? 'sidebar-active' : '' }}">
-            <i class="ri-user-line mr-3 text-xl"></i> Customers
-        </a>
-        
-        @if(Auth::user()->isTopManagement())
-        <a href="{{ route('admin.reports') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.reports') ? 'sidebar-active' : '' }}">
-            <i class="ri-file-chart-line mr-3 text-xl"></i> Reports
-        </a>
-        @endif
-        
-        <a href="{{ route('admin.vouchers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vouchers*') ? 'sidebar-active' : '' }}">
-            <i class="ri-coupon-3-line mr-3 text-xl"></i> Vouchers
-        </a>
-    </nav>
-    
-    <div class="p-6 text-center text-[10px] text-white/30 uppercase tracking-widest font-bold">
-        Hasta Admin Panel v1.1
-    </div>
-</aside>
+        <div class="p-6 text-center text-[10px] text-white/30 uppercase tracking-widest font-bold">
+            Hasta Admin Panel v1.1
+        </div>
+    </aside>
 
     <div class="flex-1 flex flex-col h-screen overflow-hidden">
-        
         <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 z-10">
             <h2 class="text-2xl font-bold text-gray-800">
                 @yield('header_title', 'Admin Portal')
             </h2>
             
             <div class="flex items-center gap-4">
-                
                 <div x-data="{ open: false }" class="relative">
                     @php
                         $alertCount = 0;
@@ -103,7 +116,6 @@
                                 </div>
                             @endif
                         </div>
-                        
                         @if($alertCount > 0)
                         <a href="{{ route('admin.notifications') }}" class="block text-center py-4 text-sm font-black text-[#cd5c5c] hover:bg-gray-50 border-t tracking-widest uppercase">
                             View All Notifications
@@ -141,8 +153,7 @@
 
         <main class="flex-1 overflow-y-auto p-8 bg-[#f3f4f6]">
             @yield('content')
-            
-            <div class="mt-8 text-center text-xs text-gray-400">&copy; 2026 Hasta Car Rental Admin Panel</div>
+            <div class="mt-8 text-center text-xs text-gray-400 no-print">&copy; 2026 Hasta Car Rental Admin Panel</div>
         </main>
     </div>
 
