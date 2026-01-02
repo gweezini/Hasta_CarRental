@@ -762,7 +762,7 @@ input[type="radio"]:checked + .payment-label-content .radio-circle::after {
   <div class="booking__grid">
   
   <div class="booking__form">
-    <form id="bookingForm" action="/confirm-booking" method="POST" enctype="multipart/form-data">
+   <form id="bookingForm" action="{{ route('booking.store') }}" method="POST" enctype="multipart/form-data">
       @csrf
       
       <input type="hidden" name="vehicle_id" value="{{ $vehicle->id }}">
