@@ -325,7 +325,7 @@
                                 
                                 <div class="text-left">
                                     <h2 class="font-[Syncopate] font-bold text-lg text-white tracking-widest uppercase leading-none">Hasta</h2>
-                                    <p class="text-[9px] text-gray-300 font-medium tracking-wide uppercase">Member Card</p>
+                                    <p class="text-[9px] text-gray-300 font-medium tracking-wide uppercase">Loyalty Card</p>
                                 </div>
                                 
                                 <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
