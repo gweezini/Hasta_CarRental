@@ -717,14 +717,13 @@
         <div class="booking__grid">
           <div class="booking__form">
             <form
-              id="bookingForm"
-              action="{{ route('booking.store') }}"
-              method="POST"
-              enctype="multipart/form-data"
-            >
-              @csrf
-
-              <input type="hidden" name="vehicle_id" value="{{ $vehicle->id }}" />
+            id="bookingForm"
+            action="{{ route('booking.store') }}"
+            method="POST"
+            enctype="multipart/form-data"
+          >
+          @csrf
+          <input type="hidden" name="vehicle_id" value="{{ $vehicle->id }}">
 
               <div class="form__section">
                 <h3><i class="ri-calendar-check-line"></i> Rental Period</h3>
@@ -928,7 +927,7 @@
 
                 <button
                   type="button"
-                  onclick="updatePrice()"
+                  id="applyVoucherBtn"
                   class="btn btn-transparent"
                   style="margin-top: 15px; width: 100%; border: 1px solid var(--primary-color); color: var(--primary-color);"
                 >
@@ -1431,7 +1430,9 @@
              // Attach to other inputs
              if(dropoffSelect) dropoffSelect.addEventListener("change", calculatePrice);
              voucherRadios.forEach(r => r.addEventListener("change", calculatePrice));
-             // Manual code button click listener? Or input blur
+             // Manual code button click listener
+             const applyBtn = document.getElementById('applyVoucherBtn');
+             if(applyBtn) applyBtn.addEventListener('click', calculatePrice);
              // ...
         });
     </script>
