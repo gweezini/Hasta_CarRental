@@ -43,23 +43,33 @@ class VoucherSeeder extends Seeder
             ]
         );
 
-        // 2. Assign to First User (for testing)
-        $user = \App\Models\User::first();
-        if ($user) {
-            // Check if already assigned to avoid duplicates
-            if (!$user->userVouchers()->where('voucher_id', $v1->id)->exists()) {
-                \App\Models\UserVoucher::create([
-                    'user_id' => $user->matric_staff_id,
-                    'voucher_id' => $v1->id,
-                ]);
-            }
+        // 2. Assign to the Logged-In User (Ali Student)
+        // Targeting the Matric ID from UserSeeder
+        $user = \App\Models\User::where('matric_staff_id', 'A19EC0001')->first() 
+                ?? \App\Models\User::where('email', 'student@utm.my')->first()
+                ?? \App\Models\User::first();
 
-            if (!$user->userVouchers()->where('voucher_id', $v2->id)->exists()) {
-                \App\Models\UserVoucher::create([
-                    'user_id' => $user->matric_staff_id,
-                    'voucher_id' => $v2->id,
-                ]);
+        if ($user) {
+            $this->command->info("Found User: " . $user->id . " | Matric: " . $user->matric_staff_id);
+
+            try {
+                // FLUSH existing vouchers
+                $user->userVouchers()->delete();
+                
+                $vouchersToAssign = [$v1, $v2, $v3];
+
+                foreach ($vouchersToAssign as $voucher) {
+                    \App\Models\UserVoucher::create([
+                        'user_id' => $user->matric_staff_id,
+                        'voucher_id' => $voucher->id,
+                    ]);
+                    $this->command->info("Assigned voucher: " . $voucher->code);
+                }
+            } catch (\Exception $e) {
+                $this->command->error("Error: " . $e->getMessage());
             }
+        } else {
+            $this->command->error("User student@utm.my not found.");
         }
     }
 }

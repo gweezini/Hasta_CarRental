@@ -20,32 +20,41 @@ class UserVoucherController extends Controller
     {
         $request->validate(['code' => 'required|string']);
         $code = strtoupper($request->code);
-        $template = Voucher::where('code', $code)->where('is_active', true)->first();
-        if (!$template) return redirect()->back()->with('error', 'Invalid code');
+        
+        // 1. Find the voucher master record
+        $voucher = Voucher::where('code', $code)->where('is_active', true)->first();
 
-        // create a user-specific voucher
-        UserVoucher::create([
-            'user_id' => Auth::id(),
-            'code' => $template->code,
-            'name' => $template->name,
-            'type' => $template->type,
-            'value' => $template->value,
-            'source' => 'code',
-            'is_active' => true,
-        ]);
-
-        // honor template single-use / usage count
-        if ($template->single_use) {
-            if (is_null($template->uses_remaining) || $template->uses_remaining <= 1) {
-                $template->is_active = false;
-                $template->uses_remaining = 0;
-            } else {
-                $template->uses_remaining = max(0, $template->uses_remaining - 1);
-            }
-            $template->save();
+        // 2. Validation
+        if (!$voucher) {
+            return redirect()->back()->with('error', 'Invalid or inactive code.');
         }
 
-        return redirect()->back()->with('success', 'Code redeemed');
+        // 3. User & Duplicate Check
+        $user = Auth::user();
+
+        // Check availability (uses_remaining)
+        if ($voucher->single_use && $voucher->uses_remaining !== null && $voucher->uses_remaining <= 0) {
+            return redirect()->back()->with('error', 'This voucher has been fully redeemed.');
+        }
+
+        // Check if user already owns it
+        if ($user->userVouchers()->where('voucher_id', $voucher->id)->exists()) {
+            return redirect()->back()->with('error', 'You have already redeemed this voucher.');
+        }
+
+        // 4. Assign Voucher (Pivot Creation)
+        UserVoucher::create([
+            'user_id' => $user->matric_staff_id, // Use correct FK
+            'voucher_id' => $voucher->id,
+            'used_at' => null
+        ]);
+
+        // 5. Deduct Global Usage if applicable
+        if ($voucher->single_use && $voucher->uses_remaining !== null) {
+             $voucher->decrement('uses_remaining');
+        }
+
+        return redirect()->route('profile.edit', ['tab' => 'rewards'])->with('success', 'Voucher redeemed successfully!');
     }
 
     public function redeemLoyalty(Request $request)
