@@ -25,8 +25,8 @@
 
         /* --- NAVIGATION STYLES --- */
         nav {
-            background-color: var(--text-dark); /* 黑色背景 */
-            padding: 0.8rem 2rem;
+            background-color: #2d3748;
+            padding: 1rem 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -193,9 +193,7 @@
                 $allBookings = $bookings ?? collect();
                 // 筛选逻辑
                 $pastBookings = $allBookings->filter(function($b) {
-                    $isStatusEnded = in_array($b->status, ['Rejected', 'Returned', 'Completed']);
-                    $isTimePassed = $b->return_date_time && \Carbon\Carbon::parse($b->return_date_time)->lt(now());
-                    return $isStatusEnded || $isTimePassed;
+                    return in_array($b->status, ['Rejected', 'Returned', 'Completed', 'Cancelled']) || ($b->return_date_time && \Carbon\Carbon::parse($b->return_date_time)->lt(now()));
                 });
                 $ongoingBookings = $allBookings->diff($pastBookings);
             @endphp
@@ -231,7 +229,33 @@
                                             <p class="font-medium text-gray-800">{{ $booking->return_date_time ? \Carbon\Carbon::parse($booking->return_date_time)->format('M d, Y h:i A') : '-' }}</p>
                                         </div>
                                     </div>
-                                    <div class="mt-4 pt-4 border-t border-blue-100 text-right">
+                                    <div class="mt-4 pt-4 border-t border-blue-100 flex justify-between items-center">
+                                        <div class="flex gap-2">
+                                            @if($booking->status == 'Approved')
+                                                @php
+                                                    $now = \Carbon\Carbon::now();
+                                                    $pickup = \Carbon\Carbon::parse($booking->pickup_date_time);
+                                                    $canModify = $now->lt($pickup);
+                                                    $canCancel = $now->diffInHours($pickup, false) > 24;
+                                                @endphp
+                                                
+                                                @if($canModify)
+                                                    <a href="{{ route('booking.edit', $booking->id) }}" class="text-xs md:text-sm text-white bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded-lg transition font-medium flex items-center">
+                                                        <i class="ri-edit-line mr-1"></i> Modify
+                                                    </a>
+                                                @endif
+
+                                                @if($canCancel)
+                                                    <form action="{{ route('booking.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking? If you have made a payment, please contact us for a refund.');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-xs md:text-sm text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-2 rounded-lg transition font-medium flex items-center">
+                                                            <i class="ri-delete-bin-line mr-1"></i> Cancel
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            @endif
+                                        </div>
                                         <p class="text-lg font-bold text-gray-900">RM {{ number_format($booking->total_rental_fee, 2) }}</p>
                                     </div>
                                 </div>
@@ -276,23 +300,155 @@
             </div>
 
             <div id="content-rewards" class="hidden animate-fade-in">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600">
-                        <i class="ri-vip-crown-fill text-3xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-gray-900">Loyalty Program</h2>
-                    <p class="text-gray-500 mb-8">Earn stamps with every booking!</p>
+                
+                @php
+                    $totalStamps = $totalStamps ?? 0; 
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                        <div class="bg-gradient-to-br from-[#ec5a29] to-[#ff7e5f] text-white p-6 rounded-2xl shadow-lg">
-                            <p class="text-xs font-bold uppercase opacity-80 mb-1">Total Stamps</p>
-                            <p class="text-5xl font-extrabold">0</p>
+                    $rewards = [
+                        3 => '10% Off Voucher',
+                        6 => '15% Off Voucher',
+                        9 => '20% Off Voucher',
+                        12 => '25% Off Voucher',
+                        15 => '12 Hours Free Rental'
+                    ];
+
+                    // Mock Vouchers for "My Vouchers" section
+                    $myVouchers = [
+                        ['code' => 'WELCOME10', 'desc' => '10% Welcome Discount', 'expiry' => '2025-12-31'],
+                    ];
+                @endphp
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    
+                    {{-- LEFT COLUMN: LOYALTY CARD (LANDSCAPE) --}}
+                    <div>
+                        <div class="bg-[#fdfbf7] border border-stone-200 rounded-xl shadow-xl overflow-hidden relative transform transition hover:rotate-1 duration-500">
+                            {{-- Card Header --}}
+                            <div class="bg-[#2d3748] p-4 text-center border-b-4 border-[#ec5a29] relative overflow-hidden flex justify-between items-center px-6">
+                                <div class="absolute top-0 left-0 w-full h-full opacity-10" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 10px 10px;"></div>
+                                
+                                <div class="text-left">
+                                    <h2 class="font-[Syncopate] font-bold text-lg text-white tracking-widest uppercase leading-none">Hasta</h2>
+                                    <p class="text-[9px] text-gray-300 font-medium tracking-wide uppercase">Member Card</p>
+                                </div>
+                                
+                                <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                                    <i class="ri-vip-crown-2-fill text-[#ec5a29]"></i>
+                                </div>
+                            </div>
+
+                            {{-- Stamp Grid (Landscape: 5 Cols x 3 Rows) --}}
+                            <div class="p-6 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]">
+                                <div class="grid grid-cols-5 gap-4"> 
+                                    @for ($i = 1; $i <= 15; $i++)
+                                        @php
+                                            $isMilestone = array_key_exists($i, $rewards);
+                                            $hasStamp = $i <= $totalStamps;
+                                        @endphp
+                                        
+                                        <div class="relative group aspect-square flex items-center justify-center rounded-full border-2 
+                                            {{ $isMilestone ? 'border-[#ec5a29] border-dashed bg-[#ec5a29]/5' : 'border-gray-300 border-dashed bg-white/50' }}
+                                            {{ $hasStamp ? 'bg-[#ec5a29] border-solid border-[#ec5a29] shadow-inner' : '' }}
+                                            transition-all duration-300 hover:scale-110 cursor-default"
+                                        >
+                                            @if($hasStamp)
+                                                <i class="ri-vip-crown-2-fill text-white text-xl drop-shadow-md transform -rotate-12"></i>
+                                            @else
+                                                <span class="font-[Syncopate] font-bold text-sm {{ $isMilestone ? 'text-[#ec5a29]' : 'text-gray-300' }}">
+                                                    {{ $i }}
+                                                </span>
+                                            @endif
+
+                                            @if($isMilestone)
+                                                {{-- Tooltip --}}
+                                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-gray-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-10 font-bold tracking-wide shadow-xl transform translate-y-2 group-hover:translate-y-0">
+                                                    {{ $rewards[$i] }}
+                                                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                                </div>
+                                                
+                                                @if(!$hasStamp)
+                                                <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ec5a29] rounded-full animate-ping"></div>
+                                                <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ec5a29] rounded-full"></div>
+                                                @endif
+                                            @endif
+                                        </div>
+                                    @endfor
+                                </div>
+                            </div>
+                            
+                            {{-- Card Footer --}}
+                            <div class="bg-gray-50 p-3 text-center border-t border-gray-100 flex justify-between items-center px-6">
+                                <div class="text-left">
+                                    <p class="text-[9px] text-gray-400 uppercase font-bold tracking-wider">Stamp Progress</p>
+                                    <div class="w-32 h-1.5 bg-gray-200 rounded-full mt-1 overflow-hidden">
+                                        <div class="h-full bg-[#ec5a29]" style="width: {{ ($totalStamps / 15) * 100 }}%"></div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                     <p class="text-[#ec5a29] font-[Syncopate] font-bold text-xl leading-none">{{ $totalStamps }}<span class="text-gray-300 text-xs">/15</span></p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 flex flex-col justify-center">
-                            <p class="text-sm text-gray-500 mb-2">Available Vouchers</p>
-                            <p class="text-2xl font-bold text-gray-800">None</p>
+                        
+                        <div class="text-center mt-4 text-gray-400 text-[10px]">
+                            <p><i class="ri-information-line"></i> Stamps are automatically added upon booking completion.</p>
                         </div>
                     </div>
+
+                    {{-- RIGHT COLUMN: VOUCHER HUB --}}
+                    <div class="space-y-6">
+                        
+                        {{-- My Vouchers Panel --}}
+                        <div class="bg-white rounded-xl shadow-sm border border-l-4 border-gray-100 border-l-[#ec5a29] p-6">
+                             <h3 class="font-bold text-gray-800 text-lg mb-4 flex items-center gap-2">
+                                <i class="ri-coupon-3-line text-[#ec5a29]"></i> My Vouchers
+                             </h3>
+                             
+                             <div class="space-y-3 max-h-[180px] overflow-y-auto pr-2 custom-scrollbar">
+                                @forelse($myVouchers as $voucher)
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 border-dashed group hover:border-[#ec5a29] transition-colors cursor-pointer relative overflow-hidden">
+                                        <div class="absolute top-0 right-0 p-1">
+                                            <div class="w-16 h-16 bg-[#ec5a29]/5 rounded-full -mr-8 -mt-8"></div>
+                                        </div>
+                                        
+                                        <div>
+                                            <p class="font-bold text-gray-800 text-sm">{{ $voucher['desc'] }}</p>
+                                            <p class="text-[10px] text-gray-400 font-mono tracking-wider mt-0.5">CODE: {{ $voucher['code'] }}</p>
+                                            <p class="text-[9px] text-red-400 mt-1">Expires {{ \Carbon\Carbon::parse($voucher['expiry'])->format('d M Y') }}</p>
+                                        </div>
+                                        <button class="z-10 bg-white border border-gray-200 text-gray-600 hover:text-[#ec5a29] hover:border-[#ec5a29] p-1.5 rounded-md transition shadow-sm" title="Copy Code">
+                                            <i class="ri-file-copy-line"></i>
+                                        </button>
+                                    </div>
+                                @empty
+                                    <div class="text-center py-8 text-gray-400 bg-gray-50 rounded-lg border border-dashed">
+                                        <p class="text-xs">No active vouchers.</p>
+                                    </div>
+                                @endforelse
+                             </div>
+                        </div>
+
+                        {{-- Redeem Voucher Panel --}}
+                        <div class="bg-gray-800 rounded-xl shadow-lg p-6 text-white relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                            
+                            <h3 class="font-bold text-white text-md mb-2 flex items-center gap-2 relative z-10">
+                                <i class="ri-gift-line text-[#ec5a29]"></i> Redeem Reward
+                            </h3>
+                            <p class="text-gray-400 text-xs mb-4 relative z-10">Enter your code to claim special rewards.</p>
+                            
+                            <div class="relative z-10">
+                                <div class="flex gap-2">
+                                    <input type="text" placeholder="Entet Voucher Code" class="bg-gray-700/50 border border-gray-600 text-white text-sm rounded-lg focus:ring-[#ec5a29] focus:border-[#ec5a29] block w-full p-2.5 placeholder-gray-500 uppercase tracking-wider">
+                                    <button class="bg-[#ec5a29] hover:bg-[#d14a1e] text-white font-bold rounded-lg text-sm px-4 py-2 transition shadow-lg shadow-orange-900/20">
+                                        Redeem
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
             </div>
 

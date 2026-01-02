@@ -259,6 +259,7 @@
           >
             @csrf
             @method('PUT')
+            <input type="hidden" name="vehicle_id" value="{{ $booking->vehicle_id }}" />
 
             <div class="form__section">
               <h3><i class="ri-calendar-check-line"></i> Rental Period</h3>
@@ -414,9 +415,31 @@
           </div>
           
           <hr style="margin: 1rem 0; opacity: 0.2;" />
-          <p style="font-size: 0.9rem; color: #777;">
               Note: The total price will be recalculated upon update based on the new dates and location.
           </p>
+          
+          <div style="margin-top: 1rem; border-top: 1px dashed #ccc; pt-2;">
+             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span>Duration</span>
+                <strong id="summary-hours">-</strong>
+             </div>
+             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span>New Subtotal</span>
+                <strong id="summary-subtotal">-</strong>
+             </div>
+             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--primary-color);">
+                <span>Delivery Fee</span>
+                <strong id="summary-delivery">-</strong>
+             </div>
+             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span>Discount (Orig)</span>
+                <strong id="summary-discount">-</strong>
+             </div>
+              <div style="display: flex; justify-content: space-between; font-size: 1.2rem; color: var(--primary-color); margin-top: 0.5rem;">
+                <span>New Estimated Total</span>
+                <strong id="summary-total">-</strong>
+             </div>
+          </div>
         </div>
       </div>
     </section>
@@ -478,6 +501,88 @@
         handlePickupChange();
         handleDropoffChange(); // Ensure dropoff UI is correct based on value
         handleSameLocationChange();
+        
+        // --- LIVE PRICE UPDATE ---
+             const startTimeInput = document.querySelector('input[name="start_time"]');
+             const endTimeInput = document.querySelector('input[name="end_time"]');
+             const pickupSelect = document.getElementById('pickup_location');
+             const dropoffSelect = document.getElementById('dropoff_location'); 
+             const sameLocCheckbox = document.getElementById('same_location_checkbox');
+
+             // Set Min Start Date to NOW (Relaxed constraint for modification)
+             const now = new Date();
+             const minStart = now.toISOString().slice(0, 16);
+             startTimeInput.setAttribute("min", minStart);
+
+             startTimeInput.addEventListener("change", function() {
+                if(this.value) {
+                    const start = new Date(this.value);
+                    const minEnd = new Date(start.getTime() + 60 * 60 * 1000); // +1 Hour
+                    endTimeInput.setAttribute("min", minEnd.toISOString().slice(0, 16));
+                    
+                    if(endTimeInput.value && new Date(endTimeInput.value) < minEnd) {
+                        endTimeInput.value = "";
+                        alert("End time has been reset because it must be at least 1 hour after start time.");
+                    }
+                    calculatePrice();
+                }
+             });
+
+             endTimeInput.addEventListener("change", calculatePrice);
+             pickupSelect.addEventListener("change", calculatePrice);
+             dropoffSelect.addEventListener("change", calculatePrice);
+             sameLocCheckbox.addEventListener("change", calculatePrice);
+             
+             // Initial Calc
+             if(startTimeInput.value && endTimeInput.value) calculatePrice();
+             
+             function calculatePrice() {
+                const vehicleId = document.querySelector('input[name="vehicle_id"]').value;
+                const start = startTimeInput.value;
+                const end = endTimeInput.value;
+                const pickup = pickupSelect.value;
+                let dropoff = pickup;
+                
+                const isSame = sameLocCheckbox.checked;
+                if(!isSame) {
+                     if(dropoffSelect) dropoff = dropoffSelect.value;
+                }
+                
+                // For Edit, we pass the existing voucher ID embedded in the booking if we want to preserve it.
+                // Or we can just let backend handle it? 
+                // The API expects 'selected_voucher_id'. 
+                // We'll output a hidden field with the current booking's voucher id
+                const voucherId = "{{ $booking->voucher_id ?? '' }}"; 
+
+                if(!start || !end) return;
+
+                fetch('{{ route("booking.calculate") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        vehicle_id: vehicleId,
+                        start_time: start,
+                        end_time: end,
+                        pickup_location: pickup,
+                        dropoff_location: dropoff,
+                        selected_voucher_id: voucherId,
+                        manual_code: "{{ $booking->promo_code ?? '' }}"
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.error) return;
+                    
+                    document.getElementById('summary-hours').innerText = data.hours + " Hours";
+                    document.getElementById('summary-subtotal').innerText = "RM " + data.subtotal;
+                    document.getElementById('summary-delivery').innerText = "RM " + data.delivery_fee;
+                    document.getElementById('summary-discount').innerText = "- RM " + data.discount;
+                    document.getElementById('summary-total').innerText = "RM " + data.total;
+                });
+             }
       });
     </script>
   </body>

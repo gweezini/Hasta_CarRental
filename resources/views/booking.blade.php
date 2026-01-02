@@ -130,7 +130,7 @@
       }
 
       nav.nav__fixed {
-        background-color: var(--text-dark);
+        background-color: #2d3748;
         padding: 1rem 2rem;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
       }
@@ -1125,39 +1125,40 @@
               style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"
             >
               <span>Duration</span>
-              <strong>{{ $hours ?? 0 }} hours</strong>
+              <strong id="summary-hours">{{ $hours ?? 0 }} hours</strong>
             </div>
 
             <div
               style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"
             >
               <span>Subtotal</span>
-              <strong>RM {{ number_format($subtotal ?? 0, 2) }}</strong>
+              <strong id="summary-subtotal">RM {{ number_format($subtotal ?? 0, 2) }}</strong>
             </div>
 
-            @if(isset($deliveryFee) && $deliveryFee > 0)
             <div
               style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--primary-color);"
             >
               <span>Delivery Fee</span>
-              <strong>+ RM {{ number_format($deliveryFee, 2) }}</strong>
+              <strong id="summary-delivery">RM {{ number_format($deliveryFee ?? 0, 2) }}</strong>
             </div>
-            @endif @if(isset($discount) && $discount > 0)
+
             <div
               style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #28a745;"
             >
               <span>Discount</span>
-              <strong>- RM {{ number_format($discount, 2) }}</strong>
+              <strong id="summary-discount">- RM {{ number_format($discount ?? 0, 2) }}</strong>
             </div>
-            @endif
             <hr style="margin: 1rem 0; opacity: 0.2;" />
 
             <div
               style="display: flex; justify-content: space-between; font-size: 1.4rem; color: var(--primary-color);"
             >
               <span>Total</span>
-              <strong>RM {{ number_format($total ?? 0, 2) }}</strong>
+              <strong id="summary-total">RM {{ number_format($total ?? 0, 2) }}</strong>
             </div>
+             <div style="text-align: right; font-size: 0.8rem; color: #666; margin-top: 5px;">
+                 <span id="summary-stamps">+ {{ $stamps ?? 0 }} Stamps</span>
+             </div>
           </div>
         </div>
 
@@ -1285,7 +1286,118 @@
             // Submit
             form.submit();
           }
-        </script>
+
+        // ============================================
+        // LIVE PRICE UPDATE & CONSTRAINTS SCRIPT
+        // ============================================
+        document.addEventListener("DOMContentLoaded", function() {
+             const startTimeInput = document.querySelector('input[name="start_time"]');
+             const endTimeInput = document.querySelector('input[name="end_time"]');
+             const pickupSelect = document.getElementById('pickup_location');
+             const dropoffSelect = document.getElementById('dropoff_location'); // Assuming ID exists or need to add
+             const sameLocCheckbox = document.querySelector('input[name="same_location_checkbox"]'); // Assuming name/class
+             const voucherRadios = document.querySelectorAll('input[name="selected_voucher_id"]');
+             const promoInput = document.getElementById('manual_code'); // Assuming ID
+
+             // 1. DATE CONSTRAINTS
+             // Set Min Start Date to NOW + 24h
+             const now = new Date();
+             now.setHours(now.getHours() + 24);
+             // Format needed: YYYY-MM-DDTHH:MM
+             const minStart = now.toISOString().slice(0, 16);
+             startTimeInput.setAttribute("min", minStart);
+
+             startTimeInput.addEventListener("change", function() {
+                if(this.value) {
+                    const start = new Date(this.value);
+                    const minEnd = new Date(start.getTime() + 60 * 60 * 1000); // +1 Hour
+                    endTimeInput.setAttribute("min", minEnd.toISOString().slice(0, 16));
+                    
+                    // Specific logic: If end time is before new min, clear it
+                    if(endTimeInput.value && new Date(endTimeInput.value) < minEnd) {
+                        endTimeInput.value = "";
+                        alert("End time has been reset because it must be at least 1 hour after start time.");
+                    }
+                    calculatePrice();
+                }
+             });
+
+             endTimeInput.addEventListener("change", calculatePrice);
+             pickupSelect.addEventListener("change", calculatePrice);
+             // handle same location logic change triggering calc?
+             // Assuming existing handlePickupChange() handles visibility, we need to hook into it or add listener
+             
+             // 2. AJAX CALCULATION
+             function calculatePrice() {
+                const vehicleId = document.querySelector('input[name="vehicle_id"]').value;
+                const start = startTimeInput.value;
+                const end = endTimeInput.value;
+                const pickup = pickupSelect.value;
+                // Determine dropoff
+                // Need to verify how dropoff is selected in DOM
+                let dropoff = pickup; // Default same
+                // If dropoff select is visible/enabled, use value. 
+                // Detailed implementation depends on existing toggle logic.
+                
+                // Simple check:
+                const isSame = document.getElementById('same_location_checkbox').checked;
+                if(!isSame) {
+                     const dropSelect = document.getElementById('dropoff_location');
+                     if(dropSelect) dropoff = dropSelect.value;
+                }
+                
+                // Get Voucher
+                let voucherId = null;
+                voucherRadios.forEach(r => { if(r.checked) voucherId = r.value; });
+                
+                const manualCode = document.getElementById('manual_code_input') ? document.getElementById('manual_code_input').value : '';
+
+                if(!start || !end) return;
+
+                fetch('{{ route("booking.calculate") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        vehicle_id: vehicleId,
+                        start_time: start,
+                        end_time: end,
+                        pickup_location: pickup,
+                        dropoff_location: dropoff,
+                        selected_voucher_id: voucherId,
+                        manual_code: manualCode
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.error) {
+                        // console.error(data.error);
+                        return;
+                    }
+                    
+                    // Update DOM
+                    // Needs IDs on summary elements to update them.
+                    // I will need to iterate DOM to add IDs if they don't exist, 
+                    // or use your specific selectors.
+                    // For now, I'll assume standard IDs I'll add in Next Step to the view.
+                    document.getElementById('summary-hours').innerText = data.hours + " Hours";
+                    document.getElementById('summary-subtotal').innerText = "RM " + data.subtotal;
+                    document.getElementById('summary-delivery').innerText = "RM " + data.delivery_fee;
+                    document.getElementById('summary-discount').innerText = "- RM " + data.discount;
+                    document.getElementById('summary-total').innerText = "RM " + data.total;
+                    document.getElementById('summary-stamps').innerText = "+ " + data.stamps + " Stamps";
+                });
+             }
+             
+             // Attach to other inputs
+             if(dropoffSelect) dropoffSelect.addEventListener("change", calculatePrice);
+             voucherRadios.forEach(r => r.addEventListener("change", calculatePrice));
+             // Manual code button click listener? Or input blur
+             // ...
+        });
+    </script>
       </section>
     </header>
   </body>

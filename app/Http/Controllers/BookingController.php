@@ -133,6 +133,16 @@ class BookingController extends Controller
             return redirect()->back()->with('error', 'Return time must be after pickup time.');
         }
 
+        // 24h Lead Time Check
+        if (now()->diffInHours($start, false) < 24) {
+            return redirect()->back()->with('error', 'Bookings must be made at least 24 hours in advance.');
+        }
+        
+        // Minimum 1 Hour Check
+        if ($start->diffInMinutes($end, false) < 60) {
+            return redirect()->back()->with('error', 'Minimum rental time is 1 hour.');
+        }
+
         $hours = ceil($start->floatDiffInHours($end));
         if ($hours < 1) $hours = 1;
         $subtotal = $hours * $vehicle->price_per_hour;
@@ -244,11 +254,9 @@ class BookingController extends Controller
             return redirect()->route('profile.edit')->with('error', 'Only approved bookings can be modified.');
         }
 
-        // Check 24h constraint
-        // Use 'false' in diffInHours to get negative values if past
-        $hoursUntilPickup = now()->diffInHours($booking->pickup_date_time, false);
-        if ($hoursUntilPickup < 24) {
-            return redirect()->route('profile.edit')->with('error', 'Bookings can only be modified 24 hours in advance.');
+        // Check time constraint: Modification allowed anytime BEFORE pickup
+        if (now()->gte($booking->pickup_date_time)) {
+            return redirect()->route('profile.edit')->with('error', 'Past bookings cannot be modified.');
         }
 
         return view('bookings.edit', compact('booking'));
@@ -267,10 +275,9 @@ class BookingController extends Controller
              return redirect()->route('profile.edit')->with('error', 'Only approved bookings can be modified.');
         }
 
-        // Check 24h constraint based on ORIGINAL pickup time
-        $hoursUntilPickup = now()->diffInHours($booking->pickup_date_time, false);
-        if ($hoursUntilPickup < 24) {
-            return redirect()->route('profile.edit')->with('error', 'Bookings can only be modified 24 hours in advance.');
+        // Check time constraint based on ORIGINAL pickup time
+        if (now()->gte($booking->pickup_date_time)) {
+             return redirect()->route('profile.edit')->with('error', 'Past bookings cannot be modified.');
         }
 
         $request->validate([
@@ -297,6 +304,11 @@ class BookingController extends Controller
         
         if ($end->lte($start)) {
             return redirect()->back()->with('error', 'Return time must be after pickup time.');
+        }
+
+        // Minimum 1 Hour Check
+        if ($start->diffInMinutes($end, false) < 60) {
+             return redirect()->back()->with('error', 'Minimum rental time is 1 hour.');
         }
 
         $hours = ceil($start->floatDiffInHours($end));
@@ -348,10 +360,98 @@ class BookingController extends Controller
         $booking->emergency_contact_phone = $request->emergency_contact;
         
         $booking->total_rental_fee = $final_total;
-        // Don't change deposit or payment receipt or status
+        
+        // Reset status for re-approval
+        $booking->status = 'Waiting for Verification';
+        $booking->payment_verified = false;
         
         $booking->save();
 
-        return redirect()->route('profile.edit')->with('success', 'Booking updated successfully!');
+        return redirect()->route('profile.edit')->with('success', 'Booking updated successfully! It has been submitted for re-approval.');
+    }
+
+    // 5. DELETE METHOD (Cancellation)
+    public function destroy($id)
+    {
+        $booking = Booking::findOrFail($id);
+        
+        if ($booking->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // Check 24h constraint
+        // now() + 24h should be BEFORE pickup time. 
+        // Equiv: diffInHours between now and pickup must be > 24.
+        $hoursUntilPickup = now()->diffInHours($booking->pickup_date_time, false);
+        
+        if ($hoursUntilPickup < 24) {
+             return redirect()->back()->with('error', 'Bookings can only be cancelled 24 hours in advance.');
+        }
+
+        // Update status to Cancelled instead of deleting record
+        $booking->status = 'Cancelled';
+        $booking->save();
+
+        return redirect()->route('profile.edit')->with('success', 'Booking cancelled successfully. If you have made a payment, please contact admin for refund.');
+    }
+
+    // 6. AJAX Price Calculation
+    public function calculatePrice(Request $request)
+    {
+        try {
+            $vehicle = Vehicle::findOrFail($request->vehicle_id);
+            $start = Carbon::parse($request->start_time);
+            $end = Carbon::parse($request->end_time);
+            
+            if ($end->lte($start)) {
+                return response()->json(['error' => 'End time must be after start time'], 400);
+            }
+
+            $hours = ceil($start->floatDiffInHours($end));
+            if ($hours < 1) $hours = 1;
+            
+            $subtotal = $hours * $vehicle->price_per_hour;
+
+            // Delivery Fee
+            $prices = ['office' => 0, 'campus' => 2.50, 'taman_u' => 7.50, 'jb' => 25];
+            $pickupFee = $prices[$request->pickup_location] ?? 0;
+            $dropoffFee = $prices[$request->dropoff_location] ?? 0;
+            $deliveryFee = $pickupFee + $dropoffFee;
+
+            // Voucher Logic
+            $discount = 0;
+            $voucherId = $request->selected_voucher_id;
+            
+            if ($voucherId) {
+                // Determine if we are checking against a UserVoucher or a generic Voucher if passed differently
+                // Assuming ID passed is user_voucher table ID as per previous logic
+                $userVoucher = \App\Models\UserVoucher::find($voucherId);
+                if ($userVoucher && $userVoucher->is_active && $userVoucher->user_id == Auth::id()) {
+                     if ($userVoucher->type === 'percent') $discount = ($subtotal * $userVoucher->value) / 100;
+                     elseif ($userVoucher->type === 'fixed') $discount = $userVoucher->value;
+                     elseif ($userVoucher->type === 'free_hours') {
+                        $applicable = min($hours, (int)$userVoucher->value);
+                        $discount = $applicable * $vehicle->price_per_hour;
+                     }
+                }
+            } elseif ($request->filled('manual_code') && strtoupper($request->manual_code) === 'WELCOME10') {
+                 $discount = 10;
+            }
+
+            $total = max(0, $subtotal + $deliveryFee - $discount);
+            $stamps = floor($hours / 3);
+
+            return response()->json([
+                'hours' => $hours,
+                'subtotal' => number_format($subtotal, 2),
+                'delivery_fee' => number_format($deliveryFee, 2),
+                'discount' => number_format($discount, 2),
+                'total' => number_format($total, 2),
+                'stamps' => $stamps
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 }
