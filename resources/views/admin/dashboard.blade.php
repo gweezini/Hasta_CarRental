@@ -37,8 +37,14 @@
                 <i class="ri-user-line mr-3 text-lg"></i> Customers
             </a>
 
+            @if(Auth::user()->isTopManagement())
             <a href="{{ route('admin.reports') }}" class="flex items-center px-6 py-3 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.reports') ? 'sidebar-active' : '' }}">
                 <i class="ri-file-chart-line mr-3 text-lg"></i> Reports
+            </a>
+            @endif
+            
+            <a href="{{ route('admin.vouchers.index') }}" class="flex items-center px-6 py-3 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vouchers*') ? 'sidebar-active' : '' }}">
+                <i class="ri-coupon-3-line mr-3 text-lg"></i> Vouchers
             </a>
         </nav>
 
@@ -61,7 +67,6 @@
                 
                 <div x-data="{ open: false }" class="relative">
                     @php
-                        // 防止变量未定义报错
                         $roadTaxAlerts = $roadTaxAlerts ?? collect();
                         $insuranceAlerts = $insuranceAlerts ?? collect();
                         $alertCount = $roadTaxAlerts->count() + $insuranceAlerts->count();
@@ -96,45 +101,43 @@
                                 </div>
                             @else
                                 @foreach($roadTaxAlerts as $car)
-                                    <div class="px-5 py-4 border-b border-gray-50 hover:bg-red-50/30 transition flex items-start gap-3">
-                                        <div class="mt-1 w-8 h-8 rounded-full bg-red-100 text-red-500 flex items-center justify-center flex-shrink-0">
+                                    <a href="{{ route('admin.vehicle.edit', $car->id) }}" class="block px-5 py-4 border-b border-gray-50 hover:bg-red-50 transition flex items-start gap-3 group">
+                                        <div class="mt-1 w-8 h-8 rounded-full bg-red-100 text-red-500 flex items-center justify-center flex-shrink-0 group-hover:bg-red-200 transition">
                                             <i class="ri-file-warning-line"></i>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-bold text-gray-800">Road Tax Expiring</p>
+                                            <p class="text-sm font-bold text-gray-800 group-hover:text-red-600 transition">Road Tax Expiring</p>
                                             <p class="text-xs text-gray-600 mt-0.5">
                                                 <span class="font-mono font-bold">{{ $car->plate_number }}</span> ({{ $car->brand }} {{ $car->model }})
                                             </p>
                                             <p class="text-xs text-red-500 font-medium mt-1">
-                                                Expires: {{ \Carbon\Carbon::parse($car->road_tax_expiry)->format('d M Y') }} 
-                                                ({{ \Carbon\Carbon::parse($car->road_tax_expiry)->diffForHumans() }})
+                                                Expires: {{ \Carbon\Carbon::parse($car->road_tax_expiry)->diffForHumans() }}
                                             </p>
                                         </div>
-                                    </div>
+                                    </a>
                                 @endforeach
 
                                 @foreach($insuranceAlerts as $car)
-                                    <div class="px-5 py-4 border-b border-gray-50 hover:bg-orange-50/30 transition flex items-start gap-3">
-                                        <div class="mt-1 w-8 h-8 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center flex-shrink-0">
+                                    <a href="{{ route('admin.vehicle.edit', $car->id) }}" class="block px-5 py-4 border-b border-gray-50 hover:bg-orange-50 transition flex items-start gap-3 group">
+                                        <div class="mt-1 w-8 h-8 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-200 transition">
                                             <i class="ri-shield-alert-line"></i>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-bold text-gray-800">Insurance Expiring</p>
+                                            <p class="text-sm font-bold text-gray-800 group-hover:text-orange-600 transition">Insurance Expiring</p>
                                             <p class="text-xs text-gray-600 mt-0.5">
                                                 <span class="font-mono font-bold">{{ $car->plate_number }}</span> ({{ $car->brand }} {{ $car->model }})
                                             </p>
                                             <p class="text-xs text-orange-500 font-medium mt-1">
-                                                Expires: {{ \Carbon\Carbon::parse($car->insurance_expiry)->format('d M Y') }} 
-                                                ({{ \Carbon\Carbon::parse($car->insurance_expiry)->diffForHumans() }})
+                                                Expires: {{ \Carbon\Carbon::parse($car->insurance_expiry)->diffForHumans() }}
                                             </p>
                                         </div>
-                                    </div>
+                                    </a>
                                 @endforeach
                             @endif
                         </div>
                         
-                        <a href="{{ route('admin.vehicle.index') }}" class="block text-center py-3 text-xs font-bold text-[#cd5c5c] hover:bg-gray-50 transition border-t border-gray-100">
-                            Manage Fleet &rarr;
+                        <a href="{{ route('admin.notifications') }}" class="block text-center py-3 text-xs font-bold text-[#cd5c5c] hover:bg-gray-50 transition border-t border-gray-100">
+                            View All Notifications &rarr;
                         </a>
                     </div>
                 </div>
@@ -160,9 +163,7 @@
                         <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $pendingCount }}</p>
                         <p class="text-xs text-yellow-600 mt-1">Verifications needed</p>
                     </div>
-                    <div class="p-3 bg-yellow-50 rounded-lg text-yellow-500 text-2xl">
-                        <i class="ri-time-line"></i>
-                    </div>
+                    <div class="p-3 bg-yellow-50 rounded-lg text-yellow-500 text-2xl"><i class="ri-time-line"></i></div>
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-500 flex justify-between items-center hover:shadow-md transition">
@@ -171,9 +172,7 @@
                         <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $totalCars }}</p>
                         <p class="text-xs text-blue-600 mt-1">Vehicles in system</p>
                     </div>
-                    <div class="p-3 bg-blue-50 rounded-lg text-blue-500 text-2xl">
-                        <i class="ri-roadster-line"></i>
-                    </div>
+                    <div class="p-3 bg-blue-50 rounded-lg text-blue-500 text-2xl"><i class="ri-roadster-line"></i></div>
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-purple-500 flex justify-between items-center hover:shadow-md transition">
@@ -182,9 +181,7 @@
                         <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $totalCustomers }}</p>
                         <p class="text-xs text-purple-600 mt-1">Registered users</p>
                     </div>
-                    <div class="p-3 bg-purple-50 rounded-lg text-purple-500 text-2xl">
-                        <i class="ri-group-line"></i>
-                    </div>
+                    <div class="p-3 bg-purple-50 rounded-lg text-purple-500 text-2xl"><i class="ri-group-line"></i></div>
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-[#cd5c5c] flex justify-between items-center hover:shadow-md transition">
@@ -193,36 +190,24 @@
                         <p class="text-3xl font-extrabold text-gray-800 mt-1">RM {{ number_format($todayRevenue, 2) }}</p>
                         <p class="text-xs text-green-600 mt-1">Total: RM {{ number_format($totalRevenue, 2) }}</p>
                     </div>
-                    <div class="p-3 bg-red-50 rounded-lg text-[#cd5c5c] text-2xl">
-                        <i class="ri-money-dollar-circle-line"></i>
-                    </div>
+                    <div class="p-3 bg-red-50 rounded-lg text-[#cd5c5c] text-2xl"><i class="ri-money-dollar-circle-line"></i></div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
-                        <i class="ri-pie-chart-line mr-2 text-[#cd5c5c]"></i> Student by Faculty
-                    </h3>
-                    <div class="h-64">
-                        <canvas id="facultyChart"></canvas>
-                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center"><i class="ri-pie-chart-line mr-2 text-[#cd5c5c]"></i> Student by Faculty</h3>
+                    <div class="h-64"><canvas id="facultyChart"></canvas></div>
                 </div>
-
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
-                        <i class="ri-building-4-line mr-2 text-blue-500"></i> Student by College
-                    </h3>
-                    <div class="h-64 flex justify-center">
-                        <canvas id="collegeChart"></canvas>
-                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center"><i class="ri-building-4-line mr-2 text-blue-500"></i> Student by College</h3>
+                    <div class="h-64 flex justify-center"><canvas id="collegeChart"></canvas></div>
                 </div>
             </div>
 
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="text-lg font-bold text-gray-800">Recent Bookings</h3>
-                    
                     <a href="{{ route('admin.bookings.index') }}" class="text-sm font-bold text-[#cd5c5c] hover:underline">View All</a>
                 </div>
                 <div class="overflow-x-auto">
@@ -260,13 +245,9 @@
                                             default => 'bg-gray-100 text-gray-600'
                                         };
                                     @endphp
-                                    <span class="px-3 py-1 rounded-full text-xs font-bold {{ $statusColor }}">
-                                        {{ $booking->status }}
-                                    </span>
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold {{ $statusColor }}">{{ $booking->status }}</span>
                                 </td>
-                                <td class="px-6 py-4 text-right font-bold text-gray-800">
-                                    RM {{ number_format($booking->total_rental_fee, 2) }}
-                                </td>
+                                <td class="px-6 py-4 text-right font-bold text-gray-800">RM {{ number_format($booking->total_rental_fee, 2) }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -274,15 +255,12 @@
                 </div>
             </div>
 
-            <div class="mt-8 text-center text-xs text-gray-400">
-                &copy; 2026 Hasta Car Rental Admin Panel
-            </div>
+            <div class="mt-8 text-center text-xs text-gray-400">&copy; 2026 Hasta Car Rental Admin Panel</div>
         </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Faculty Chart
         const facultyCtx = document.getElementById('facultyChart').getContext('2d');
         new Chart(facultyCtx, {
             type: 'bar',
@@ -303,7 +281,6 @@
             }
         });
 
-        // College Chart
         const collegeCtx = document.getElementById('collegeChart').getContext('2d');
         new Chart(collegeCtx, {
             type: 'doughnut',
