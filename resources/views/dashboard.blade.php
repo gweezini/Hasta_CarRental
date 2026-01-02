@@ -7,6 +7,8 @@
       href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
       rel="stylesheet"
     />
+    <script src="//unpkg.com/alpinejs" defer></script>
+
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Syncopate:wght@400;700&display=swap");
 
@@ -171,8 +173,132 @@
 
       .nav__btn {
         display: flex;
+        align-items: center; /* 确保铃铛和按钮垂直居中 */
         gap: 1rem;
       }
+
+      /* 🔥🔥🔥 Notification Styles (New) 🔥🔥🔥 */
+      .notif-wrapper {
+        position: relative;
+        margin-right: 5px;
+      }
+
+      .notif-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--white);
+        font-size: 1.5rem;
+        position: relative;
+        display: flex;
+        align-items: center;
+        transition: 0.3s;
+      }
+      
+      .notif-btn:hover {
+        color: var(--primary-color);
+      }
+
+      .notif-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 10px;
+        height: 10px;
+        background-color: #ef4444;
+        border-radius: 50%;
+        border: 2px solid var(--text-dark); /* Match header bg */
+      }
+
+      nav.nav__fixed .notif-badge {
+        border-color: var(--text-dark);
+      }
+      
+      /* 当导航栏没有固定时，红点边框适配背景 */
+      .notif-badge {
+         border-color: rgba(0,0,0,0.5);
+      }
+
+      .notif-dropdown {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 15px;
+        width: 320px;
+        background-color: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        overflow: hidden;
+        z-index: 1001;
+        text-align: left;
+        color: var(--text-dark);
+      }
+
+      .notif-header {
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        background: #f9f9f9;
+      }
+
+      .notif-item {
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: start;
+        gap: 10px;
+        transition: 0.2s;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .notif-item:hover {
+        background-color: #f5f5f5;
+      }
+
+      .notif-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .notif-icon.success { background: #dcfce7; color: #16a34a; }
+      .notif-icon.error { background: #fee2e2; color: #dc2626; }
+      .notif-icon.info { background: #dbeafe; color: #2563eb; }
+
+      .notif-content p {
+        font-size: 0.85rem;
+        font-weight: 500;
+        line-height: 1.4;
+        margin-bottom: 4px;
+      }
+
+      .notif-content span {
+        font-size: 0.7rem;
+        color: var(--text-light);
+      }
+
+      .notif-footer {
+        padding: 12px;
+        text-align: center;
+        background: #f9f9f9;
+        border-top: 1px solid #f0f0f0;
+      }
+
+      .notif-footer a {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+      /* 🔥🔥🔥 End Notification Styles 🔥🔥🔥 */
+
 
       /* Desktop only utility class for new links */
       .mobile-only {
@@ -536,68 +662,6 @@
           color: var(--primary-color);
         }
       }
-      /* --- WALLET SECTION STYLES --- */
-      .wallet__form {
-        max-width: 600px;
-        margin: 0 auto 3rem auto;
-        display: flex;
-        gap: 10px;
-        background: #f9f9f9;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-      }
-      .wallet__form input {
-        flex: 1;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        outline: none;
-      }
-      .wallet__grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-      }
-      .wallet__card {
-        background: white;
-        border: 1px solid #eee;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-left: 5px solid var(--primary-color);
-      }
-      .wallet__card.used {
-        background: #f0f0f0;
-        border-left-color: #999;
-        opacity: 0.7;
-      }
-      .wallet__info h4 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--text-dark);
-      }
-      .wallet__info p {
-        font-size: 0.9rem;
-        color: var(--text-light);
-      }
-      .wallet__badge {
-        font-size: 0.8rem;
-        font-weight: 700;
-        padding: 5px 10px;
-        border-radius: 5px;
-        text-transform: uppercase;
-      }
-      .badge-active { background: #ec5a2933; color: var(--primary-color); }
-      .badge-used { background: #ddd; color: #666; }
-      
-      /* Messages */
-      .msg-box { text-align: center; margin-bottom: 20px; padding: 10px; border-radius: 8px; }
-      .msg-success { background: #d4edda; color: #155724; }
-      .msg-error { background: #f8d7da; color: #721c24; }
     </style>
     <title>Hasta Car Rental</title>
   </head>
@@ -620,14 +684,22 @@
           <li><a href="#contact">Contact</a></li>
           <li><a href="#about">About Us</a></li>
 
-<li class="mobile-only">
+          <li class="mobile-only">
+            <a href="{{ route('profile.edit', ['tab' => 'notifications']) }}">Notifications 
+                 @if(Auth::user()->unreadNotifications->count() > 0)
+                 ({{ Auth::user()->unreadNotifications->count() }})
+                 @endif
+            </a>
+          </li>
+
+          <li class="mobile-only">
             <a href="{{ route('profile.edit') }}">Profile</a>
           </li>
 
           <li class="mobile-only">
              <form method="POST" action="{{ route('logout') }}" class="inline">
                 @csrf
-                <button type="submit" style="background:none; border:none; padding:0; color:inherit; font:inherit; cursor:pointer;">
+                <button type="submit" style="background:none; border:none; padding:10px; width:100%; color:inherit; font:inherit; cursor:pointer; border: 1px solid white; border-radius: 5px; margin-top: 10px;">
                     Logout
                 </button>
              </form>
@@ -636,13 +708,58 @@
 
         <div class="nav__btn">
           
+          <div x-data="{ open: false }" class="notif-wrapper">
+             <button @click="open = !open" @click.away="open = false" class="notif-btn">
+                <i class="ri-notification-3-line"></i>
+                @if(Auth::user()->unreadNotifications->count() > 0)
+                    <span class="notif-badge"></span>
+                @endif
+             </button>
+
+             <div x-show="open" style="display: none;" class="notif-dropdown">
+                <div class="notif-header">
+                    <span>Notifications</span>
+                    @if(Auth::user()->unreadNotifications->count() > 0)
+                        <span style="font-size: 0.7rem; background: #fee2e2; color: #dc2626; padding: 2px 6px; border-radius: 10px;">{{ Auth::user()->unreadNotifications->count() }} New</span>
+                    @endif
+                </div>
+
+                <div style="max-height: 300px; overflow-y: auto;">
+                    @forelse(Auth::user()->notifications->take(3) as $notification)
+                        <div class="notif-item">
+                            <div class="notif-icon {{ isset($notification->data['status']) && $notification->data['status'] == 'Approved' ? 'success' : (isset($notification->data['status']) && $notification->data['status'] == 'Rejected' ? 'error' : 'info') }}">
+                                @if(isset($notification->data['status']) && $notification->data['status'] == 'Approved')
+                                    <i class="ri-check-line"></i>
+                                @elseif(isset($notification->data['status']) && $notification->data['status'] == 'Rejected')
+                                    <i class="ri-close-line"></i>
+                                @else
+                                    <i class="ri-notification-line"></i>
+                                @endif
+                            </div>
+                            <div class="notif-content">
+                                <p>{{ $notification->data['message'] ?? 'New Notification' }}</p>
+                                <span>{{ $notification->created_at->diffForHumans() }}</span>
+                            </div>
+                        </div>
+                    @empty
+                        <div style="padding: 20px; text-align: center; color: #999; font-size: 0.85rem;">
+                            No notifications
+                        </div>
+                    @endforelse
+                </div>
+
+                <div class="notif-footer">
+                    <a href="{{ route('profile.edit', ['tab' => 'notifications']) }}">View All Notifications</a>
+                </div>
+             </div>
+          </div>
           <a href="{{ route('profile.edit') }}" class="btn btn-transparent">
              Profile
           </a>
 
           <form method="POST" action="{{ route('logout') }}" style="display: inline-block;">
             @csrf
-            <button type="submit" class="btn btn-primary" style="padding: 20px">
+            <button type="submit" class="btn btn-primary" style="padding: 1rem 1.5rem">
                 Logout
             </button>
           </form>
