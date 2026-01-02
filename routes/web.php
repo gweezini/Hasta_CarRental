@@ -67,7 +67,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     Route::post('/booking/{id}/return', [AdminController::class, 'markAsReturned'])->name('admin.booking.return');
     
-    // 🔥🔥🔥 Notification Center 
+    // Notification Center 
     Route::get('/notifications', [AdminController::class, 'notifications'])->name('admin.notifications');
 
     // Voucher Management (Staff)
@@ -77,6 +77,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/vouchers/{voucher}/edit', [VoucherController::class, 'edit'])->name('admin.vouchers.edit');
     Route::put('/vouchers/{voucher}', [VoucherController::class, 'update'])->name('admin.vouchers.update');
     Route::delete('/vouchers/{voucher}', [VoucherController::class, 'destroy'])->name('admin.vouchers.destroy');
+
+    Route::post('/admin/customers/{id}/blacklist', [App\Http\Controllers\AdminController::class, 'toggleBlacklist'])->name('admin.customers.blacklist');
 });
 
 // 🔥 User Booking Routes
