@@ -19,7 +19,10 @@ class AdminController extends Controller
      */
     public function index()
     {
+        // 修正：统计所有已验证支付的订单金额
         $totalRevenue = Booking::where('payment_verified', true)->sum('total_rental_fee'); 
+        
+        // 修正：统计今日收入。使用 payment_verified 并且日期匹配更新时间
         $todayRevenue = Booking::where('payment_verified', true)
                                 ->whereDate('updated_at', Carbon::today())
                                 ->sum('total_rental_fee');
@@ -220,35 +223,38 @@ class AdminController extends Controller
         if (!Auth::user()->isTopManagement()) return redirect()->route('admin.dashboard')->with('error', 'Authorized personnel only.');
 
         $filter = $request->input('filter', 'monthly');
-        $query = Payment::where('status', 'Verified');
-        $summaryQuery = Payment::where('status', 'Verified'); 
+        
+        // 修正：从 Booking 表统计收入，确保 Verified 过的钱都能算进去
+        $query = Booking::where('payment_verified', true);
+        $summaryQuery = Booking::where('payment_verified', true); 
         $groupBy = '';
 
         switch ($filter) {
             case 'daily':
                 $dateCondition = Carbon::now()->subDays(30);
-                $query->where('created_at', '>=', $dateCondition);
-                $summaryQuery->where('created_at', '>=', $dateCondition);
-                $groupBy = "DATE(created_at)"; 
+                $query->where('updated_at', '>=', $dateCondition);
+                $summaryQuery->where('updated_at', '>=', $dateCondition);
+                $groupBy = "DATE(updated_at)"; 
                 break;
             case 'weekly':
                 $dateCondition = Carbon::now()->subWeeks(12); 
-                $query->where('created_at', '>=', $dateCondition);
-                $summaryQuery->where('created_at', '>=', $dateCondition);
-                $groupBy = "YEARWEEK(created_at)";
+                $query->where('updated_at', '>=', $dateCondition);
+                $summaryQuery->where('updated_at', '>=', $dateCondition);
+                $groupBy = "YEARWEEK(updated_at)";
                 break;
             case 'yearly':
-                $groupBy = "YEAR(created_at)"; 
+                $groupBy = "YEAR(updated_at)"; 
                 break;
             case 'monthly':
             default:
-                $query->whereYear('created_at', Carbon::now()->year);
-                $summaryQuery->whereYear('created_at', Carbon::now()->year);
-                $groupBy = "MONTH(created_at)"; 
+                $query->whereYear('updated_at', Carbon::now()->year);
+                $summaryQuery->whereYear('updated_at', Carbon::now()->year);
+                $groupBy = "MONTH(updated_at)"; 
                 break;
         }
 
-        $revenueData = $query->selectRaw("$groupBy as date_key, SUM(amount) as total")
+        // 统一字段名为 total_rental_fee
+        $revenueData = $query->selectRaw("$groupBy as date_key, SUM(total_rental_fee) as total")
                              ->groupBy('date_key')->orderBy('date_key', 'asc')->get();
 
         $formattedRevenue = $revenueData->mapWithKeys(function ($item) use ($filter) {
@@ -259,9 +265,9 @@ class AdminController extends Controller
         });
 
         $totalTransactions = $summaryQuery->count();
-        $totalRevenueAmount = $summaryQuery->sum('amount');
+        $totalRevenueAmount = $summaryQuery->sum('total_rental_fee');
         $avgOrderValue = $totalTransactions > 0 ? $totalRevenueAmount / $totalTransactions : 0;
-        $highestTransaction = $summaryQuery->max('amount') ?? 0;
+        $highestTransaction = $summaryQuery->max('total_rental_fee') ?? 0;
 
         return view('admin.reports', compact('formattedRevenue', 'filter', 'totalTransactions', 'avgOrderValue', 'highestTransaction'));
     }
