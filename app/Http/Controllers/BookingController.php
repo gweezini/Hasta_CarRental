@@ -22,7 +22,10 @@ class BookingController extends Controller
     public function show($id, Request $request)
 {
     $vehicle = Vehicle::findOrFail($id);
-    $myVouchers = Auth::user()->userVouchers()->where('is_active', true)->get();
+    $myVouchers = Auth::user()->userVouchers()
+    ->whereNull('used_at') 
+    ->with('voucher') 
+    ->get();
 
     // 1. Define Delivery Prices (Per Trip)
     $prices = [
