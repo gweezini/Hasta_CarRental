@@ -43,22 +43,21 @@ class VoucherSeeder extends Seeder
             ]
         );
 
-        // 2. Assign to First User (for testing)
-        $user = \App\Models\User::first();
-        if ($user) {
-            // Check if already assigned to avoid duplicates
-            if (!$user->userVouchers()->where('voucher_id', $v1->id)->exists()) {
-                \App\Models\UserVoucher::create([
-                    'user_id' => $user->matric_staff_id,
-                    'voucher_id' => $v1->id,
-                ]);
-            }
+        // 2. Assign to the Logged-In User (Ali Student)
+        // We try to find the specific user from the screenshot, or fall back to the first user.
+        $user = \App\Models\User::where('email', 'student@utm.my')->first() ?? \App\Models\User::first();
 
-            if (!$user->userVouchers()->where('voucher_id', $v2->id)->exists()) {
-                \App\Models\UserVoucher::create([
-                    'user_id' => $user->matric_staff_id,
-                    'voucher_id' => $v2->id,
-                ]);
+        if ($user) {
+            $vouchersToAssign = [$v1, $v2, $v3];
+
+            foreach ($vouchersToAssign as $voucher) {
+                // Check if already assigned to avoid duplicates
+                if (!$user->userVouchers()->where('voucher_id', $voucher->id)->exists()) {
+                    \App\Models\UserVoucher::create([
+                        'user_id' => $user->matric_staff_id,
+                        'voucher_id' => $voucher->id,
+                    ]);
+                }
             }
         }
     }
