@@ -192,4 +192,31 @@ class AdminController extends Controller
         // (Assuming Report logic is maintained as is)
         return view('admin.reports'); 
     }
+
+    public function toggleBlacklist(Request $request, $id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+
+        if ($user->is_blacklisted) {
+        
+            $user->update([
+                'is_blacklisted' => false,
+                'blacklist_reason' => null
+            ]);
+            
+            return redirect()->back()->with('success', 'User has been whitelisted successfully!');
+        } else {
+   
+            $request->validate([
+                'blacklist_reason' => 'required|string|max:255'
+            ]);
+
+            $user->update([
+                'is_blacklisted' => true,
+                'blacklist_reason' => $request->blacklist_reason
+            ]);
+            
+            return redirect()->back()->with('success', 'User has been blacklisted.');
+        }
+    }
 }
