@@ -52,12 +52,12 @@
                 @if(Auth::user()->isTopManagement())
                 <a href="{{ route('admin.reports') }}" 
                    class="block py-3 px-4 rounded text-white transition {{ request()->routeIs('admin.reports') ? 'bg-white/20 shadow-inner font-medium' : 'hover:bg-white/10' }}">
-                     <i class="ri-file-chart-line mr-2"></i> Reports
+                      <i class="ri-file-chart-line mr-2"></i> Reports
                 </a>
                 @endif
 
             <a href="{{ route('admin.vouchers.index') }}" class="block py-3 px-4 rounded hover:bg-white/10 text-white transition {{ request()->routeIs('admin.vouchers.*') ? 'bg-white/20 shadow-inner' : '' }}">
-                <i class="ri-ticket-line mr-2"></i> Vouchers
+                <i class="ri-coupon-3-line mr-2"></i> Vouchers
             </a>
             </nav>
 
@@ -256,12 +256,17 @@
                                     @endif
                                 </td>
 
+                                {{-- 🔥🔥🔥 修改了这里！让所有状态都能点击 🔥🔥🔥 --}}
                                 <td class="p-4 text-center">
-                                    @if($booking->status === 'Waiting for Verification')
-                                        <a href="{{ route('admin.payment.verify', $booking->id) }}" class="text-blue-500 hover:text-blue-700 font-bold text-xs underline">Verify</a>
-                                    @else
-                                        <span class="text-gray-300 text-xs">-</span>
-                                    @endif
+                                    <a href="{{ route('admin.payment.verify', $booking->id) }}" 
+                                       class="inline-block px-3 py-1 rounded text-xs font-bold border transition
+                                       {{ $booking->status === 'Waiting for Verification' ? 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100' }}">
+                                        @if($booking->status === 'Waiting for Verification')
+                                            Verify
+                                        @else
+                                            View
+                                        @endif
+                                    </a>
                                 </td>
                             </tr>
                             @empty
