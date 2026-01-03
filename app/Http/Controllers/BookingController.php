@@ -69,15 +69,16 @@ class BookingController extends Controller
 
                     // Voucher Logic...
                     if ($request->filled('selected_voucher_id')) {
-                        $voucher = UserVoucher::find($request->selected_voucher_id);
-                        if ($voucher && $voucher->user_id == Auth::id() && $voucher->is_active) {
-                            if ($voucher->type === 'percent') $discount = ($subtotal * $voucher->value) / 100;
-                            elseif ($voucher->type === 'fixed') $discount = $voucher->value;
-                            elseif ($voucher->type === 'free_hours') {
-                                $applicable = min($hours, (int)$voucher->value);
+                        $userVoucher = UserVoucher::with('voucher')->find($request->selected_voucher_id);
+                        if ($userVoucher && $userVoucher->voucher && $userVoucher->user_id == Auth::user()->matric_staff_id && $userVoucher->voucher->is_active) {
+                            $v_master = $userVoucher->voucher;
+                            if ($v_master->type === 'percent') $discount = ($subtotal * $v_master->value) / 100;
+                            elseif ($v_master->type === 'fixed') $discount = $v_master->value;
+                            elseif ($v_master->type === 'free_hours') {
+                                $applicable = min($hours, (int)$v_master->value);
                                 $discount = $applicable * $vehicle->price_per_hour;
                             }
-                            $voucherMessage = "Voucher Applied: " . $voucher->name;
+                            $voucherMessage = "Voucher Applied: " . $v_master->name;
                         }
                     } elseif ($request->filled('manual_code')) {
                         if (strtoupper($request->manual_code) === 'WELCOME10') {
@@ -164,15 +165,17 @@ class BookingController extends Controller
         $userVoucher = null;
 
         if ($request->filled('selected_voucher_id')) {
-            $userVoucher = UserVoucher::find($request->selected_voucher_id);
-            if ($userVoucher && $userVoucher->user_id == Auth::id() && $userVoucher->is_active) {
-                if ($userVoucher->type === 'percent') $discount = ($subtotal * $userVoucher->value) / 100;
-                elseif ($userVoucher->type === 'fixed') $discount = $userVoucher->value;
-                elseif ($userVoucher->type === 'free_hours') {
-                    $applicable = min($hours, (int)$userVoucher->value);
+            $userVoucher = UserVoucher::with('voucher')->find($request->selected_voucher_id);
+            // Fix: Check against matric_staff_id
+            if ($userVoucher && $userVoucher->voucher && $userVoucher->user_id == Auth::user()->matric_staff_id && $userVoucher->voucher->is_active) {
+                $v_master = $userVoucher->voucher;
+                if ($v_master->type === 'percent') $discount = ($subtotal * $v_master->value) / 100;
+                elseif ($v_master->type === 'fixed') $discount = $v_master->value;
+                elseif ($v_master->type === 'free_hours') {
+                    $applicable = min($hours, (int)$v_master->value);
                     $discount = $applicable * $vehicle->price_per_hour;
                 }
-                $voucherId = $userVoucher->id;
+                $voucherId = $userVoucher->voucher_id;
             }
         } elseif ($request->filled('manual_code')) {
              if (strtoupper($request->manual_code) === 'WELCOME10') $discount = 10;
@@ -224,13 +227,12 @@ class BookingController extends Controller
             }
 
             if ($userVoucher) {
-                $userVoucher->is_active = false;
                 $userVoucher->used_at = now();
                 $userVoucher->save();
             }
 
             // 跳转
-            if (Auth::user()->usertype === 'admin') {
+            if (Auth::user()->role === 'admin') {
                 return redirect(route('admin.dashboard'))->with('success', 'Booking created successfully!');
             }
 
@@ -330,13 +332,13 @@ class BookingController extends Controller
         // For simplicity, we'll re-apply the voucher logic if voucher_id exists
         $discount = 0;
         if ($booking->voucher_id) {
-            $userVoucher = \App\Models\UserVoucher::find($booking->voucher_id); // Assuming we can trace back to user voucher, but strictly speaking voucher_id in booking might just point to Voucher model or UserVoucher.
-            // Actually, existing store method uses 'voucher_id' which seems to be UserVoucher ID.
-            if ($userVoucher) {
-                 if ($userVoucher->type === 'percent') $discount = ($subtotal * $userVoucher->value) / 100;
-                 elseif ($userVoucher->type === 'fixed') $discount = $userVoucher->value;
-                 elseif ($userVoucher->type === 'free_hours') {
-                    $applicable = min($hours, (int)$userVoucher->value);
+            $userVoucher = \App\Models\UserVoucher::with('voucher')->find($booking->voucher_id); 
+            if ($userVoucher && $userVoucher->voucher) {
+                 $v_master = $userVoucher->voucher;
+                 if ($v_master->type === 'percent') $discount = ($subtotal * $v_master->value) / 100;
+                 elseif ($v_master->type === 'fixed') $discount = $v_master->value;
+                 elseif ($v_master->type === 'free_hours') {
+                    $applicable = min($hours, (int)$v_master->value);
                     $discount = $applicable * $vehicle->price_per_hour;
                  }
             }
@@ -423,14 +425,15 @@ class BookingController extends Controller
             $voucherId = $request->selected_voucher_id;
             
             if ($voucherId) {
-                // Determine if we are checking against a UserVoucher or a generic Voucher if passed differently
-                // Assuming ID passed is user_voucher table ID as per previous logic
-                $userVoucher = \App\Models\UserVoucher::find($voucherId);
-                if ($userVoucher && $userVoucher->is_active && $userVoucher->user_id == Auth::id()) {
-                     if ($userVoucher->type === 'percent') $discount = ($subtotal * $userVoucher->value) / 100;
-                     elseif ($userVoucher->type === 'fixed') $discount = $userVoucher->value;
-                     elseif ($userVoucher->type === 'free_hours') {
-                        $applicable = min($hours, (int)$userVoucher->value);
+                $userVoucher = \App\Models\UserVoucher::with('voucher')->find($voucherId);
+                
+                // Fix: Check against matric_staff_id since that's how it's stored in user_vouchers
+                if ($userVoucher && $userVoucher->voucher && $userVoucher->voucher->is_active && $userVoucher->user_id == Auth::user()->matric_staff_id) {
+                     $v_master = $userVoucher->voucher;
+                     if ($v_master->type === 'percent') $discount = ($subtotal * $v_master->value) / 100;
+                     elseif ($v_master->type === 'fixed') $discount = $v_master->value;
+                     elseif ($v_master->type === 'free_hours') {
+                        $applicable = min($hours, (int)$v_master->value);
                         $discount = $applicable * $vehicle->price_per_hour;
                      }
                 }
