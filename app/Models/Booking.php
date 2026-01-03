@@ -48,4 +48,9 @@ class Booking extends Model
     {
         return $this->hasMany(Inspection::class);
     }
+
+    public function processedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'processed_by');
+    }
 }
