@@ -42,40 +42,44 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto py-8 space-y-2">
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.dashboard') ? 'sidebar-active' : '' }}">
-                <i class="ri-dashboard-line mr-3 text-xl"></i> Dashboard
-            </a>
+    {{-- 1. Dashboard --}}
+    <a href="{{ route('admin.dashboard') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.dashboard') ? 'sidebar-active' : '' }}">
+        <i class="ri-dashboard-line mr-3 text-xl"></i> Dashboard
+    </a>
 
-            <a href="{{ route('admin.bookings.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.bookings*') ? 'sidebar-active' : '' }}">
-                <i class="ri-list-check mr-3 text-xl"></i> Bookings
-            </a>
+    <a href="{{ route('admin.bookings.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.bookings*') ? 'sidebar-active' : '' }}">
+        <i class="ri-list-check mr-3 text-xl"></i> Bookings
+    </a>
 
-            <a href="{{ route('admin.vehicle.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle*') ? 'sidebar-active' : '' }}">
-                <i class="ri-car-line mr-3 text-xl"></i> Fleet Management
-            </a>
+    <a href="{{ route('admin.vehicle.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle*') ? 'sidebar-active' : '' }}">
+        <i class="ri-car-line mr-3 text-xl"></i> Fleet Management
+    </a>
 
-            <a href="{{ route('admin.customers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.customers*') ? 'sidebar-active' : '' }}">
-                <i class="ri-user-line mr-3 text-xl"></i> Customers
-            </a>
+    <a href="{{ route('admin.customers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.customers*') ? 'sidebar-active' : '' }}">
+        <i class="ri-user-line mr-3 text-xl"></i> Customers
+    </a>
 
-            @if(Auth::user()->isTopManagement())
-            <a href="{{ route('admin.reports') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.reports') ? 'sidebar-active' : '' }}">
-                <i class="ri-file-chart-line mr-3 text-xl"></i> Reports
-            </a>
-            @endif
+    <a href="{{ route('admin.vouchers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vouchers*') ? 'sidebar-active' : '' }}">
+        <i class="ri-coupon-3-line mr-3 text-xl"></i> Vouchers
+    </a>
 
-            <a href="{{ route('admin.vouchers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vouchers*') ? 'sidebar-active' : '' }}">
-                <i class="ri-coupon-3-line mr-3 text-xl"></i> Vouchers
-            </a>
+    @if(Auth::user()->isTopManagement())
+        <div class="my-4 border-t border-white/10 text-[10px] px-6 py-2 text-white/50 uppercase font-bold tracking-widest">Financial Control</div>
+        
+        <a href="{{ route('admin.reports') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.reports') ? 'sidebar-active' : '' }}">
+            <i class="ri-file-chart-line mr-3 text-xl"></i> Financial Reports
+        </a>
 
-            {{-- 只有 Admin 角色能看到 My Profile --}}
-            @if(Auth::user()->isAdmin())
-                <div class="my-4 border-t border-white/10"></div> 
-                <a href="{{ route('admin.profile') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.profile') ? 'sidebar-active' : '' }}">
-                    <i class="ri-user-settings-line mr-3 text-xl"></i> My Profile
-                </a>
-            @endif
-        </nav>
+        <a href="{{ route('admin.staff.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.staff*') ? 'sidebar-active' : '' }}">
+            <i class="ri-team-line mr-3 text-xl"></i> Staff Payroll
+        </a>
+    @endif
+
+    <div class="my-4 border-t border-white/10"></div> 
+    <a href="{{ route('admin.profile') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.profile') ? 'sidebar-active' : '' }}">
+        <i class="ri-user-settings-line mr-3 text-xl"></i> My Profile
+    </a>
+</nav>
         
         <div class="p-6 text-center text-[10px] text-white/30 uppercase tracking-widest font-bold">
             Hasta Admin Panel v1.1
