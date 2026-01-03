@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet"/>
     <script src="//unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap");
@@ -351,50 +353,76 @@
                                             $isMilestone = array_key_exists($i, $rewards);
                                             $hasStamp = $i <= $totalStamps;
                                             
-                                            // Determine classes mutually exclusively to avoid conflicts
+                                            $displayRewards = [
+                                                3 => '10% OFF',
+                                                6 => '15% OFF',
+                                                9 => '20% OFF',
+                                                12 => '25% OFF',
+                                                15 => 'FREE 12H'
+                                            ];
+
+                                            // Determine Icon and Color Logic
                                             if ($hasStamp) {
-                                                $styleClass = 'bg-[#ec5a29] border-solid border-[#ec5a29] shadow-inner';
-                                                $textClass = 'text-white'; // Not really used for icon but consistent
-                                            } elseif ($isMilestone) {
-                                                $styleClass = 'border-[#ec5a29] border-dashed bg-[#ec5a29]/5';
-                                                $textClass = 'text-[#ec5a29]';
+                                                // Earned States
+                                                $textClass = 'text-white';
+                                                if ($isMilestone) {
+                                                    $icon = $i == 15 ? 'ri-trophy-fill' : 'ri-medal-fill';
+                                                    $styleClass = 'bg-gradient-to-br from-yellow-300 to-yellow-500 border-yellow-600 shadow-lg';
+                                                    $iconClass = 'text-white text-2xl drop-shadow-sm';
+                                                } else {
+                                                    $icon = 'ri-steering-2-fill';
+                                                    $styleClass = 'bg-gradient-to-br from-[#ec5a29] to-[#d14a1e] border-[#ec5a29] shadow-inner';
+                                                    $iconClass = 'text-white text-xl';
+                                                }
                                             } else {
-                                                $styleClass = 'border-gray-300 border-dashed bg-white/50';
-                                                $textClass = 'text-gray-300';
+                                                // Unearned States
+                                                if ($isMilestone) {
+                                                    $textClass = 'text-[#ec5a29]';
+                                                    $icon = $i == 15 ? 'ri-trophy-line' : 'ri-medal-line';
+                                                    $styleClass = 'border-[#ec5a29] border-dashed bg-[#ec5a29]/5 animate-pulse';
+                                                    $iconClass = 'text-[#ec5a29] opacity-40';
+                                                } else {
+                                                    $textClass = 'text-gray-300';
+                                                    $icon = 'ri-steering-2-line';
+                                                    $styleClass = 'border-gray-300 border-dashed bg-white/50';
+                                                    $iconClass = 'text-gray-300';
+                                                }
                                             }
                                         @endphp
-                                        
-                                        <div class="relative group aspect-square flex items-center justify-center rounded-full border-2 
+
+                                        <div class="relative group aspect-square flex flex-col items-center justify-center rounded-full border-2 
                                             {{ $styleClass }}
                                             transition-all duration-300 hover:scale-110 cursor-default"
                                         >
                                             @if($hasStamp)
-                                                <i class="ri-vip-crown-2-fill text-white text-xl drop-shadow-md transform -rotate-12"></i>
+                                                {{-- Ring effect for earned stamps --}}
+                                                <div class="absolute inset-1 rounded-full border border-white/20 pointer-events-none"></div>
+                                                <i class="{{ $icon }} {{ $iconClass }} transform -rotate-12"></i>
+                                            @elseif($isMilestone)
+                                                <i class="{{ $icon }} text-2xl mb-1 {{ $iconClass }}"></i>
+                                                <span class="font-bold text-[10px] uppercase leading-none text-center px-1 {{ $textClass }}">
+                                                    {{ $displayRewards[$i] }}
+                                                </span>
                                             @else
-                                                <span class="font-[Syncopate] font-bold text-sm {{ $textClass }}">
+                                                <i class="{{ $icon }} {{ $iconClass }} text-xs opacity-50 mb-0.5"></i>
+                                                <span class="font-bold text-xs {{ $textClass }}">
                                                     {{ $i }}
                                                 </span>
                                             @endif
 
                                             @if($isMilestone)
-                                                {{-- Tooltip --}}
-                                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-gray-900 text-white text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-10 font-bold tracking-wide shadow-xl transform translate-y-2 group-hover:translate-y-0">
-                                                    {{ $rewards[$i] }}
-                                                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                                                </div>
-                                                
                                                 @if(!$hasStamp)
-                                                <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ec5a29] rounded-full animate-ping"></div>
-                                                <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ec5a29] rounded-full"></div>
+                                                    <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ec5a29] rounded-full animate-ping"></div>
+                                                    <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ec5a29] rounded-full"></div>
                                                 @else
-                                                {{-- Redemption Overlay --}}
-                                                <form action="{{ route('vouchers.redeem.loyalty') }}" method="POST" class="absolute inset-0 z-20" onsubmit="return confirm('Are you sure you want to redeem this reward? It will deduct {{ $i }} stamps.');">
-                                                    @csrf
-                                                    <input type="hidden" name="tier" value="{{ $i }}">
-                                                    <button type="submit" class="w-full h-full rounded-full bg-black/80 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm">
-                                                        <span class="text-white text-[8px] font-bold uppercase text-center leading-tight tracking-wider">Redeem<br>Now</span>
-                                                    </button>
-                                                </form>
+                                                    {{-- Redemption Overlay --}}
+                                                    <form action="{{ route('vouchers.redeem.loyalty') }}" method="POST" class="absolute inset-0 z-20" onsubmit="return confirm('Are you sure you want to redeem this reward? It will deduct {{ $i }} stamps.');">
+                                                        @csrf
+                                                        <input type="hidden" name="tier" value="{{ $i }}">
+                                                        <button type="submit" class="w-full h-full rounded-full bg-black/80 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm">
+                                                            <span class="text-white text-[8px] font-bold uppercase text-center leading-tight tracking-wider">Redeem<br>Now</span>
+                                                        </button>
+                                                    </form>
                                                 @endif
                                             @endif
                                         </div>
@@ -610,6 +638,55 @@
             } else {
                 openTab('booking');
             }
+
+            @if(session('stamp_awarded'))
+                // Celebrate earning a stamp!
+                const duration = 3 * 1000;
+                const animationEnd = Date.now() + duration;
+                const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+                function randomInRange(min, max) {
+                    return Math.random() * (max - min) + min;
+                }
+
+                const interval = setInterval(function() {
+                    const timeLeft = animationEnd - Date.now();
+
+                    if (timeLeft <= 0) {
+                        return clearInterval(interval);
+                    }
+
+                    const particleCount = 50 * (timeLeft / duration);
+                    confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+                    confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+                }, 250);
+
+                Swal.fire({
+                    title: '<span style="font-family: var(--header-font); color: var(--primary-color);">YAAY! 👑</span>',
+                    html: `
+                        <div class="text-center">
+                            <i class="ri-vip-crown-2-fill text-[#ec5a29] text-6xl animate-bounce inline-block mb-4"></i>
+                            <p class="font-bold text-gray-800 text-lg">YOU EARNED A NEW STAMP!</p>
+                            <p class="text-sm text-gray-500 mt-2">You're getting closer to your next reward. Keep it up! ✨</p>
+                        </div>
+                    `,
+                    background: '#fff url("https://www.transparenttextures.com/patterns/cream-paper.png")',
+                    confirmButtonText: 'VIEW MY REWARDS',
+                    confirmButtonColor: '#ec5a29',
+                    customClass: {
+                        popup: 'rounded-2xl border-4 border-[#2d3748]',
+                        confirmButton: 'rounded-xl font-bold tracking-widest px-8 py-3'
+                    },
+                    buttonsStyling: true,
+                    showClass: {
+                        popup: 'animate__animated animate__zoomIn'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        openTab('rewards');
+                    }
+                });
+            @endif
         });
     </script>
 </body>
