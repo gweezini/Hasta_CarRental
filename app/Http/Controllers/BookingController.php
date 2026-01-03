@@ -13,6 +13,21 @@ use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
+    public function getAvailability($id) {
+        $bookings = Booking::where('vehicle_id', $id)
+            ->whereIn('status', ['Pending', 'Waiting for Verification', 'Approved'])
+            ->get();
+            
+        $ranges = $bookings->map(function($b) {
+            return [
+                'start' => Carbon::parse($b->pickup_date_time)->toIso8601String(),
+                'end' => Carbon::parse($b->return_date_time)->toIso8601String(),
+            ];
+        });
+
+        return response()->json(['active_bookings' => $ranges]);
+    }
+
     // 1. SHOW METHOD (保持不变，计算价格)
     public function show($id, Request $request)
     {
