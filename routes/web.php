@@ -57,6 +57,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::post('/booking/{id}/approve', [AdminController::class, 'approvePayment'])->name('admin.payment.approve');
     Route::post('/booking/{id}/reject', [AdminController::class, 'rejectPayment'])->name('admin.payment.reject');
     Route::post('/booking/{id}/return', [AdminController::class, 'markAsReturned'])->name('admin.booking.return');
+
+    Route::get('/bookings/{id}/show', [AdminController::class, 'show'])->name('admin.bookings.show_detail');
     
     // Notification Center
     Route::get('/notifications', [AdminController::class, 'notifications'])->name('admin.notifications');
@@ -69,7 +71,10 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::put('/vouchers/{voucher}', [VoucherController::class, 'update'])->name('admin.vouchers.update');
     Route::delete('/vouchers/{voucher}', [VoucherController::class, 'destroy'])->name('admin.vouchers.destroy');
 
+    // Staff Management
     Route::get('/staff-list', [AdminController::class, 'staffList'])->name('admin.staff.index');
+    Route::get('/staff/{id}', [AdminController::class, 'showStaff'])->name('admin.staff.show');
+    
     Route::get('/my-profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::put('/my-profile', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
 
