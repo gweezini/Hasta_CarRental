@@ -578,7 +578,7 @@
                        min="{{ date('Y-m-d') }}" required />
                 <select name="start_time" style="flex: 1; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; font-size: 1rem; color: #737373; outline: none;" required>
                     <option value="" disabled {{ !request('start_time') ? 'selected' : '' }}>Select Time</option>
-                    @for ($i = 0; $i < 1440; $i += 10)
+                    @for ($i = 420; $i < 1440; $i += 10)
                         @php $timeVal = sprintf('%02d:%02d', floor($i / 60), $i % 60); @endphp
                         <option value="{{ $timeVal }}" {{ request('start_time') == $timeVal ? 'selected' : '' }}>{{ $timeVal }}</option>
                     @endfor
@@ -594,7 +594,7 @@
                        min="{{ date('Y-m-d') }}" required />
                 <select name="stop_time" style="flex: 1; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; font-size: 1rem; color: #737373; outline: none;" required>
                     <option value="" disabled {{ !request('stop_time') ? 'selected' : '' }}>Select Time</option>
-                    @for ($i = 0; $i < 1440; $i += 60)
+                    @for ($i = 420; $i < 1440; $i += 60)
                         @php $timeVal = sprintf('%02d:%02d', floor($i / 60), $i % 60); @endphp
                         <option value="{{ $timeVal }}" {{ request('stop_time') == $timeVal ? 'selected' : '' }}>{{ $timeVal }}</option>
                     @endfor
@@ -870,8 +870,8 @@
               // Clear existing
               stopTimeSelect.innerHTML = '<option value="" disabled ' + (!currentVal ? 'selected' : '') + '>Select Time</option>';
 
-              // Generate New Options (00:mm to 23:mm)
-              for (let i = 0; i < 24; i++) {
+              // Generate New Options (07:mm to 23:mm)
+              for (let i = 7; i < 24; i++) {
                   const hourStr = i.toString().padStart(2, '0');
                   const val = `${hourStr}:${minutes}`;
                   const opt = document.createElement('option');

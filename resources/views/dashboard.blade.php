@@ -768,7 +768,7 @@
             <input type="date" name="start_date" id="start_date" min="{{ date('Y-m-d') }}" required />
                 <select name="start_time" style="flex: 1; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; font-size: 1rem; color: #737373; outline: none;" required>
                     <option value="" disabled selected>Select Time</option>
-                    @for ($i = 0; $i < 1440; $i += 10)
+                    @for ($i = 420; $i < 1440; $i += 10)
                         @php $timeVal = sprintf('%02d:%02d', floor($i / 60), $i % 60); @endphp
                         <option value="{{ $timeVal }}">{{ $timeVal }}</option>
                     @endfor
@@ -782,7 +782,7 @@
             <input type="date" name="stop_date" id="stop_date" min="{{ date('Y-m-d') }}" required />
                 <select name="stop_time" style="flex: 1; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; font-size: 1rem; color: #737373; outline: none;" required>
                     <option value="" disabled selected>Select Time</option>
-                    @for ($i = 0; $i < 1440; $i += 60)
+                    @for ($i = 420; $i < 1440; $i += 60)
                         @php $timeVal = sprintf('%02d:%02d', floor($i / 60), $i % 60); @endphp
                         <option value="{{ $timeVal }}">{{ $timeVal }}</option>
                     @endfor
@@ -1004,7 +1004,7 @@
 
               endT.innerHTML = '<option value="" disabled ' + (!curVal ? 'selected' : '') + '>Select Time</option>';
 
-              for (let i = 0; i < 24; i++) {
+              for (let i = 7; i < 24; i++) {
                   const hStr = i.toString().padStart(2, '0');
                   const val = `${hStr}:${mins}`;
                   const opt = document.createElement('option');
