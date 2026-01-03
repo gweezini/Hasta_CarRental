@@ -69,7 +69,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::put('/vouchers/{voucher}', [VoucherController::class, 'update'])->name('admin.vouchers.update');
     Route::delete('/vouchers/{voucher}', [VoucherController::class, 'destroy'])->name('admin.vouchers.destroy');
 
-    
+    Route::get('/staff-list', [AdminController::class, 'staffList'])->name('admin.staff.index');
     Route::get('/my-profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::put('/my-profile', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
 
