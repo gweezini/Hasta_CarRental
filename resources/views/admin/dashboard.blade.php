@@ -56,34 +56,37 @@
         </div>
     </div>
 
-    {{-- Recent Bookings Table (同步了 Bookings Index 的加大优化样式) --}}
+    {{-- Recent Bookings Table --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
         <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
             <h3 class="text-lg font-bold text-gray-800 tracking-tight">Recent Bookings</h3>
             <a href="{{ route('admin.bookings.index') }}" class="text-sm font-bold text-[#cd5c5c] hover:underline">View All</a>
         </div>
-        <div class="overflow-x-auto text-left">
-            <table class="w-full text-sm text-gray-600">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-gray-600 text-left">
                 <thead class="bg-gray-50 text-[10px] uppercase text-gray-400 font-black tracking-widest border-b">
                     <tr>
                         <th class="px-6 py-4">ID</th>
                         <th class="px-6 py-4">Customer</th>
                         <th class="px-6 py-4">Vehicle</th>
-                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4 text-center">Status</th>
                         <th class="px-6 py-4 text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @foreach($bookings as $booking)
                     <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-5 font-bold text-gray-400 text-xs">#{{ $booking->id }}</td>
+
+                        <td class="px-6 py-5 font-bold text-gray-400 text-xs text-left">
+                            <a href="{{ route('admin.bookings.show_detail', $booking->id) }}" class="hover:text-[#cb5c55] transition underline decoration-dotted">
+                                #{{ $booking->id }}
+                            </a>
+                        </td>
                         
                         <td class="px-6 py-5">
-                            {{-- 加大客户姓名 --}}
                             <a href="{{ route('admin.customers.show', $booking->user->id) }}" class="text-base font-bold text-gray-900 hover:text-[#cb5c55] hover:underline transition block leading-tight">
                                 {{ $booking->user->name }}
                             </a>
-                            {{-- 优化联系电话显示 --}}
                             <p class="text-xs text-gray-500 font-medium mt-1">
                                 <i class="ri-phone-line mr-1"></i>{{ $booking->user->phone_number ?? $booking->user->phone ?? 'No Phone' }}
                             </p>
@@ -94,19 +97,28 @@
                             <p class="text-xs text-gray-400 font-mono mt-0.5 tracking-wider">{{ $booking->vehicle->plate_number }}</p>
                         </td>
 
-                        <td class="px-6 py-5 uppercase tracking-tighter">
-                            @php
-                                $style = match($booking->status) {
-                                    'Approved' => 'bg-green-100 text-green-700 border-green-200',
-                                    'Rejected' => 'bg-red-100 text-red-700 border-red-200',
-                                    'Waiting for Verification', 'Verify Receipt' => 'bg-blue-100 text-blue-700 border-blue-200',
-                                    'Completed' => 'bg-purple-100 text-purple-700 border-purple-200',
-                                    default => 'bg-gray-100 text-gray-400'
-                                };
-                            @endphp
-                            <span class="px-3 py-1.5 rounded-full text-[10px] font-black border {{ $style }} uppercase tracking-widest shadow-sm">
-                                {{ $booking->status == 'Waiting for Verification' ? 'Verify Receipt' : $booking->status }}
-                            </span>
+                        <td class="px-6 py-5">
+                            <div class="flex items-center justify-center gap-3">
+                                @php
+                                    $style = match($booking->status) {
+                                        'Approved' => 'bg-green-100 text-green-700 border-green-200',
+                                        'Rejected' => 'bg-red-100 text-red-700 border-red-200',
+                                        'Waiting for Verification', 'Verify Receipt' => 'bg-blue-100 text-blue-700 border-blue-200',
+                                        'Completed' => 'bg-purple-100 text-purple-700 border-purple-200',
+                                        default => 'bg-gray-100 text-gray-400'
+                                    };
+                                @endphp
+                                
+                                <span class="px-3 py-1.5 rounded-full text-[10px] font-black border {{ $style }} uppercase tracking-widest shadow-sm">
+                                    {{ $booking->status == 'Waiting for Verification' ? 'Verify Receipt' : $booking->status }}
+                                </span>
+
+                                @if($booking->processedBy)
+                                    <span class="text-[11px] text-gray-400 font-bold uppercase tracking-tight whitespace-nowrap">
+                                        by {{ $booking->processedBy->name }}
+                                    </span>
+                                @endif
+                            </div>
                         </td>
 
                         <td class="px-6 py-5 text-center">
@@ -141,8 +153,45 @@
         </div>
     </div>
 
+    <div id="bookingModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="fixed inset-0 bg-black/60 transition-opacity" onclick="closeBookingModal()"></div>
+            <div class="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full overflow-hidden grid grid-cols-1 md:grid-cols-2">
+                <div class="p-8 border-r border-gray-100 text-left">
+                    <div class="flex justify-between items-start mb-6">
+                        <h3 class="text-2xl font-black text-gray-800" id="m-id">#000</h3>
+                        <span id="m-status" class="px-3 py-1 rounded-full text-[10px] font-black border uppercase tracking-widest shadow-sm"></span>
+                    </div>
+                    <div class="space-y-5 text-left">
+                        <div><label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Customer</label><p id="m-customer" class="font-bold text-gray-800 text-lg"></p></div>
+                        <div><label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Vehicle</label><p id="m-vehicle" class="font-bold text-gray-800"></p></div>
+                        <div class="bg-gray-50 p-4 rounded-xl text-left">
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Fee</label>
+                            <p class="text-2xl font-black text-[#cb5c55]">RM <span id="m-total">0.00</span></p>
+                        </div>
+                        <div class="border-t pt-4 text-left">
+                            <label class="text-[10px] font-black text-blue-500 uppercase block mb-1 tracking-widest">Audit Trail</label>
+                            <p class="text-xs font-bold text-gray-600 italic">Action by: <span id="m-processed-by"></span></p>
+                            <p class="text-[10px] text-gray-400 font-medium" id="m-processed-at"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8 bg-gray-50 flex flex-col items-center justify-center text-center">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 block w-full text-center">Payment Receipt</label>
+                    <img id="m-img" src="" onclick="openLargeImage(this.src)" class="max-h-[350px] rounded-lg shadow-md border-4 border-white cursor-zoom-in hover:scale-[1.02] transition">
+                    <p class="mt-3 text-[10px] text-gray-400 italic">Click image to enlarge</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="largeImageOverlay" class="fixed inset-0 z-[60] hidden bg-black/95 flex items-center justify-center p-4 cursor-zoom-out" onclick="this.classList.add('hidden')">
+        <img id="largeImg" src="" class="max-w-full max-h-full object-contain shadow-2xl transition-transform duration-300">
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        {{-- 原有的图表脚本 --}}
         const barColors = ['#3B82F6', '#10B981', '#F59E0B', '#6366F1', '#EC4899', '#8B5CF6', '#14B8A6', '#F97316', '#06B6D4', '#84CC16', '#D946EF', '#EAB308', '#A855F7', '#22C55E', '#64748B'];
         const pieColors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316', '#6366F1', '#14B8A6', '#84CC16', '#D946EF', '#64748B', '#A855F7', '#EAB308'];
 
@@ -200,6 +249,49 @@
                     } 
                 }, 
                 cutout: '65%' 
+            }
+        });
+
+
+        function viewBookingDetails(id) {
+            const fetchUrl = `{{ url('/admin/bookings') }}/${id}/json`;
+            fetch(fetchUrl)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('m-id').innerText = '#' + data.id;
+                    document.getElementById('m-customer').innerText = data.customer;
+                    document.getElementById('m-vehicle').innerText = data.vehicle;
+                    document.getElementById('m-total').innerText = data.total;
+                    document.getElementById('m-processed-by').innerText = data.processed_by;
+                    document.getElementById('m-processed-at').innerText = data.processed_at;
+                    document.getElementById('m-img').src = data.payment_proof;
+                    const st = document.getElementById('m-status');
+                    st.innerText = data.status;
+                    st.className = `px-3 py-1 rounded-full text-[10px] font-black border uppercase tracking-widest shadow-sm `;
+                    if(data.status === 'Approved' || data.status === 'Completed') {
+                        st.classList.add('bg-green-50', 'text-green-600', 'border-green-100');
+                    } else if(data.status === 'Rejected') {
+                        st.classList.add('bg-red-50', 'text-red-600', 'border-red-100');
+                    } else {
+                        st.classList.add('bg-blue-50', 'text-blue-600', 'border-blue-100');
+                    }
+                    document.getElementById('bookingModal').classList.remove('hidden');
+                    document.body.style.overflow = 'hidden'; 
+                });
+        }
+        function closeBookingModal() {
+            document.getElementById('bookingModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        function openLargeImage(src) { 
+            if(!src || src.includes('undefined')) return;
+            document.getElementById('largeImg').src = src;
+            document.getElementById('largeImageOverlay').classList.remove('hidden');
+        }
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                document.getElementById('largeImageOverlay').classList.add('hidden');
+                closeBookingModal();
             }
         });
     </script>
