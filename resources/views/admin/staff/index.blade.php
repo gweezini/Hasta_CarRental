@@ -6,8 +6,8 @@
 <div class="max-w-6xl mx-auto">
     <div class="flex justify-between items-center mb-8">
         <div>
-            <h2 class="text-3xl font-black text-gray-800 tracking-tight">Staff Payroll</h2>
-            <p class="text-gray-500 text-sm mt-1">Manage and audit staff salaries and banking information</p>
+            <h2 class="text-3xl font-black text-gray-800 tracking-tight text-left">Staff Payroll</h2>
+            <p class="text-gray-500 text-sm mt-1 text-left">Manage and audit staff salaries and banking information</p>
         </div>
         <div class="flex gap-3">
             <button onclick="window.print()" class="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition shadow-sm no-print">
@@ -22,7 +22,7 @@
                 <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center text-2xl">
                     <i class="ri-group-line"></i>
                 </div>
-                <div>
+                <div class="text-left">
                     <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Staff</p>
                     <h3 class="text-2xl font-black text-gray-800">{{ $staffs->count() }}</h3>
                 </div>
@@ -34,7 +34,7 @@
                 <div class="w-12 h-12 bg-white/20 text-white rounded-2xl flex items-center justify-center text-2xl">
                     <i class="ri-money-dollar-box-line"></i>
                 </div>
-                <div>
+                <div class="text-left">
                     <p class="text-xs font-bold text-white/70 uppercase tracking-widest">Total Monthly Payroll</p>
                     <h3 class="text-2xl font-black text-white">RM {{ number_format($staffs->sum('salary'), 2) }}</h3>
                 </div>
@@ -46,7 +46,7 @@
                 <div class="w-12 h-12 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center text-2xl">
                     <i class="ri-shield-check-line"></i>
                 </div>
-                <div>
+                <div class="text-left">
                     <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Payroll Status</p>
                     <h3 class="text-2xl font-black text-green-600 uppercase">Active</h3>
                 </div>
@@ -61,39 +61,39 @@
                     <tr>
                         <th class="px-8 py-5 text-xs font-black text-gray-400 uppercase tracking-widest">Staff Info</th>
                         <th class="px-8 py-5 text-xs font-black text-gray-400 uppercase tracking-widest">Position</th>
-                        <th class="px-8 py-5 text-xs font-black text-gray-400 uppercase tracking-widest">Banking Details</th>
+                        <th class="px-8 py-5 text-xs font-black text-gray-400 uppercase tracking-widest text-left">Banking Details</th>
                         <th class="px-8 py-5 text-xs font-black text-gray-400 uppercase tracking-widest text-right">Salary (RM)</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
                     @forelse($staffs as $staff)
-                    <tr class="hover:bg-gray-50/80 transition duration-200 group">
+                    <tr class="hover:bg-gray-50/80 transition duration-200 group cursor-pointer" onclick="window.location='{{ route('admin.staff.show', $staff->id) }}'">
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-4">
                                 <div class="w-10 h-10 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center font-bold text-sm border-2 border-white shadow-sm overflow-hidden">
                                     @if($staff->profile_photo_path)
                                         <img src="{{ $staff->profile_photo_url }}" class="w-full h-full object-cover">
                                     @else
-                                        {{ substr($staff->name, 0, 1) }}
+                                        <span class="uppercase">{{ substr($staff->name, 0, 1) }}</span>
                                     @endif
                                 </div>
-                                <div>
+                                <div class="text-left">
                                     <p class="font-bold text-gray-800 group-hover:text-[#cb5c55] transition">{{ $staff->name }}</p>
-                                    <p class="text-[10px] text-gray-400 font-mono tracking-tighter">{{ $staff->matric_staff_id ?? 'NO ID SET' }}</p>
+                                    <p class="text-[10px] text-gray-400 font-mono tracking-tighter uppercase">{{ $staff->matric_staff_id ?? 'STAFF-'.$staff->id }}</p>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-8 py-6">
+                        <td class="px-8 py-6 text-left">
                             <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest {{ $staff->role == 'topmanagement' ? 'bg-purple-50 text-purple-600 border border-purple-100' : 'bg-blue-50 text-blue-600 border border-blue-100' }}">
                                 {{ $staff->role }}
                             </span>
                         </td>
-                        <td class="px-8 py-6">
+                        <td class="px-8 py-6 text-left">
                             <div class="flex flex-col">
-                                <span class="text-xs font-bold text-gray-700 uppercase">{{ $staff->bank_name ?? 'Not Provided' }}</span>
-                                <span class="text-xs text-gray-400 font-mono">{{ $staff->account_number ?? '---' }}</span>
+                                <span class="text-xs font-bold text-gray-700 uppercase leading-tight">{{ $staff->bank_name ?? 'NOT PROVIDED' }}</span>
+                                <span class="text-xs text-gray-400 font-mono mt-0.5 tracking-tighter">{{ $staff->account_number ?? '---' }}</span>
                                 @if($staff->account_holder)
-                                <span class="text-[9px] text-gray-400 mt-1 italic">Holder: {{ $staff->account_holder }}</span>
+                                <span class="text-[9px] text-gray-400 mt-1 italic leading-none">Holder: {{ $staff->account_holder }}</span>
                                 @endif
                             </div>
                         </td>
@@ -107,7 +107,7 @@
                     <tr>
                         <td colspan="4" class="px-8 py-20 text-center text-gray-400">
                             <i class="ri-user-search-line text-5xl mb-3 block opacity-20"></i>
-                            <p>No staff records found in the database.</p>
+                            <p>No staff records found.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -124,7 +124,7 @@
         </div>
     </div>
     
-    <div class="mt-8 p-6 bg-blue-50 border border-blue-100 rounded-3xl flex items-start gap-4 no-print">
+    <div class="mt-8 p-6 bg-blue-50 border border-blue-100 rounded-3xl flex items-start gap-4 no-print text-left">
         <i class="ri-information-line text-blue-500 text-xl"></i>
         <div class="text-xs text-blue-700 leading-relaxed">
             <p class="font-bold mb-1 uppercase tracking-tight">Financial Policy Note:</p>
