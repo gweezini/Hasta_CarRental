@@ -75,10 +75,7 @@
         </a>
     @endif
 
-    <div class="my-4 border-t border-white/10"></div> 
-    <a href="{{ route('admin.profile') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.profile') ? 'sidebar-active' : '' }}">
-        <i class="ri-user-settings-line mr-3 text-xl"></i> My Profile
-    </a>
+
 </nav>
         
         <div class="p-6 text-center text-[10px] text-white/30 uppercase tracking-widest font-bold">
@@ -157,6 +154,9 @@
                     </button>
                     
                     <div x-show="userMenu" style="display: none;" x-transition class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-2xl border py-1 z-50">
+                        <a href="{{ route('admin.profile') }}" class="block w-full flex items-center px-4 py-3 text-xs text-gray-700 font-bold hover:bg-gray-50 transition text-left">
+                            <i class="ri-user-settings-line mr-2 text-base"></i> My Profile
+                        </a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="w-full flex items-center px-4 py-3 text-xs text-red-500 font-bold hover:bg-red-50 transition text-left">
