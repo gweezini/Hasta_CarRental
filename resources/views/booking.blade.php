@@ -907,7 +907,7 @@
                         value="{{ $v->id }}"
                         {{ request('selected_voucher_id') == $v->id ? 'selected' : '' }}
                       >
-                        {{ $v->name }} ({{ $v->label }})
+                        {{ $v->voucher->name }} ({{ $v->voucher->label }})
                       </option>
                       @endforeach
                     </select>

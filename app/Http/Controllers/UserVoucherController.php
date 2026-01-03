@@ -67,29 +67,38 @@ class UserVoucherController extends Controller
 
         // map tiers
         $map = [
-            3 => ['type' => 'percent', 'value' => 10, 'name' => 'Loyalty 10% (3 stamps)'],
-            6 => ['type' => 'percent', 'value' => 15, 'name' => 'Loyalty 15% (6 stamps)'],
-            9 => ['type' => 'percent', 'value' => 20, 'name' => 'Loyalty 20% (9 stamps)'],
-            12 => ['type' => 'percent', 'value' => 25, 'name' => 'Loyalty 25% (12 stamps)'],
-            15 => ['type' => 'free_hours', 'value' => 12, 'name' => 'Loyalty 12 hours free (15 stamps)'],
+            3 => ['code' => 'LOYALTY_T3', 'type' => 'percent', 'value' => 10, 'name' => 'Loyalty 10% (3 stamps)'],
+            6 => ['code' => 'LOYALTY_T6', 'type' => 'percent', 'value' => 15, 'name' => 'Loyalty 15% (6 stamps)'],
+            9 => ['code' => 'LOYALTY_T9', 'type' => 'percent', 'value' => 20, 'name' => 'Loyalty 20% (9 stamps)'],
+            12 => ['code' => 'LOYALTY_T12', 'type' => 'percent', 'value' => 25, 'name' => 'Loyalty 25% (12 stamps)'],
+            15 => ['code' => 'LOYALTY_T15', 'type' => 'free_hours', 'value' => 12, 'name' => 'Loyalty 12 hours free (15 stamps)'],
         ];
 
         $info = $map[$tier];
 
+        // 1. Find or Create the Master Voucher
+        $voucher = Voucher::firstOrCreate(
+            ['code' => $info['code']],
+            [
+                'name' => $info['name'],
+                'type' => $info['type'],
+                'value' => $info['value'],
+                'is_active' => true,
+                'single_use' => false 
+            ]
+        );
+
+        // 2. Assign to User
         UserVoucher::create([
-            'user_id' => $user->id,
-            'code' => null,
-            'name' => $info['name'],
-            'type' => $info['type'],
-            'value' => $info['value'],
-            'source' => 'loyalty',
-            'is_active' => true,
+            'user_id' => $user->matric_staff_id, 
+            'voucher_id' => $voucher->id,
+            'used_at' => null
         ]);
 
         // deduct stamps
         $card->stamps -= $tier;
         $card->save();
 
-        return redirect()->back()->with('success', 'Loyalty reward created');
+        return redirect()->route('profile.edit', ['tab' => 'rewards'])->with('success', 'Loyalty reward created');
     }
 }
