@@ -24,10 +24,8 @@ Route::get('/dashboard', function () {
     if (Auth::user()->isStaff()) {
         return redirect()->route('admin.dashboard');
     }
-
     $vehicles = \App\Models\Vehicle::all(); 
     return view('dashboard', compact('vehicles')); 
-
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -36,20 +34,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-//  Admin Routes (Staff Access)
 Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-    
-    // Bookings
     Route::get('/bookings', [AdminController::class, 'allBookings'])->name('admin.bookings.index');
-
-    // Reports
     Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
-
-    // Customers
     Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
     Route::get('/customers/{id}', [CustomerController::class, 'show'])->name('admin.customers.show');
+    Route::post('/customers/{id}/blacklist', [AdminController::class, 'toggleBlacklist'])->name('admin.customers.blacklist');
     
     // Vehicles (Fleet Management)
     Route::get('/vehicle', [CarController::class, 'index'])->name('admin.vehicle.index');
@@ -60,17 +52,16 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::put('/vehicle/{id}', [CarController::class, 'update'])->name('admin.vehicle.update');
     Route::delete('/vehicle/{id}', [CarController::class, 'destroy'])->name('admin.vehicle.destroy');
 
-    // Payment Verification Actions
+    // Payment & Booking Actions
     Route::get('/booking/{id}/verify', [AdminController::class, 'verifyPayment'])->name('admin.payment.verify');
     Route::post('/booking/{id}/approve', [AdminController::class, 'approvePayment'])->name('admin.payment.approve');
     Route::post('/booking/{id}/reject', [AdminController::class, 'rejectPayment'])->name('admin.payment.reject');
-
     Route::post('/booking/{id}/return', [AdminController::class, 'markAsReturned'])->name('admin.booking.return');
     
-    // Notification Center 
+    // Notification Center
     Route::get('/notifications', [AdminController::class, 'notifications'])->name('admin.notifications');
 
-    // Voucher Management (Staff)
+    // Voucher Management
     Route::get('/vouchers', [VoucherController::class, 'index'])->name('admin.vouchers.index');
     Route::get('/vouchers/create', [VoucherController::class, 'create'])->name('admin.vouchers.create');
     Route::post('/vouchers', [VoucherController::class, 'store'])->name('admin.vouchers.store');
@@ -78,10 +69,12 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::put('/vouchers/{voucher}', [VoucherController::class, 'update'])->name('admin.vouchers.update');
     Route::delete('/vouchers/{voucher}', [VoucherController::class, 'destroy'])->name('admin.vouchers.destroy');
 
-    Route::post('/admin/customers/{id}/blacklist', [App\Http\Controllers\AdminController::class, 'toggleBlacklist'])->name('admin.customers.blacklist');
+    
+    Route::get('/my-profile', [AdminController::class, 'profile'])->name('admin.profile');
+    Route::put('/my-profile', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
+
 });
 
-// 🔥 User Booking Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/booking/{id}', [BookingController::class, 'show'])->name('booking.show');
     Route::post('/confirm-booking', [BookingController::class, 'store'])->name('booking.store');
@@ -89,6 +82,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/booking/{id}', [BookingController::class, 'update'])->name('booking.update');
     Route::delete('/booking/{id}', [BookingController::class, 'destroy'])->name('booking.destroy');
     Route::post('/booking/calculate', [BookingController::class, 'calculatePrice'])->name('booking.calculate');
+    
     Route::get('/my-vouchers', [UserVoucherController::class, 'index'])->name('vouchers.index');
     Route::post('/voucher/redeem-code', [UserVoucherController::class, 'redeemCode'])->name('vouchers.redeem.code');
     Route::post('/voucher/redeem-loyalty', [UserVoucherController::class, 'redeemLoyalty'])->name('vouchers.redeem.loyalty');
