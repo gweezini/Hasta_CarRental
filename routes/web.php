@@ -78,6 +78,12 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/my-profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::put('/my-profile', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
 
+    // Claim System
+    Route::get('/claims/create', [App\Http\Controllers\ClaimController::class, 'create'])->name('admin.claims.create');
+    Route::post('/claims', [App\Http\Controllers\ClaimController::class, 'store'])->name('admin.claims.store');
+    Route::get('/claims', [App\Http\Controllers\ClaimController::class, 'index'])->name('admin.claims.index');
+    Route::post('/claims/{id}/status', [App\Http\Controllers\ClaimController::class, 'updateStatus'])->name('admin.claims.status');
+
 });
 
 Route::middleware(['auth'])->group(function () {
