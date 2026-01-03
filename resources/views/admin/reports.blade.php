@@ -9,9 +9,9 @@
         <p class="text-sm text-gray-400 mt-4 font-medium">Generated on: {{ now()->format('d M Y, h:i A') }}</p>
     </div>
 
-    <div class="flex justify-between items-end mb-8 no-print">
+    <div class="flex justify-between items-end mb-8 no-print text-left">
         <div>
-            <h2 class="text-3xl font-bold text-gray-800">Financial Reports</h2>
+            <h2 class="text-3xl font-bold text-gray-800 tracking-tight">Financial Reports</h2>
             <p class="text-gray-500 text-sm">Analyze revenue performance over time</p>
         </div>
         <button onclick="window.print()" class="flex items-center gap-2 px-5 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow">
@@ -20,7 +20,7 @@
     </div>
 
     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-8 flex justify-between items-center no-print">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 text-left">
             <div class="bg-red-50 p-2 rounded-lg text-[#cb5c55]">
                 <i class="ri-bar-chart-grouped-line text-xl"></i>
             </div>
@@ -47,10 +47,11 @@
                 </div>
             </div>
         </form>
-</div>
+    </div>
 
     <div class="flex flex-col md:flex-row gap-6 mb-8 print:flex-row print:justify-between print:gap-4">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between border-l-4 border-l-green-500">
+        {{-- Gross Revenue --}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between border-l-4 border-l-green-500 text-left">
             <div>
                 <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Gross Revenue</p>
                 <h3 class="text-2xl font-black text-gray-800 mt-1 print:text-lg">RM {{ number_format($totalRevenueAmount ?? 0, 2) }}</h3>
@@ -61,7 +62,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between border-l-4 border-l-red-500">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between border-l-4 border-l-red-500 text-left">
             <div>
                 <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Staff Salaries</p>
                 <h3 class="text-2xl font-black text-gray-800 mt-1 print:text-lg">- RM {{ number_format($totalSalaries ?? 0, 2) }}</h3>
@@ -72,11 +73,12 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between border-l-4 border-l-blue-500 bg-blue-50/10">
+        {{-- Net Profit --}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between border-l-4 border-l-blue-500 bg-blue-50/10 text-left">
             <div>
                 <p class="text-xs text-blue-600 font-bold uppercase tracking-wider">Final Net Profit</p>
                 <h3 class="text-2xl font-black text-blue-700 mt-1 print:text-lg">RM {{ number_format($netProfit ?? 0, 2) }}</h3>
-                <p class="text-[10px] text-blue-400 font-bold uppercase tracking-tighter italic">Earnings after payroll</p>
+                <p class="text-[10px] text-blue-400 font-bold uppercase tracking-tighter">Earnings after payroll</p>
             </div>
             <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 no-print">
                 <i class="ri-line-chart-line text-xl"></i>
@@ -85,7 +87,7 @@
     </div>
 
     <div class="flex flex-col md:flex-row gap-6 mb-8 print:flex-row print:justify-between print:gap-4">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between print:border-gray-200 print:p-4">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between print:border-gray-200 print:p-4 text-left">
             <div>
                 <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Total Transactions</p>
                 <h3 class="text-2xl font-black text-gray-800 mt-1 print:text-lg">{{ $totalTransactions ?? 0 }}</h3>
@@ -96,7 +98,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between print:border-gray-200 print:p-4">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between print:border-gray-200 print:p-4 text-left">
             <div>
                 <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Avg. Transaction</p>
                 <h3 class="text-2xl font-black text-gray-800 mt-1 print:text-lg">RM {{ number_format($avgOrderValue ?? 0, 0) }}</h3>
@@ -107,7 +109,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between print:border-gray-200 print:p-4">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between print:border-gray-200 print:p-4 text-left">
             <div>
                 <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Highest Record</p>
                 <h3 class="text-2xl font-black text-gray-800 mt-1 print:text-lg">RM {{ number_format($highestTransaction ?? 0, 0) }}</h3>
@@ -120,7 +122,7 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8 print:border-gray-200">
-        <div class="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center no-print">
+        <div class="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center no-print text-left">
             <h3 class="font-bold text-gray-800 flex items-center gap-2 capitalize">
                 <i class="ri-money-dollar-circle-line text-[#cb5c55] no-print"></i> {{ $filter }} Revenue Breakdown
             </h3>
@@ -128,7 +130,7 @@
         
         <div class="p-6 print:p-0">
             @if(count($formattedRevenue) > 0)
-                <table class="w-full text-left print:text-xs">
+                <table class="w-full text-left print:text-xs border-collapse">
                     <thead class="border-b-2 border-gray-100 text-gray-400 text-[10px] font-black uppercase tracking-widest print:text-gray-800">
                         <tr>
                             <th class="py-4 pl-4">Time Period</th>
@@ -139,9 +141,9 @@
                     <tbody class="divide-y divide-gray-50">
                         @foreach($formattedRevenue as $label => $amount)
                         <tr class="group hover:bg-gray-50 transition">
-                            <td class="py-5 pl-4">
+                            <td class="py-5 pl-4 text-left">
                                 <span class="font-bold text-gray-700 text-base block leading-tight print:text-sm">{{ $label }}</span>
-                                <span class="text-[9px] text-gray-400 uppercase font-medium tracking-tighter">Verified Entry</span>
+                                <span class="text-[9px] text-gray-400 uppercase font-bold tracking-tighter">Verified Entry</span>
                             </td>
                             
                             <td class="py-5 text-center px-4 no-print">
@@ -149,7 +151,14 @@
                                     <div class="flex items-center gap-2 px-3 py-1 bg-gray-100 text-gray-600 rounded-lg border border-gray-200 shadow-sm transition group-hover:bg-white">
                                         <i class="ri-ticket-2-line text-xs text-[#cb5c55]"></i>
                                         <span class="text-[10px] font-black tracking-tight uppercase">
-                                            1 TRANSACTION
+                                            @php
+                                                $count = $revenueList->filter(function($item) use ($label, $filter) {
+                                                    if ($filter == 'daily') return \Carbon\Carbon::parse($item->updated_at)->format('d M') == $label;
+                                                    if ($filter == 'monthly') return \Carbon\Carbon::parse($item->updated_at)->format('F') == $label;
+                                                    return false;
+                                                })->count();
+                                            @endphp
+                                            {{ $count > 0 ? $count : 1 }} TRANSACTION{{ $count > 1 ? 'S' : '' }}
                                         </span>
                                     </div>
                                     @php 
@@ -166,7 +175,7 @@
                                 <div class="flex flex-col items-end">
                                     <span class="font-black text-[#cb5c55] text-xl print:text-sm">RM {{ number_format($amount, 2) }}</span>
                                     <span class="text-[9px] text-green-500 font-bold uppercase tracking-tighter flex items-center gap-1 no-print">
-                                        <i class="ri-checkbox-circle-fill"></i> Verified Payment
+                                        <i class="ri-checkbox-circle-fill"></i> Verified
                                     </span>
                                 </div>
                             </td>
@@ -188,52 +197,6 @@
                     <p class="text-base font-medium">No payment records found for this period.</p>
                 </div>
             @endif
-        </div>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8 print:border-gray-200">
-        <div class="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center no-print">
-            <h3 class="font-bold text-gray-800 flex items-center gap-2 uppercase tracking-tighter">
-                <i class="ri-user-star-line text-red-500 no-print"></i> Staff Salary Deductions (Detail)
-            </h3>
-            <span class="px-3 py-1 bg-red-50 text-red-500 text-[10px] font-black rounded-full uppercase">Expense Detail</span>
-        </div>
-        
-        <div class="p-6 print:p-0">
-            <table class="w-full text-left print:text-[10px]">
-                <thead class="border-b-2 border-gray-100 text-gray-400 text-[10px] font-black uppercase tracking-widest print:text-gray-800">
-                    <tr>
-                        <th class="py-4 pl-4">Staff Details</th>
-                        <th class="py-4">Bank Information</th>
-                        <th class="py-4 text-right pr-4">Monthly Salary</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @foreach($staffs as $staff)
-                    <tr class="hover:bg-red-50/30 transition italic">
-                        <td class="py-4 pl-4">
-                            <span class="font-bold text-gray-700 block">{{ $staff->name }}</span>
-                            <span class="text-[9px] text-gray-400 font-mono tracking-tighter uppercase">{{ $staff->matric_staff_id }} | {{ $staff->role }}</span>
-                        </td>
-                        <td class="py-4">
-                            <span class="text-xs text-gray-600 block">{{ $staff->bank_name ?? 'N/A' }}</span>
-                            <span class="text-[9px] text-gray-400 font-mono">{{ $staff->account_number ?? 'N/A' }}</span>
-                        </td>
-                        <td class="py-4 text-right pr-4">
-                            <span class="font-bold text-red-500">- RM {{ number_format($staff->salary, 2) }}</span>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-                <tfoot class="border-t-2 border-gray-100 bg-red-50/20 print:bg-white">
-                    <tr>
-                        <td colspan="2" class="py-4 font-black text-gray-600 text-right pr-6 text-xs uppercase tracking-widest">Total Monthly Payroll</td>
-                        <td class="py-4 text-right font-black text-red-600 pr-4">
-                            - RM {{ number_format($totalSalaries, 2) }}
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
         </div>
     </div>
 
