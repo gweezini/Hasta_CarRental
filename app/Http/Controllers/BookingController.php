@@ -235,7 +235,7 @@ class BookingController extends Controller
 
             // 积分 & Voucher 标记
             // Fix: Award 1 stamp only if booking is > 3 hours
-            if ($hours > 3) {
+            if ($hours >= 3) {
                 $card = Auth::user()->loyaltyCard ?? LoyaltyCard::create(['user_id' => Auth::id()]);
                 $card->stamps += 1;
                 $card->save();
@@ -457,7 +457,7 @@ class BookingController extends Controller
             }
 
             $total = max(0, $subtotal + $deliveryFee - $discount);
-            $stamps = ($hours > 3) ? 1 : 0;
+            $stamps = ($hours >= 3) ? 1 : 0;
 
             return response()->json([
                 'hours' => $hours,

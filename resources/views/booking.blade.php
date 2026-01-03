@@ -752,7 +752,7 @@
                     <label>Start Date</label>
                     {{-- 🔥 修复重点：如果 URL 里有 start_date 和 start_time，自动合并成 'YYYY-MM-DDTHH:MM' 填入 --}}
                     <div class="date-time-wrapper">
-                        <input type="date" id="start_date_visual" required value="{{ request('start_date') }}" />
+                        <input type="date" id="start_date_visual" required value="{{ request('start_date') }}" min="{{ date('Y-m-d') }}" />
                         <select id="start_time_visual" required style="padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
                             <option value="" disabled {{ !request('start_time') ? 'selected' : '' }}>Select Time</option>
                             @for($i=0; $i<1440; $i+=10)
@@ -767,7 +767,7 @@
                     <label>End Date</label>
                     {{-- 🔥 修复重点：同上，自动合并 stop_date 和 stop_time --}}
                     <div class="date-time-wrapper">
-                        <input type="date" id="end_date_visual" required value="{{ request('stop_date') }}" />
+                        <input type="date" id="end_date_visual" required value="{{ request('stop_date') }}" min="{{ date('Y-m-d') }}" />
                         <select id="end_time_visual" required style="padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
                             <option value="" disabled {{ !request('end_time') ? 'selected' : '' }}>Select Time</option>
                             @for($i=0; $i<1440; $i+=60)
