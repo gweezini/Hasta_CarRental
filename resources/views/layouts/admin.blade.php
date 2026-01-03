@@ -63,6 +63,10 @@
         <i class="ri-coupon-3-line mr-3 text-xl"></i> Vouchers
     </a>
 
+    <a href="{{ route('admin.claims.create') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.claims.create') ? 'sidebar-active' : '' }}">
+        <i class="ri-money-dollar-circle-line mr-3 text-xl"></i> Claim Money
+    </a>
+
     @if(Auth::user()->isTopManagement())
         <div class="my-4 border-t border-white/10 text-[10px] px-6 py-2 text-white/50 uppercase font-bold tracking-widest">Financial Control</div>
         
@@ -72,6 +76,10 @@
 
         <a href="{{ route('admin.staff.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.staff*') ? 'sidebar-active' : '' }}">
             <i class="ri-team-line mr-3 text-xl"></i> Staff Payroll
+        </a>
+
+        <a href="{{ route('admin.claims.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.claims.index') ? 'sidebar-active' : '' }}">
+            <i class="ri-refund-2-line mr-3 text-xl"></i> Review Claims
         </a>
     @endif
 
@@ -96,11 +104,13 @@
                         if(isset($roadTaxAlerts) && isset($insuranceAlerts)) {
                             $alertCount = $roadTaxAlerts->count() + $insuranceAlerts->count();
                         }
+                        $unreadNotifications = Auth::user()->unreadNotifications;
+                        $totalAlerts = $alertCount + $unreadNotifications->count();
                     @endphp
                     
                     <button @click="open = !open" @click.away="open = false" class="relative p-2 text-gray-400 hover:text-[#cd5c5c] transition focus:outline-none">
                         <i class="ri-notification-3-line text-2xl"></i>
-                        @if($alertCount > 0)
+                        @if($totalAlerts > 0)
                             <span class="absolute top-1 right-1 flex h-3 w-3">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                 <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 border-2 border-white"></span>
@@ -109,8 +119,30 @@
                     </button>
                     
                     <div x-show="open" style="display: none;" x-transition class="absolute right-0 mt-3 w-96 bg-white rounded-xl shadow-2xl border z-50 overflow-hidden text-left">
-                        <div class="px-5 py-4 border-b bg-gray-50/50 font-bold text-base uppercase text-gray-700">Expiry Alerts</div>
-                        <div class="max-h-64 overflow-y-auto">
+                        <div class="px-5 py-4 border-b bg-gray-50/50 font-bold text-base uppercase text-gray-700 flex justify-between items-center">
+                            <span>Notifications</span>
+                            @if($unreadNotifications->count() > 0)
+                                <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{{ $unreadNotifications->count() }} NEW</span>
+                            @endif
+                        </div>
+                        <div class="max-h-80 overflow-y-auto">
+                            {{-- Database Notifications --}}
+                            @foreach($unreadNotifications as $notification)
+                                <div class="block px-5 py-4 border-b hover:bg-gray-50 transition relative">
+                                    <div class="flex gap-3">
+                                        <div class="h-8 w-8 rounded-full {{ $notification->data['category'] == 'claim_submission' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600' }} flex flex-shrink-0 items-center justify-center">
+                                            <i class="{{ $notification->data['category'] == 'claim_submission' ? 'ri-refund-2-line' : 'ri-checkbox-circle-line' }}"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-black text-gray-900 leading-tight">{{ $notification->data['message'] }}</p>
+                                            <p class="text-[10px] text-gray-400 mt-1 font-bold">{{ $notification->created_at->diffForHumans() }}</p>
+                                            <a href="{{ $notification->data['url'] }}" class="inline-block mt-2 text-[10px] font-black text-[#cb5c55] uppercase tracking-widest hover:underline">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            {{-- Vehicle Expiry Alerts --}}
                             @if($alertCount > 0)
                                 @foreach($roadTaxAlerts as $car)
                                     <a href="{{ route('admin.vehicle.edit', $car->id) }}" class="block px-5 py-4 border-b hover:bg-red-50 transition">
@@ -124,10 +156,10 @@
                                         <p class="text-xs text-orange-500 mt-1 font-medium">{{ \Carbon\Carbon::parse($car->insurance_expiry)->diffForHumans() }}</p>
                                     </a>
                                 @endforeach
-                            @else
-                                <div class="p-6 text-center text-gray-400">
-                                    No new notifications
-                                </div>
+                            @endif
+
+                            @if($totalAlerts == 0)
+                                <div class="p-6 text-center text-gray-400">No new notifications</div>
                             @endif
                         </div>
                         @if($alertCount > 0)
