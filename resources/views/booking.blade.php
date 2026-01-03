@@ -978,7 +978,7 @@
                     <input
                       type="tel"
                       name="phone"
-                      value="{{ Auth::user()->phone }}"
+                      value="{{ Auth::user()->phone_number }}"
                       placeholder="+60..."
                       required
                     />
