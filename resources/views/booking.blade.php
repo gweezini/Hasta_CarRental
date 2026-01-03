@@ -752,9 +752,10 @@
                     <label>Start Date</label>
                     {{-- 🔥 修复重点：如果 URL 里有 start_date 和 start_time，自动合并成 'YYYY-MM-DDTHH:MM' 填入 --}}
                     <div class="date-time-wrapper">
-                        <input type="date" id="start_date_visual" required value="{{ request('start_date') }}" />
+                        <input type="date" id="start_date_visual" required value="{{ request('start_date') }}" min="{{ date('Y-m-d') }}" />
                         <select id="start_time_visual" required style="padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
-                            @for($i=0; $i<1440; $i+=10)
+                            <option value="" disabled {{ !request('start_time') ? 'selected' : '' }}>Select Time</option>
+                            @for($i=420; $i<1440; $i+=10)
                                 @php $t = sprintf('%02d:%02d', floor($i/60), $i%60); @endphp
                                 <option value="{{ $t }}" {{ request('start_time') == $t ? 'selected' : '' }}>{{ $t }}</option>
                             @endfor
@@ -766,9 +767,10 @@
                     <label>End Date</label>
                     {{-- 🔥 修复重点：同上，自动合并 stop_date 和 stop_time --}}
                     <div class="date-time-wrapper">
-                        <input type="date" id="end_date_visual" required value="{{ request('stop_date') }}" />
+                        <input type="date" id="end_date_visual" required value="{{ request('stop_date') }}" min="{{ date('Y-m-d') }}" />
                         <select id="end_time_visual" required style="padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
-                            @for($i=0; $i<1440; $i+=10)
+                            <option value="" disabled {{ !request('end_time') ? 'selected' : '' }}>Select Time</option>
+                            @for($i=420; $i<1440; $i+=60)
                                 @php $t = sprintf('%02d:%02d', floor($i/60), $i%60); @endphp
                                 <option value="{{ $t }}" {{ request('stop_time') == $t ? 'selected' : '' }}>{{ $t }}</option>
                             @endfor
@@ -1411,6 +1413,164 @@
                 handlePickupChange();
                 handleSameLocationChange();
                 updateInputs();
+
+                // 3. AVAILABILITY CHECK
+                let bookedRanges = [];
+
+                function fetchAvailability() {
+                    const vehicleId = document.querySelector('input[name="vehicle_id"]').value;
+                    fetch(`/booking/vehicle/${vehicleId}/availability`)
+                        .then(res => res.json())
+                        .then(data => {
+                            bookedRanges = data.active_bookings.map(r => ({
+                                start: new Date(r.start),
+                                end: new Date(r.end)
+                            }));
+                            updateAvailabilityUI();
+                        });
+                }
+
+                function regenerateEndOptions() {
+                    const sTime = startT.value; 
+                    let mins = "00";
+                    if (sTime) {
+                        const p = sTime.split(':');
+                        if (p.length === 2) mins = p[1];
+                    }
+
+                    // Preserve hour
+                    const curVal = endT.value;
+                    let curHour = -1;
+                    if (curVal) curHour = parseInt(curVal.split(':')[0]);
+
+                    endT.innerHTML = '<option value="" disabled ' + (!curVal ? 'selected' : '') + '>Select Time</option>';
+
+                    for (let i = 7; i < 24; i++) {
+                        const hStr = i.toString().padStart(2, '0');
+                        const val = `${hStr}:${mins}`;
+                        const opt = document.createElement('option');
+                        opt.value = val;
+                        opt.textContent = val;
+                        if (i === curHour) opt.selected = true;
+                        endT.appendChild(opt);
+                    }
+                    updateAvailabilityUI();
+                }
+
+                function updateAvailabilityUI() {
+                    const selectedDate = startD.value;
+                    const startTime = startT.value;
+                    const endDate = endD.value;
+
+                    // Helper: Strict Overlap Check (Touching is BAD)
+                    // Returns true if range A (startA, endA) strictly overlaps range B (startB, endB)
+                    // Condition for overlapping including edges: startA <= endB && endA >= startB
+                    const isStrictOverlapping = (startA, endA, startB, endB) => {
+                        return startA <= endB && endA >= startB;
+                    };
+
+                    // 1. Availability (Start Time)
+                    if (selectedDate) {
+                        Array.from(startT.options).forEach(opt => {
+                            const time = opt.value;
+                            if(!time) return;
+                            
+                            const myStart = new Date(selectedDate + 'T' + time);
+                            const myMinEnd = new Date(myStart.getTime() + 60 * 60 * 1000); // +1 Hour min duration
+                            
+                            // Check if this projected minimal booking overlaps anything
+                            const isBooked = bookedRanges.some(r => isStrictOverlapping(myStart, myMinEnd, r.start, r.end));
+
+                            if (isBooked) {
+                                opt.disabled = true;
+                                opt.style.color = '#ccc';
+                                opt.text = time + " (Unavailable)";
+                            } else {
+                                opt.disabled = false;
+                                opt.style.color = '';
+                                opt.text = time;
+                            }
+                        });
+                    }
+                    
+                    // 2. End Time Logic (Availability AND Min Duration)
+                    if (endDate) {
+                         // Base restriction: Start Time + 1hr (if same day)
+                         let minEndMinutes = -1;
+                         if (selectedDate && startTime && selectedDate === endDate) {
+                             const [h, m] = startTime.split(':').map(Number);
+                             minEndMinutes = (h * 60 + m) + 60;
+                         }
+
+                         let currentStart = null;
+                         if (selectedDate && startTime) {
+                             currentStart = new Date(selectedDate + 'T' + startTime);
+                         }
+
+                         Array.from(endT.options).forEach(opt => {
+                             const time = opt.value;
+                             if(!time) return; // Skip placeholder
+
+                             // A. STRICT Availability Check
+                             // We check if the full range [currentStart, currentEnd] overlaps any booking
+                             let isBooked = false;
+                             let isSlotBooked = false;
+                             
+                             if (currentStart) {
+                                 const currentEnd = new Date(endDate + 'T' + time);
+                                 // Check if our hypothetical booking overlaps
+                                 isBooked = bookedRanges.some(r => isStrictOverlapping(currentStart, currentEnd, r.start, r.end));
+                             } else {
+                                 // Fallback if no start time selected yet: just check if the End Point is free (loose check)
+                                 const pt = new Date(endDate + 'T' + time);
+                                 isSlotBooked = bookedRanges.some(r => pt >= r.start && pt <= r.end); 
+                             }
+
+                             // B. Min Duration Check
+                             let isTooShort = false;
+                             if (minEndMinutes > -1) {
+                                 const [oh, om] = time.split(':').map(Number);
+                                 if ((oh * 60 + om) < minEndMinutes) isTooShort = true;
+                             }
+
+                             if (isBooked || isSlotBooked || isTooShort) {
+                                 opt.disabled = true;
+                                 opt.style.color = '#ccc';
+                                 if (isBooked || isSlotBooked) opt.text = time + " (Booked)";
+                             } else {
+                                 opt.disabled = false;
+                                 opt.style.color = '';
+                                 opt.text = time;
+                             }
+                         });
+                         
+                         // Reset if current selection is invalid
+                         if(endT.value) {
+                             if(endT.options[endT.selectedIndex].disabled) endT.value = "";
+                         }
+                    }
+
+                     // Check Date full overlap logic
+                     if(startD.value) {
+                         const dateStart = new Date(startD.value + 'T00:00');
+                         const dateEnd = new Date(startD.value + 'T23:59');
+                         const fullyBooked = bookedRanges.some(range => range.start <= dateStart && range.end >= dateEnd);
+                         if(fullyBooked) {
+                             alert("This date is fully booked. Please select another date.");
+                             startD.value = "";
+                         }
+                     }
+                }
+                
+                if(startD) startD.addEventListener('change', updateAvailabilityUI);
+                if(startT) {
+                    startT.addEventListener('change', regenerateEndOptions);
+                }
+                if(endD) endD.addEventListener('change', updateAvailabilityUI); // Trigger when end date updates
+                fetchAvailability(); // Load on start
+                
+                // Init regeneration on load if value exists
+                if(startT && startT.value) regenerateEndOptions();
             });
 
             // Other Listeners

@@ -13,6 +13,21 @@ use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
+    public function getAvailability($id) {
+        $bookings = Booking::where('vehicle_id', $id)
+            ->whereIn('status', ['Pending', 'Waiting for Verification', 'Approved'])
+            ->get();
+            
+        $ranges = $bookings->map(function($b) {
+            return [
+                'start' => Carbon::parse($b->pickup_date_time)->toIso8601String(),
+                'end' => Carbon::parse($b->return_date_time)->toIso8601String(),
+            ];
+        });
+
+        return response()->json(['active_bookings' => $ranges]);
+    }
+
     // 1. SHOW METHOD (保持不变，计算价格)
     public function show($id, Request $request)
     {
@@ -219,11 +234,12 @@ class BookingController extends Controller
             $booking->save();
 
             // 积分 & Voucher 标记
-            // Fix: Award 1 stamp only if booking is > 3 hours
-            if ($hours > 3) {
+            // Fix: Award 1 stamp only if booking is >= 3 hours
+            if ($hours >= 3) {
                 $card = Auth::user()->loyaltyCard ?? LoyaltyCard::create(['user_id' => Auth::id()]);
                 $card->stamps += 1;
                 $card->save();
+                $stampAwarded = true;
             }
 
             if ($userVoucher) {
@@ -236,7 +252,10 @@ class BookingController extends Controller
                 return redirect(route('admin.dashboard'))->with('success', 'Booking created successfully!');
             }
 
-            return redirect(route('profile.edit'))->with('success', 'Booking created successfully! Please wait for verification.');
+            return redirect(route('profile.edit'))->with([
+                'success' => 'Booking created successfully! Please wait for verification.',
+                'stamp_awarded' => $stampAwarded
+            ]);
             
         } catch (\Exception $e) {
             Log::error('Booking creation failed: ' . $e->getMessage());
@@ -442,7 +461,7 @@ class BookingController extends Controller
             }
 
             $total = max(0, $subtotal + $deliveryFee - $discount);
-            $stamps = ($hours > 3) ? 1 : 0;
+            $stamps = ($hours >= 3) ? 1 : 0;
 
             return response()->json([
                 'hours' => $hours,

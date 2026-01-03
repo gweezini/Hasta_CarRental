@@ -18,13 +18,14 @@ class Inspection extends Model
         'photo_left',
         'photo_right',
         'photo_dashboard',
+        'damage_photos',
+        'damage_description',
         'created_by',
     ];
 
-    // Removed casts for 'photos' as it's no longer JSON
-    // protected $casts = [
-    //     'photos' => 'array',
-    // ];
+    protected $casts = [
+        'damage_photos' => 'array',
+    ];
 
     public function booking(): BelongsTo
     {

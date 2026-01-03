@@ -194,7 +194,7 @@
                             <div x-data="{ preview: null }" class="space-y-2">
                                 <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Front View</label>
                                 <label class="block cursor-pointer relative group">
-                                    <input type="file" name="photo_front" accept="image/*" class="hidden" 
+                                    <input type="file" name="photo_front" accept="image/*" class="hidden" required 
                                            @change="preview = URL.createObjectURL($event.target.files[0])">
                                     <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
                                         <template x-if="!preview">
@@ -214,7 +214,7 @@
                             <div x-data="{ preview: null }" class="space-y-2">
                                 <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Back View</label>
                                 <label class="block cursor-pointer relative group">
-                                    <input type="file" name="photo_back" accept="image/*" class="hidden" 
+                                    <input type="file" name="photo_back" accept="image/*" class="hidden" required 
                                            @change="preview = URL.createObjectURL($event.target.files[0])">
                                     <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
                                         <template x-if="!preview">
@@ -234,7 +234,7 @@
                             <div x-data="{ preview: null }" class="space-y-2">
                                 <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Left Side</label>
                                 <label class="block cursor-pointer relative group">
-                                    <input type="file" name="photo_left" accept="image/*" class="hidden" 
+                                    <input type="file" name="photo_left" accept="image/*" class="hidden" required 
                                            @change="preview = URL.createObjectURL($event.target.files[0])">
                                     <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
                                         <template x-if="!preview">
@@ -254,7 +254,7 @@
                             <div x-data="{ preview: null }" class="space-y-2">
                                 <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Right Side</label>
                                 <label class="block cursor-pointer relative group">
-                                    <input type="file" name="photo_right" accept="image/*" class="hidden" 
+                                    <input type="file" name="photo_right" accept="image/*" class="hidden" required 
                                            @change="preview = URL.createObjectURL($event.target.files[0])">
                                     <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
                                         <template x-if="!preview">
@@ -276,7 +276,7 @@
                         <div x-data="{ preview: null }" class="mt-4 max-w-xs">
                              <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide mb-2">Dashboard / Interior</label>
                              <label class="block cursor-pointer relative group">
-                                <input type="file" name="photo_dashboard" accept="image/*" class="hidden" 
+                                <input type="file" name="photo_dashboard" accept="image/*" class="hidden" required 
                                        @change="preview = URL.createObjectURL($event.target.files[0])">
                                 <div class="h-24 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
                                     <template x-if="!preview">
@@ -293,10 +293,117 @@
                         </div>
                     </div>
 
+                    <!-- Damage Reporting (Optional) -->
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-100">
+                        <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="ri-alert-line text-red-500"></i> Report Damage (Optional)
+                        </h3>
+                        <p class="text-xs text-gray-500 mb-4">If there is any visible damage, please upload a photo and describe it below.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Damage Photo -->
+                            <!-- Damage Photos -->
+                            <!-- Damage Photos -->
+                            <div x-data="damagePhotos()">
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Damage Photos</label>
+                                
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    <!-- Loop through file inputs -->
+                                    <template x-for="(file, index) in files" :key="file.id">
+                                        <div class="relative group">
+                                            
+                                            <!-- Setup: Hidden Input (always present to submit data) -->
+                                            <!-- We wrap it in a label if it's the 'add' button, otherwise it's just hidden -->
+                                            
+                                            <!-- CASE 1: Has File (Preview Mode) -->
+                                            <template x-if="file.preview">
+                                                <div class="aspect-square rounded-xl overflow-hidden border border-gray-200 relative">
+                                                    <img :src="file.preview" class="w-full h-full object-cover">
+                                                    
+                                                    <!-- Delete Button -->
+                                                    <button type="button" @click="removeFile(index)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600 transition">
+                                                        <i class="ri-close-line"></i>
+                                                    </button>
+                                                    
+                                                    <!-- The input must remain here to submit ! -->
+                                                    <!-- But we can't easily keep the input 'alive' if we just hide it, 
+                                                         actually in Alpine loop if we change structure, DOM might reset.
+                                                         BEST PRACTICE: The input is ALWAYS the same element, we just change appearance.
+                                                    -->
+                                                </div>
+                                            </template>
+
+                                            <!-- CASE 2: No File (Add Button Mode) -->
+                                            <template x-if="!file.preview">
+                                                <label class="cursor-pointer block h-full">
+                                                    <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-white group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
+                                                        <div class="text-center p-2">
+                                                            <i class="ri-add-circle-line text-3xl text-gray-400 group-hover:text-[#ec5a29]"></i>
+                                                            <span class="block text-[10px] text-gray-400 mt-1 font-bold">ADD PHOTO</span>
+                                                        </div>
+                                                    </div>
+                                                    <!-- The Actual Input -->
+                                                    <input type="file" name="damage_photos[]" accept="image/*" class="hidden" 
+                                                           @change="handleFileSelect($event, index)">
+                                                </label>
+                                            </template>
+
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <script>
+                                    function damagePhotos() {
+                                        return {
+                                            files: [
+                                                { id: Date.now(), preview: null } // Start with one empty slot
+                                            ],
+                                            handleFileSelect(event, index) {
+                                                const file = event.target.files[0];
+                                                if (file) {
+                                                    // Set preview for current
+                                                    this.files[index].preview = URL.createObjectURL(file);
+                                                    
+                                                    // Add new empty slot for next photo
+                                                    this.files.push({ id: Date.now() + 1, preview: null });
+                                                }
+                                            },
+                                            removeFile(index) {
+                                                // Remove the item at index
+                                                this.files.splice(index, 1);
+                                                // If we somehow removed the last empty one (shouldn't happen as we only show delete on preview ones)
+                                                // ensure there is always at least one empty slot? 
+                                                // Actually our logic: only preview ones have delete button. The last empty one doesn't.
+                                                // So we are safe.
+                                            }
+                                        }
+                                    }
+                                </script>
+                            </div>
+
+                            <!-- Damage Description -->
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Description of Damage</label>
+                                <textarea name="damage_description" rows="5" class="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition text-sm" placeholder="Describe the damage (e.g. scratch on left bumper)..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Remarks -->
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">Detailed Remarks</label>
                         <textarea name="remarks" rows="4" class="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#ec5a29] focus:border-transparent outline-none transition text-sm" placeholder="Please describe any pre-existing scratches, dents, or cleanliness issues..."></textarea>
+                    </div>
+
+                    <!-- Acknowledgement -->
+                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-start gap-3">
+                        <div class="flex items-center h-5">
+                            <input id="acknowledgement" aria-describedby="acknowledgement-description" name="acknowledgement" type="checkbox" required class="w-4 h-4 text-[#ec5a29] border-gray-300 rounded focus:ring-[#ec5a29]">
+                        </div>
+                        <div class="text-sm">
+                            <label for="acknowledgement" class="font-medium text-gray-900">I hereby acknowledge that all information above are true and accurate</label>
+                            <p id="acknowledgement-description" class="text-gray-500 text-xs">By checking this box, you confirm that the vehicle condition logs and photos uploaded are genuine.</p>
+                        </div>
                     </div>
 
                     <div class="pt-6 border-t border-gray-100 flex justify-end">
