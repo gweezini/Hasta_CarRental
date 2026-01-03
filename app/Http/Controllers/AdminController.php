@@ -211,14 +211,25 @@ class AdminController extends Controller
     }
 
     /**
-     * 5. REPORTS
+     * 5. REPORTS (Enhanced for Top Management)
      */
     public function reports(Request $request)
     {
-        if (!Auth::user()->isTopManagement()) return redirect()->route('admin.dashboard')->with('error', 'Authorized personnel only.');
+        if (!Auth::user()->isTopManagement()) {
+            return redirect()->route('admin.dashboard')->with('error', 'Authorized personnel only.');
+        }
 
         $filter = $request->input('filter', 'monthly');
         
+       //(Total Revenue
+        $totalRevenueAmount = Booking::where('payment_verified', true)->sum('total_rental_fee');
+
+        // Total Salaries
+        $staffs = User::whereIn('role', ['admin', 'topmanagement'])->get();
+        $totalSalaries = $staffs->sum('salary');
+
+        //Net Profit
+        $netProfit = $totalRevenueAmount - $totalSalaries;
         $query = Booking::where('payment_verified', true);
         $summaryQuery = Booking::where('payment_verified', true); 
         $groupBy = '';
@@ -258,53 +269,95 @@ class AdminController extends Controller
         });
 
         $totalTransactions = $summaryQuery->count();
-        $totalRevenueAmount = $summaryQuery->sum('total_rental_fee');
         $avgOrderValue = $totalTransactions > 0 ? $totalRevenueAmount / $totalTransactions : 0;
         $highestTransaction = $summaryQuery->max('total_rental_fee') ?? 0;
 
-        return view('admin.reports', compact('formattedRevenue', 'filter', 'totalTransactions', 'avgOrderValue', 'highestTransaction'));
+        return view('admin.reports', compact(
+            'formattedRevenue', 
+            'filter', 
+            'totalTransactions', 
+            'totalRevenueAmount', 
+            'avgOrderValue', 
+            'highestTransaction',
+            'staffs',
+            'totalSalaries',
+            'netProfit'
+        ));
     }
 
     /**
-     * 6. MY PROFILE
+     * 6. STAFF LIST (For Top Management only)
      */
-public function profile()
-{
-    if (!Auth::user()->isAdmin()) {
-        return redirect()->route('admin.dashboard')->with('error', 'Unauthorized access.');
-    }
-    $admin = Auth::user();
-    return view('admin.profile', compact('admin'));
-}
+    public function staffList()
+    {
+        if (!Auth::user()->isTopManagement()) {
+            return redirect()->route('admin.dashboard')->with('error', 'Unauthorized access.');
+        }
 
-public function updateProfile(Request $request)
-{
-    if (!auth()->user()->isAdmin()) {
-        return redirect()->route('admin.dashboard')->with('error', 'Access denied.');
+        $staffs = User::whereIn('role', ['admin', 'topmanagement'])
+                      ->orderBy('role', 'asc')
+                      ->get();
+
+        return view('admin.staff.index', compact('staffs'));
     }
 
-    $admin = auth()->user();
+    /**
+     * 7. MY PROFILE
+     */
+    public function profile()
+    {
+        if (!Auth::user()->isStaff()) {
+            return redirect()->route('admin.dashboard')->with('error', 'Unauthorized access.');
+        }
+        $admin = Auth::user();
+        return view('admin.profile', compact('admin'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+         if (!auth()->user()->isStaff()) {
+            return redirect()->route('admin.dashboard')->with('error', 'Access denied.');
+        }
+
+        $user = auth()->user();
     
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email,' . $admin->id,
-        'salary' => 'required|numeric|min:0',
-        'staff_id' => 'required|string|max:50',
-        'bank_name' => 'required|string|max:100',
-        'account_number' => 'required|string|max:50',
-        'account_holder' => 'required|string|max:100', 
-    ]);
 
-    $admin->update([
-        'name' => $request->name,
-        'email' => $request->email,
-        'bank_name' => $request->bank_name,
-        'account_number' => $request->account_number,
-        'account_holder' => $request->account_holder,
-        'salary' => $request->salary,
-        'matric_staff_id' => $request->staff_id,
-    ]);
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ];
 
-    return redirect()->back()->with('success', 'Profile updated successfully!');
-}
+            if ($user->isAdmin()) {
+                $rules['salary'] = 'required|numeric|min:0';
+                $rules['staff_id'] = 'required|string|max:50';
+                $rules['bank_name'] = 'required|string|max:100';
+                $rules['account_number'] = 'required|string|max:50';
+                $rules['account_holder'] = 'required|string|max:100';
+            }
+
+            if ($request->filled('password')) {
+                $rules['password'] = 'required|string|min:8|confirmed';
+            }
+
+            $request->validate($rules);
+
+             $user->name = $request->name;
+            $user->email = $request->email;
+
+        if ($user->isAdmin()) {
+            $user->bank_name = $request->bank_name;
+            $user->account_number = $request->account_number;
+            $user->account_holder = $request->account_holder;
+            $user->salary = $request->salary;
+            $user->matric_staff_id = $request->staff_id;
+        }
+
+        if ($request->filled('password')) {
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+            }   
+
+            $user->save();
+
+            return redirect()->back()->with('success', 'Profile updated successfully!');
+        }
 }
