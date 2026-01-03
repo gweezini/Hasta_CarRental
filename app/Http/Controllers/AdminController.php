@@ -19,10 +19,8 @@ class AdminController extends Controller
      */
     public function index()
     {
-        // 修正：统计所有已验证支付的订单金额
         $totalRevenue = Booking::where('payment_verified', true)->sum('total_rental_fee'); 
         
-        // 修正：统计今日收入。使用 payment_verified 并且日期匹配更新时间
         $todayRevenue = Booking::where('payment_verified', true)
                                 ->whereDate('updated_at', Carbon::today())
                                 ->sum('total_rental_fee');
@@ -62,20 +60,19 @@ class AdminController extends Controller
         ));
     }
 
-    
-     // NOTIFICATION CENTER (With Filter & Image Support)
+    /**
+     * 2. NOTIFICATION CENTER
+     */
     public function notifications(Request $request)
     {
         $now = Carbon::now();
         $threshold = $now->copy()->addDays(30);
 
-        // A. Active Alerts 
         $activeList = Vehicle::where('road_tax_expiry', '<=', $threshold)
             ->orWhere('insurance_expiry', '<=', $threshold)
             ->get()
             ->flatMap(function ($car) use ($threshold) {
                 $alerts = [];
-                // 1. Check Road Tax
                 if ($car->road_tax_expiry <= $threshold) {
                     $alerts[] = (object)[
                         'car_id' => $car->id,
@@ -89,7 +86,6 @@ class AdminController extends Controller
                         'is_expired' => Carbon::parse($car->road_tax_expiry)->isPast()
                     ];
                 }
-                // 2. Check Insurance
                 if ($car->insurance_expiry <= $threshold) {
                     $alerts[] = (object)[
                         'car_id' => $car->id,
@@ -106,8 +102,6 @@ class AdminController extends Controller
                 return $alerts;
             })->sortBy('date');
 
-        // B. Processed Records (Tab 2: 操作记录 + 筛选)
-        
         $filter = $request->input('filter', 'week');
         $query = Vehicle::orderBy('updated_at', 'desc');
 
@@ -136,6 +130,7 @@ class AdminController extends Controller
 
         return view('admin.notifications', compact('activeList', 'recentUpdates', 'filter'));
     }
+
     /**
      * 3. CUSTOMER MANAGEMENT
      */
@@ -224,7 +219,6 @@ class AdminController extends Controller
 
         $filter = $request->input('filter', 'monthly');
         
-        // 修正：从 Booking 表统计收入，确保 Verified 过的钱都能算进去
         $query = Booking::where('payment_verified', true);
         $summaryQuery = Booking::where('payment_verified', true); 
         $groupBy = '';
@@ -253,7 +247,6 @@ class AdminController extends Controller
                 break;
         }
 
-        // 统一字段名为 total_rental_fee
         $revenueData = $query->selectRaw("$groupBy as date_key, SUM(total_rental_fee) as total")
                              ->groupBy('date_key')->orderBy('date_key', 'asc')->get();
 
@@ -271,4 +264,47 @@ class AdminController extends Controller
 
         return view('admin.reports', compact('formattedRevenue', 'filter', 'totalTransactions', 'avgOrderValue', 'highestTransaction'));
     }
+
+    /**
+     * 6. MY PROFILE
+     */
+public function profile()
+{
+    if (!Auth::user()->isAdmin()) {
+        return redirect()->route('admin.dashboard')->with('error', 'Unauthorized access.');
+    }
+    $admin = Auth::user();
+    return view('admin.profile', compact('admin'));
+}
+
+public function updateProfile(Request $request)
+{
+    if (!auth()->user()->isAdmin()) {
+        return redirect()->route('admin.dashboard')->with('error', 'Access denied.');
+    }
+
+    $admin = auth()->user();
+    
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $admin->id,
+        'salary' => 'required|numeric|min:0',
+        'staff_id' => 'required|string|max:50',
+        'bank_name' => 'required|string|max:100',
+        'account_number' => 'required|string|max:50',
+        'account_holder' => 'required|string|max:100', 
+    ]);
+
+    $admin->update([
+        'name' => $request->name,
+        'email' => $request->email,
+        'bank_name' => $request->bank_name,
+        'account_number' => $request->account_number,
+        'account_holder' => $request->account_holder,
+        'salary' => $request->salary,
+        'matric_staff_id' => $request->staff_id,
+    ]);
+
+    return redirect()->back()->with('success', 'Profile updated successfully!');
+}
 }
