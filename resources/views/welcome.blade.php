@@ -576,8 +576,12 @@
                 <input type="date" name="start_date" id="start_date" 
                        value="{{ request('start_date') }}" 
                        min="{{ date('Y-m-d') }}" required />
-                <input type="time" name="start_time" 
-                       value="{{ request('start_time') }}" required />
+                <select name="start_time" style="flex: 1; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; font-size: 1rem; color: #737373; outline: none;" required>
+                    @for ($i = 0; $i < 1440; $i += 10)
+                        @php $timeVal = sprintf('%02d:%02d', floor($i / 60), $i % 60); @endphp
+                        <option value="{{ $timeVal }}" {{ request('start_time') == $timeVal ? 'selected' : '' }}>{{ $timeVal }}</option>
+                    @endfor
+                </select>
               </div>
           </div>
           
@@ -587,8 +591,12 @@
                 <input type="date" name="stop_date" id="stop_date" 
                        value="{{ request('stop_date') }}" 
                        min="{{ date('Y-m-d') }}" required />
-                <input type="time" name="stop_time" 
-                       value="{{ request('stop_time') }}" required />
+                <select name="stop_time" style="flex: 1; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; font-size: 1rem; color: #737373; outline: none;" required>
+                    @for ($i = 0; $i < 1440; $i += 10)
+                        @php $timeVal = sprintf('%02d:%02d', floor($i / 60), $i % 60); @endphp
+                        <option value="{{ $timeVal }}" {{ request('stop_time') == $timeVal ? 'selected' : '' }}>{{ $timeVal }}</option>
+                    @endfor
+                </select>
               </div>
           </div>
 
@@ -613,6 +621,14 @@
       <h2 class="section__header">OUR RANGE OF VEHICLES</h2>
 
       <div class="range__grid">
+        @if($vehicles->isEmpty())
+          <div style="text-align: center; width: 100%; padding: 2rem;">
+            <p style="font-size: 1.2rem; color: #737373;">
+              <i class="ri-car-line" style="font-size: 2rem;"></i><br>
+              No vehicles available for the selected dates. Please try different dates.
+            </p>
+          </div>
+        @else
         @foreach($vehicles as $vehicle)
         <div
           class="range__card {{ $vehicle->status !== 'Available' ? 'unavailable' : '' }}"
@@ -668,6 +684,7 @@
           </div>
         </div>
         @endforeach
+        @endif
       </div>
     </section>
 
@@ -774,6 +791,55 @@
         if (stopInput.value && stopInput.value < this.value) {
             stopInput.value = "";
         }
+      });
+
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          const startDateInput = document.getElementById('start_date');
+          // Use a specific selector or the same one but ensure it's found
+          const startTimeInput = document.querySelector('[name="start_time"]');
+
+          function checkTime() {
+              if(!startDateInput || !startTimeInput) return;
+              
+              const dateVal = startDateInput.value;
+              const timeVal = startTimeInput.value;
+
+              if (dateVal && timeVal) {
+                  // Construct date object (Local time)
+                  const pickupDate = new Date(dateVal + 'T' + timeVal);
+                  const now = new Date();
+                  
+                  // Add 24 hours to current time
+                  const minTime = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+                  if (pickupDate < minTime) {
+                      alert("Invalid Pick Up Time! Bookings must be made at least 24 hours in advance.");
+                      startTimeInput.value = ""; 
+                  }
+              }
+          }
+
+          if(startDateInput) {
+            startDateInput.addEventListener('change', checkTime);
+          }
+          if(startTimeInput) {
+            startTimeInput.addEventListener('change', checkTime);
+            startTimeInput.addEventListener('blur', checkTime); // Extra check on blur
+          }
+      });
+    </script>
+    <script>
+      // Auto-scroll to vehicles section if search was performed
+      document.addEventListener("DOMContentLoaded", function() {
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.has('start_date') || urlParams.has('location')) {
+              const vehicleSection = document.getElementById("vehicles");
+              if (vehicleSection) {
+                  vehicleSection.scrollIntoView({ behavior: 'smooth' });
+              }
+          }
       });
     </script>
   </body>

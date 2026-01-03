@@ -657,7 +657,7 @@
       <nav id="navbar">
         <div class="nav__header">
           <div class="nav__logo">
-            <a href="#home">
+            <a href="{{ url('/#home') }}">
               <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Hasta" />
             </a>
           </div>
@@ -666,10 +666,10 @@
           </div>
         </div>
         <ul class="nav__links" id="nav-links">
-          <li><a href="#home">Dashboard</a></li>
-          <li><a href="#vehicles">Vehicles</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li><a href="#about">About Us</a></li>
+          <li><a href="{{ url('/#home') }}">Dashboard</a></li>
+          <li><a href="{{ url('/#vehicles') }}">Vehicles</a></li>
+          <li><a href="{{ url('/#contact') }}">Contact</a></li>
+          <li><a href="{{ url('/#about') }}">About Us</a></li>
 
           <li class="mobile-only">
             <a href="{{ route('profile.edit') }}">Profile</a>
@@ -714,6 +714,24 @@
           Complete Your Booking
         </h2>
 
+        {{-- Session Timer --}}
+        <div id="session-timer" style="
+            position: sticky; 
+            top: 80px; 
+            z-index: 99; 
+            background: #fff; 
+            border: 2px solid #f4f6fa; 
+            padding: 1rem; 
+            border-radius: 10px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 600;
+            color: #d12e34;
+        ">
+            Time Remaining to Complete Booking: <span id="timer-display" style="font-size: 1.2rem;">10:00</span>
+        </div>
+
         <div class="booking__grid">
           <div class="booking__form">
             <form
@@ -733,22 +751,30 @@
                   <div class="input__group">
                     <label>Start Date</label>
                     {{-- 🔥 修复重点：如果 URL 里有 start_date 和 start_time，自动合并成 'YYYY-MM-DDTHH:MM' 填入 --}}
-                    <input
-                      type="datetime-local"
-                      name="start_time"
-                      value="{{ request('start_date') && request('start_time') ? request('start_date').'T'.request('start_time') : request('start_time') }}"
-                      required
-                    />
+                    <div class="date-time-wrapper">
+                        <input type="date" id="start_date_visual" required value="{{ request('start_date') }}" />
+                        <select id="start_time_visual" required style="padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
+                            @for($i=0; $i<1440; $i+=10)
+                                @php $t = sprintf('%02d:%02d', floor($i/60), $i%60); @endphp
+                                <option value="{{ $t }}" {{ request('start_time') == $t ? 'selected' : '' }}>{{ $t }}</option>
+                            @endfor
+                        </select>
+                        <input type="hidden" name="start_time" id="start_time_hidden" value="{{ request('start_date') && request('start_time') ? request('start_date').'T'.request('start_time') : '' }}">
+                    </div>
                   </div>
                   <div class="input__group">
                     <label>End Date</label>
                     {{-- 🔥 修复重点：同上，自动合并 stop_date 和 stop_time --}}
-                    <input
-                      type="datetime-local"
-                      name="end_time"
-                      value="{{ request('stop_date') && request('stop_time') ? request('stop_date').'T'.request('stop_time') : request('end_time') }}"
-                      required
-                    />
+                    <div class="date-time-wrapper">
+                        <input type="date" id="end_date_visual" required value="{{ request('stop_date') }}" />
+                        <select id="end_time_visual" required style="padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;">
+                            @for($i=0; $i<1440; $i+=10)
+                                @php $t = sprintf('%02d:%02d', floor($i/60), $i%60); @endphp
+                                <option value="{{ $t }}" {{ request('stop_time') == $t ? 'selected' : '' }}>{{ $t }}</option>
+                            @endfor
+                        </select>
+                        <input type="hidden" name="end_time" id="end_time_hidden" value="{{ request('stop_date') && request('stop_time') ? request('stop_date').'T'.request('stop_time') : '' }}">
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1289,164 +1315,188 @@
         // ============================================
         // LIVE PRICE UPDATE & CONSTRAINTS SCRIPT
         // ============================================
-        document.addEventListener("DOMContentLoaded", function() {
-             const startTimeInput = document.querySelector('input[name="start_time"]');
-             const endTimeInput = document.querySelector('input[name="end_time"]');
-             const pickupSelect = document.getElementById('pickup_location');
-             const dropoffSelect = document.getElementById('dropoff_location'); // Assuming ID exists or need to add
-             const sameLocCheckbox = document.querySelector('input[name="same_location_checkbox"]'); // Assuming name/class
-             const voucherRadios = document.querySelectorAll('input[name="selected_voucher_id"]');
-             const promoInput = document.getElementById('manual_code'); // Assuming ID
+      document.addEventListener("DOMContentLoaded", function () {
+        // Visual Inputs
+        const startDateInput = document.getElementById("start_date_visual");
+        const startTimeSelect = document.getElementById("start_time_visual");
+        const endDateInput = document.getElementById("end_date_visual");
+        const endTimeSelect = document.getElementById("end_time_visual");
 
-             // 1. DATE CONSTRAINTS
-             // Helper to get Local ISO String (YYYY-MM-DDTHH:MM)
-             function getLocalISOString(date) {
-                 const offset = date.getTimezoneOffset() * 60000; // offset in milliseconds
-                 const localDate = new Date(date.getTime() - offset);
-                 return localDate.toISOString().slice(0, 16);
-             }
+        // Hidden Inputs (Actual Form Data)
+        const hiddenStart = document.getElementById("start_time_hidden");
+        const hiddenEnd = document.getElementById("end_time_hidden");
 
-             // Set Min Start Date to NOW + 24h (Local Time)
-             const now = new Date();
-             now.setHours(now.getHours() + 24);
-             const minStart = getLocalISOString(now);
-             startTimeInput.setAttribute("min", minStart);
+        // Other UI Elements
+        const pickupSelect = document.getElementById("pickup_location");
+        const sameLocCheckbox = document.getElementById("same-location"); // Verify ID
+        const dropoffContainer = document.getElementById("dropoff-input-group"); // Verify ID
+        const dropoffSelect = document.getElementById("dropoff_location"); // If exists
+        const voucherRadios = document.querySelectorAll(
+          'input[name="selected_voucher_id"]'
+        );
+        const manualCodeInput = document.getElementById("manual_code");
 
-             // Validation: Check if < 24h on change (User requirement)
-             startTimeInput.addEventListener('change', function() {
-                 const selected = new Date(this.value);
-                 const currentLimit = new Date();
-                 currentLimit.setHours(currentLimit.getHours() + 24);
-                 
-                 if (selected < currentLimit) {
-                      alert("Invalid Pick Up Time! Bookings must be made at least 24 hours in advance.");
-                      this.value = ""; // Reset
-                 }
-             });
+        // Helper: Get ISO String (YYYY-MM-DDTHH:MM)
+        function getCombinedISO(dateInput, timeSelect) {
+          if (!dateInput.value || !timeSelect.value) return "";
+          return dateInput.value + "T" + timeSelect.value;
+        }
 
-             function updateEndConstraint() {
-                 if(startTimeInput.value) {
-                    const start = new Date(startTimeInput.value);
-                    const minEnd = new Date(start.getTime() + 60 * 60 * 1000); // +1 Hour
-                    const minEndStr = getLocalISOString(minEnd);
-                    startTimeInput.setAttribute("min", minStart); // Ensure min is always set
-                    endTimeInput.setAttribute("min", minEndStr);
-                 }
-             }
+        // 1. UPDATE HIDDEN & VALIDATE
+        function updateInputs() {
+          const startVal = getCombinedISO(startDateInput, startTimeSelect);
+          const endVal = getCombinedISO(endDateInput, endTimeSelect);
 
-             // Listen to 'input' for immediate updates during scrolling/typing
-             startTimeInput.addEventListener("input", updateEndConstraint);
-             startTimeInput.addEventListener("change", function() {
-                updateEndConstraint();
-                if(this.value) {
-                    const start = new Date(this.value);
-                    const minEnd = new Date(start.getTime() + 60 * 60 * 1000);
-                    
-                    if(endTimeInput.value && new Date(endTimeInput.value) < minEnd) {
-                        endTimeInput.value = "";
-                        alert("End time has been reset because it must be at least 1 hour after start time.");
-                    }
-                    calculatePrice();
-                }
-             });
-             
-             // Ensure constraint is fresh when user touches End Input
-             endTimeInput.addEventListener("focus", updateEndConstraint);
-             endTimeInput.addEventListener("click", updateEndConstraint);
-             
-             // Initial Check
-             updateEndConstraint();
+          hiddenStart.value = startVal;
+          hiddenEnd.value = endVal; // Allow empty if incomplete
 
-             endTimeInput.addEventListener("change", function() {
-                 if(this.value && startTimeInput.value) {
-                     const start = new Date(startTimeInput.value);
-                     const end = new Date(this.value);
-                     const minEnd = new Date(start.getTime() + 60 * 60 * 1000);
-                     
-                     if(end < minEnd) {
-                         this.value = "";
-                         alert("Invalid Selection: Return time must be at least 1 hour after pickup time.");
-                         return;
-                     }
-                 }
-                 calculatePrice();
-             });
-             pickupSelect.addEventListener("change", calculatePrice);
-             // handle same location logic change triggering calc?
-             // Assuming existing handlePickupChange() handles visibility, we need to hook into it or add listener
-             
-             // 2. AJAX CALCULATION
-             function calculatePrice() {
-                const vehicleId = document.querySelector('input[name="vehicle_id"]').value;
-                const start = startTimeInput.value;
-                const end = endTimeInput.value;
-                const pickup = pickupSelect.value;
-                // Determine dropoff
-                // Need to verify how dropoff is selected in DOM
-                let dropoff = pickup; // Default same
-                // If dropoff select is visible/enabled, use value. 
-                // Detailed implementation depends on existing toggle logic.
-                
-                // Simple check:
-                const isSame = document.getElementById('same_location_checkbox').checked;
-                if(!isSame) {
-                     const dropSelect = document.getElementById('dropoff_location');
-                     if(dropSelect) dropoff = dropSelect.value;
-                }
-                
-                // Get Voucher
-                let voucherId = null;
-                voucherRadios.forEach(r => { if(r.checked) voucherId = r.value; });
-                
-                const manualCode = document.getElementById('manual_code_input') ? document.getElementById('manual_code_input').value : '';
+          // Min Date Constraints (Visual Date Pickers)
+          // 1. Start Date >= Today (Already set in HTML min attribute usually, but enforce JS)
+          const today = new Date().toISOString().split("T")[0];
+          if (!startDateInput.min) startDateInput.min = today;
 
-                if(!start || !end) return;
+          // 2. End Date >= Start Date
+          if (startDateInput.value) {
+            endDateInput.min = startDateInput.value;
+            if (endDateInput.value && endDateInput.value < startDateInput.value) {
+              endDateInput.value = startDateInput.value; // Auto-fix date
+            }
+          }
 
-                fetch('{{ route("booking.calculate") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        vehicle_id: vehicleId,
-                        start_time: start,
-                        end_time: end,
-                        pickup_location: pickup,
-                        dropoff_location: dropoff,
-                        selected_voucher_id: voucherId,
-                        manual_code: manualCode
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if(data.error) {
-                        // console.error(data.error);
-                        return;
-                    }
-                    
-                    // Update DOM
-                    // Needs IDs on summary elements to update them.
-                    // I will need to iterate DOM to add IDs if they don't exist, 
-                    // or use your specific selectors.
-                    // For now, I'll assume standard IDs I'll add in Next Step to the view.
-                    document.getElementById('summary-hours').innerText = data.hours + " Hours";
-                    document.getElementById('summary-subtotal').innerText = "RM " + data.subtotal;
-                    document.getElementById('summary-delivery').innerText = "RM " + data.delivery_fee;
-                    document.getElementById('summary-discount').innerText = "- RM " + data.discount;
-                    document.getElementById('summary-total').innerText = "RM " + data.total;
-                    document.getElementById('summary-stamps').innerText = "+ " + data.stamps + " Stamps";
-                });
-             }
-             
-             // Attach to other inputs
-             if(dropoffSelect) dropoffSelect.addEventListener("change", calculatePrice);
-             voucherRadios.forEach(r => r.addEventListener("change", calculatePrice));
-             // Manual code button click listener
-             const applyBtn = document.getElementById('applyVoucherBtn');
-             if(applyBtn) applyBtn.addEventListener('click', calculatePrice);
-             // ...
-        });
+          // Validation Logic
+          validateTimes(startVal, endVal);
+        }
+
+        function validateTimes(startVal, endVal) {
+          if (!startVal) return;
+
+          const start = new Date(startVal);
+          const now = new Date();
+
+          // Rule: Pickup must be >= 24h from now (Client Warning)
+          const minPickup = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+          if (start < minPickup) {
+            alert(
+              "Invalid Pick Up Time! Bookings must be made at least 24 hours in advance."
+            );
+            // Reset Time to empty or safe default?
+            // startTimeSelect.value = ""; // Optional: force reset
+            // hiddenStart.value = "";
+            return; // Stop calculation
+          }
+
+          if (!endVal) return;
+          const end = new Date(endVal);
+
+          // Rule: End > Start + 1 Hour
+          const minEnd = new Date(start.getTime() + 60 * 60 * 1000);
+          if (end < minEnd) {
+            alert(
+              "Invalid Range: Return time must be at least 1 hour after pickup time."
+            );
+            // endDateInput.value = ""; // Reset logic can be aggressive or passive
+            // hiddenEnd.value = "";
+            return;
+          }
+
+          // If all good, Calculate Price
+          calculatePrice();
+        }
+
+        // 2. AJAX PRICE CALCULATION
+        function calculatePrice() {
+          const start = hiddenStart.value;
+          const end = hiddenEnd.value;
+          const vehicleId = document.querySelector('input[name="vehicle_id"]').value;
+          const pickup = pickupSelect.value;
+
+          // Dropoff Logic
+          let dropoff = pickup;
+          const isSame = document.getElementById("same-location"); // Checkbox ID check
+          if (isSame && !isSame.checked) {
+              // Logic depends on your UI implementation for "different location"
+              // Assuming a select exists with ID 'dropoff_location' or similar
+             const ds = document.getElementById("dropoff_location_select"); // Adjust ID 
+             if(ds) dropoff = ds.value;
+          }
+
+          let voucherId = null;
+          voucherRadios.forEach((r) => {
+            if (r.checked) voucherId = r.value;
+          });
+          const manualCode = manualCodeInput ? manualCodeInput.value : "";
+
+          if (!start || !end) return;
+
+          fetch('{{ route("booking.calculate") }}', {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-TOKEN": '{{ csrf_token() }}',
+            },
+            body: JSON.stringify({
+              vehicle_id: vehicleId,
+              start_time: start,
+              end_time: end,
+              pickup_location: pickup,
+              dropoff_location: dropoff,
+              selected_voucher_id: voucherId,
+              manual_code: manualCode,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.error) return;
+
+              // Updates
+              if(document.getElementById("summary-hours")) document.getElementById("summary-hours").innerText = data.hours + " Hours";
+              if(document.getElementById("summary-subtotal")) document.getElementById("summary-subtotal").innerText = "RM " + data.subtotal;
+              if(document.getElementById("summary-delivery")) document.getElementById("summary-delivery").innerText = "RM " + data.delivery_fee;
+              if(document.getElementById("summary-discount")) document.getElementById("summary-discount").innerText = "- RM " + data.discount;
+              if(document.getElementById("summary-total")) document.getElementById("summary-total").innerText = "RM " + data.total;
+              if(document.getElementById("summary-stamps")) document.getElementById("summary-stamps").innerText = "+ " + data.stamps + " Stamps";
+            });
+        }
+
+        // Attach Listeners to Visual Inputs
+        [startDateInput, startTimeSelect, endDateInput, endTimeSelect].forEach(
+          (el) => {
+            if (el) {
+              el.addEventListener("change", updateInputs);
+              el.addEventListener("input", updateInputs); // Capture typing in dates
+            }
+          }
+        );
+
+        // Other listeners
+        if (pickupSelect) pickupSelect.addEventListener("change", calculatePrice);
+        voucherRadios.forEach((r) => r.addEventListener("change", calculatePrice));
+        
+        // Initial Run
+        updateInputs();
+      });
+
+      // Session Timer Script
+      document.addEventListener("DOMContentLoaded", function() {
+          let duration = 600; // 10 minutes in seconds
+          const display = document.getElementById("timer-display");
+          
+          const timer = setInterval(function() {
+              let minutes = parseInt(duration / 60, 10);
+              let seconds = parseInt(duration % 60, 10);
+  
+              minutes = minutes < 10 ? "0" + minutes : minutes;
+              seconds = seconds < 10 ? "0" + seconds : seconds;
+  
+              display.textContent = minutes + ":" + seconds;
+  
+              if (--duration < 0) {
+                  clearInterval(timer);
+                  alert("Session timed out. Please try again.");
+                  window.location.href = "{{ route('home') }}";
+              }
+          }, 1000);
+      });
     </script>
       </section>
     </header>
