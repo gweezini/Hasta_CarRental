@@ -254,6 +254,16 @@
                                                         </button>
                                                     </form>
                                                 @endif
+                                                
+                                                @if($booking->inspections->where('type', 'pickup')->count() > 0)
+                                                    <a href="{{ route('inspections.show', $booking->inspections->where('type', 'pickup')->first()) }}" class="text-xs md:text-sm text-white bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-lg transition font-medium flex items-center">
+                                                        <i class="ri-eye-line mr-1"></i> View Inspection
+                                                    </a>
+                                                @else
+                                                    <a href="{{ route('inspections.create', $booking) }}" class="text-xs md:text-sm text-white bg-green-600 hover:bg-green-500 px-3 py-2 rounded-lg transition font-medium flex items-center">
+                                                        <i class="ri-file-search-line mr-1"></i> Inspect
+                                                    </a>
+                                                @endif
                                             @endif
                                         </div>
                                         <p class="text-lg font-bold text-gray-900">RM {{ number_format($booking->total_rental_fee, 2) }}</p>

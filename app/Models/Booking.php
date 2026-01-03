@@ -43,4 +43,9 @@ class Booking extends Model
     {
         return $this->hasMany(Fine::class);
     }
+
+    public function inspections(): HasMany
+    {
+        return $this->hasMany(Inspection::class);
+    }
 }

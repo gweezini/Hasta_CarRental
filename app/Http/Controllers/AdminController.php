@@ -169,7 +169,7 @@ class AdminController extends Controller
      */
     public function allBookings()
     {
-        $bookings = Booking::with(['user', 'vehicle'])->orderBy('created_at', 'desc')->paginate(10);
+        $bookings = Booking::with(['user', 'vehicle', 'inspections'])->orderBy('created_at', 'desc')->paginate(10);
         return view('admin.bookings.index', compact('bookings'));
     }
 

@@ -86,6 +86,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-vouchers', [UserVoucherController::class, 'index'])->name('vouchers.index');
     Route::post('/voucher/redeem-code', [UserVoucherController::class, 'redeemCode'])->name('vouchers.redeem.code');
     Route::post('/voucher/redeem-loyalty', [UserVoucherController::class, 'redeemLoyalty'])->name('vouchers.redeem.loyalty');
+
+    Route::get('/booking/{booking}/inspect', [App\Http\Controllers\InspectionController::class, 'create'])->name('inspections.create');
+    Route::post('/booking/{booking}/inspect', [App\Http\Controllers\InspectionController::class, 'store'])->name('inspections.store');
+    Route::get('/inspections/{inspection}', [App\Http\Controllers\InspectionController::class, 'show'])->name('inspections.show');
 });
 
 require __DIR__.'/auth.php';
