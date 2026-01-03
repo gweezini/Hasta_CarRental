@@ -51,6 +51,7 @@ class InspectionController extends Controller
             'photo_dashboard' => 'required|image|max:2048',
             'damage_photos.*' => 'image|max:2048',
             'damage_description' => 'nullable|string',
+            'acknowledgement' => 'accepted',
         ]);
 
         $data = [

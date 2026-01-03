@@ -395,6 +395,17 @@
                         <textarea name="remarks" rows="4" class="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#ec5a29] focus:border-transparent outline-none transition text-sm" placeholder="Please describe any pre-existing scratches, dents, or cleanliness issues..."></textarea>
                     </div>
 
+                    <!-- Acknowledgement -->
+                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-start gap-3">
+                        <div class="flex items-center h-5">
+                            <input id="acknowledgement" aria-describedby="acknowledgement-description" name="acknowledgement" type="checkbox" required class="w-4 h-4 text-[#ec5a29] border-gray-300 rounded focus:ring-[#ec5a29]">
+                        </div>
+                        <div class="text-sm">
+                            <label for="acknowledgement" class="font-medium text-gray-900">I hereby acknowledge that all information above are true and accurate</label>
+                            <p id="acknowledgement-description" class="text-gray-500 text-xs">By checking this box, you confirm that the vehicle condition logs and photos uploaded are genuine.</p>
+                        </div>
+                    </div>
+
                     <div class="pt-6 border-t border-gray-100 flex justify-end">
                         <button type="submit" class="px-8 py-3 bg-[#ec5a29] hover:bg-[#d14a1e] text-white font-bold rounded-xl shadow-lg shadow-orange-500/30 transition transform active:scale-95 flex items-center">
                             Submit Inspection <i class="ri-check-line ml-2"></i>
