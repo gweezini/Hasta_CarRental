@@ -45,7 +45,7 @@ class UserSeeder extends Seeder
             'role' => 'admin',
             
             'matric_staff_id' => 'S001',
-            'nric_passport' => '880101-01-2222',
+            'nric_passport' => '880101-01-2222', 
             'phone_number' => '011-1111111',
             
             // We don't need license/emergency/college for staff, so we skip them.
