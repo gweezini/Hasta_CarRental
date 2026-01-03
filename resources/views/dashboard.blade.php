@@ -766,7 +766,13 @@
         <label for="start">Start Date & Time</label>
           <div class="date-time-wrapper">
             <input type="date" name="start_date" id="start_date" min="{{ date('Y-m-d') }}" required />
-            <input type="time" name="start_time" required />
+                <select name="start_time" style="flex: 1; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; font-size: 1rem; color: #737373; outline: none;" required>
+                    <option value="" disabled selected>Select Time</option>
+                    @for ($i = 0; $i < 1440; $i += 10)
+                        @php $timeVal = sprintf('%02d:%02d', floor($i / 60), $i % 60); @endphp
+                        <option value="{{ $timeVal }}">{{ $timeVal }}</option>
+                    @endfor
+                </select>
           </div>
       </div>
       
@@ -774,7 +780,13 @@
         <label for="stop">End Date & Time</label>
           <div class="date-time-wrapper">
             <input type="date" name="stop_date" id="stop_date" min="{{ date('Y-m-d') }}" required />
-            <input type="time" name="stop_time" required />
+                <select name="stop_time" style="flex: 1; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; font-size: 1rem; color: #737373; outline: none;" required>
+                    <option value="" disabled selected>Select Time</option>
+                    @for ($i = 0; $i < 1440; $i += 60)
+                        @php $timeVal = sprintf('%02d:%02d', floor($i / 60), $i % 60); @endphp
+                        <option value="{{ $timeVal }}">{{ $timeVal }}</option>
+                    @endfor
+                </select>
           </div>
       </div>
 
@@ -967,6 +979,101 @@
         if (stopInput.value && stopInput.value < this.value) {
             stopInput.value = "";
         }
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          const startD = document.getElementById('start_date');
+          const startT = document.querySelector('select[name="start_time"]');
+          const endD = document.getElementById('stop_date');
+          const endT = document.querySelector('select[name="stop_time"]');
+
+          function regenerateOpts() {
+              if (!startT || !endT) return;
+              const sTime = startT.value; 
+              let mins = "00";
+              if (sTime) {
+                  const p = sTime.split(':');
+                  if (p.length === 2) mins = p[1];
+              }
+
+              // Preserve hour
+              const curVal = endT.value;
+              let curHour = -1;
+              if (curVal) curHour = parseInt(curVal.split(':')[0]);
+
+              endT.innerHTML = '<option value="" disabled ' + (!curVal ? 'selected' : '') + '>Select Time</option>';
+
+              for (let i = 0; i < 24; i++) {
+                  const hStr = i.toString().padStart(2, '0');
+                  const val = `${hStr}:${mins}`;
+                  const opt = document.createElement('option');
+                  opt.value = val;
+                  opt.textContent = val;
+                  if (i === curHour) opt.selected = true;
+                  endT.appendChild(opt);
+              }
+              updateConstraints();
+          }
+
+          function updateConstraints() {
+              if(!startD || !startT || !endD || !endT) return;
+
+              const sDate = startD.value;
+              const sTime = startT.value;
+              const eDate = endD.value;
+
+              // 1. Min Date
+              if (sDate) {
+                  endD.min = sDate;
+                  if (eDate && eDate < sDate) {
+                      endD.value = sDate;
+                  }
+              }
+
+              // 2. Min Time
+              if (sDate && endD.value && sDate === endD.value && sTime) {
+                  const [h, m] = sTime.split(':').map(Number);
+                  const minMinutes = (h * 60 + m) + 60; // +1 Hour
+
+                  Array.from(endT.options).forEach(opt => {
+                      if (opt.value) {
+                          const [oh, om] = opt.value.split(':').map(Number);
+                          const oMin = oh * 60 + om;
+                          if (oMin < minMinutes) {
+                              opt.disabled = true;
+                              opt.style.color = '#ccc';
+                          } else {
+                              opt.disabled = false;
+                              opt.style.color = '';
+                          }
+                      }
+                  });
+
+                  if (endT.value) {
+                      const [th, tm] = endT.value.split(':').map(Number);
+                      if ((th * 60 + tm) < minMinutes) endT.value = "";
+                  }
+
+              } else {
+                  Array.from(endT.options).forEach(opt => {
+                      if(opt.value) {
+                          opt.disabled = false;
+                          opt.style.color = '';
+                      }
+                  });
+              }
+          }
+
+          if(startD) startD.addEventListener('change', updateConstraints);
+          if(startT) {
+              startT.addEventListener('change', regenerateOpts);
+          }
+          if(endD) endD.addEventListener('change', updateConstraints);
+
+          // Init
+          if(startT && startT.value) regenerateOpts();
+          else updateConstraints();
       });
     </script>
   </body>
