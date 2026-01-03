@@ -302,23 +302,83 @@
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <!-- Damage Photo -->
-                            <div x-data="{ preview: null }">
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Damage Photo</label>
-                                <label class="block cursor-pointer relative group">
-                                    <input type="file" name="damage_photo" accept="image/*" class="hidden" 
-                                           @change="preview = URL.createObjectURL($event.target.files[0])">
-                                    <div class="h-32 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-white group-hover:border-red-400 group-hover:bg-red-50 transition overflow-hidden">
-                                        <template x-if="!preview">
-                                            <div class="text-center p-2">
-                                                <i class="ri-camera-off-line text-2xl text-gray-400 group-hover:text-red-400"></i>
-                                                <span class="block text-[10px] text-gray-400 mt-1">Upload Photo</span>
-                                            </div>
-                                        </template>
-                                        <template x-if="preview">
-                                            <img :src="preview" class="w-full h-full object-cover">
-                                        </template>
-                                    </div>
-                                </label>
+                            <!-- Damage Photos -->
+                            <!-- Damage Photos -->
+                            <div x-data="damagePhotos()">
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Damage Photos</label>
+                                
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    <!-- Loop through file inputs -->
+                                    <template x-for="(file, index) in files" :key="file.id">
+                                        <div class="relative group">
+                                            
+                                            <!-- Setup: Hidden Input (always present to submit data) -->
+                                            <!-- We wrap it in a label if it's the 'add' button, otherwise it's just hidden -->
+                                            
+                                            <!-- CASE 1: Has File (Preview Mode) -->
+                                            <template x-if="file.preview">
+                                                <div class="aspect-square rounded-xl overflow-hidden border border-gray-200 relative">
+                                                    <img :src="file.preview" class="w-full h-full object-cover">
+                                                    
+                                                    <!-- Delete Button -->
+                                                    <button type="button" @click="removeFile(index)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600 transition">
+                                                        <i class="ri-close-line"></i>
+                                                    </button>
+                                                    
+                                                    <!-- The input must remain here to submit ! -->
+                                                    <!-- But we can't easily keep the input 'alive' if we just hide it, 
+                                                         actually in Alpine loop if we change structure, DOM might reset.
+                                                         BEST PRACTICE: The input is ALWAYS the same element, we just change appearance.
+                                                    -->
+                                                </div>
+                                            </template>
+
+                                            <!-- CASE 2: No File (Add Button Mode) -->
+                                            <template x-if="!file.preview">
+                                                <label class="cursor-pointer block h-full">
+                                                    <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-white group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
+                                                        <div class="text-center p-2">
+                                                            <i class="ri-add-circle-line text-3xl text-gray-400 group-hover:text-[#ec5a29]"></i>
+                                                            <span class="block text-[10px] text-gray-400 mt-1 font-bold">ADD PHOTO</span>
+                                                        </div>
+                                                    </div>
+                                                    <!-- The Actual Input -->
+                                                    <input type="file" name="damage_photos[]" accept="image/*" class="hidden" 
+                                                           @change="handleFileSelect($event, index)">
+                                                </label>
+                                            </template>
+
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <script>
+                                    function damagePhotos() {
+                                        return {
+                                            files: [
+                                                { id: Date.now(), preview: null } // Start with one empty slot
+                                            ],
+                                            handleFileSelect(event, index) {
+                                                const file = event.target.files[0];
+                                                if (file) {
+                                                    // Set preview for current
+                                                    this.files[index].preview = URL.createObjectURL(file);
+                                                    
+                                                    // Add new empty slot for next photo
+                                                    this.files.push({ id: Date.now() + 1, preview: null });
+                                                }
+                                            },
+                                            removeFile(index) {
+                                                // Remove the item at index
+                                                this.files.splice(index, 1);
+                                                // If we somehow removed the last empty one (shouldn't happen as we only show delete on preview ones)
+                                                // ensure there is always at least one empty slot? 
+                                                // Actually our logic: only preview ones have delete button. The last empty one doesn't.
+                                                // So we are safe.
+                                            }
+                                        }
+                                    }
+                                </script>
                             </div>
 
                             <!-- Damage Description -->

@@ -57,27 +57,31 @@
         </div>
 
         <!-- Damage Report -->
-        @if($inspection->damage_photo || $inspection->damage_description)
+        @if(!empty($inspection->damage_photos) || $inspection->damage_description)
         <div class="bg-red-50 rounded-xl border border-red-100 p-6">
             <h3 class="font-bold text-red-700 mb-4 flex items-center gap-2">
                 <i class="ri-alert-line"></i> Reported Damage
             </h3>
-            <div class="flex flex-col md:flex-row gap-6">
-                @if($inspection->damage_photo)
-                <div class="w-full md:w-1/3">
-                    <p class="text-xs font-bold text-red-400 uppercase mb-2">Damage Photo</p>
-                    <div class="rounded-xl overflow-hidden border border-red-200 shadow-sm aspect-video">
-                        <a href="{{ asset('storage/'.$inspection->damage_photo) }}" target="_blank">
-                            <img src="{{ asset('storage/'.$inspection->damage_photo) }}" class="w-full h-full object-cover">
-                        </a>
+            <div class="space-y-6">
+                @if(!empty($inspection->damage_photos))
+                <div>
+                    <p class="text-xs font-bold text-red-400 uppercase mb-2">Damage Photos</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        @foreach($inspection->damage_photos as $photo)
+                        <div class="rounded-xl overflow-hidden border border-red-200 shadow-sm aspect-video">
+                            <a href="{{ asset('storage/'.$photo) }}" target="_blank">
+                                <img src="{{ asset('storage/'.$photo) }}" class="w-full h-full object-cover">
+                            </a>
+                        </div>
+                        @endforeach
                     </div>
                 </div>
                 @endif
-
+                
                 @if($inspection->damage_description)
-                <div class="w-full md:w-2/3">
+                <div>
                     <p class="text-xs font-bold text-red-400 uppercase mb-2">Description</p>
-                    <div class="p-4 bg-white rounded-xl border border-red-100 text-gray-700 italic h-full">
+                    <div class="p-4 bg-white rounded-xl border border-red-100 text-gray-700 italic">
                         "{{ $inspection->damage_description }}"
                     </div>
                 </div>

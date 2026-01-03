@@ -49,7 +49,7 @@ class InspectionController extends Controller
             'photo_left' => 'required|image|max:2048',
             'photo_right' => 'required|image|max:2048',
             'photo_dashboard' => 'required|image|max:2048',
-            'damage_photo' => 'nullable|image|max:2048',
+            'damage_photos.*' => 'image|max:2048',
             'damage_description' => 'nullable|string',
         ]);
 
@@ -71,8 +71,12 @@ class InspectionController extends Controller
             }
         }
 
-        if ($request->hasFile('damage_photo')) {
-            $data['damage_photo'] = $request->file('damage_photo')->store('inspections', 'public');
+        if ($request->hasFile('damage_photos')) {
+            $damagePhotos = [];
+            foreach ($request->file('damage_photos') as $photo) {
+                $damagePhotos[] = $photo->store('inspections', 'public');
+            }
+            $data['damage_photos'] = $damagePhotos;
         }
 
         Inspection::create($data);
