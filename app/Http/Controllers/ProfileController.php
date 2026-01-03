@@ -37,6 +37,7 @@ class ProfileController extends Controller
             'faculties' => $faculties,
             'bookings' => $bookings,
             'myVouchers' => $myVouchers,
+            'totalStamps' => $user->loyaltyCard ? $user->loyaltyCard->stamps : 0,
         ]);
     }
 
