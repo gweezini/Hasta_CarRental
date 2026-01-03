@@ -14,9 +14,6 @@ use App\Notifications\BookingStatusUpdated;
 
 class AdminController extends Controller
 {
-    /**
-     * 1. ADMIN DASHBOARD
-     */
     public function index()
     {
         $totalRevenue = Booking::where('payment_verified', true)->sum('total_rental_fee'); 
@@ -47,7 +44,7 @@ class AdminController extends Controller
         $collegeLabels = $collegeStats->map(fn($item) => $item->college->name ?? 'Unknown');
         $collegeCounts = $collegeStats->pluck('total');
 
-        $bookings = Booking::with(['user', 'vehicle'])
+        $bookings = Booking::with(['user', 'vehicle', 'processedBy'])
                             ->orderBy('updated_at', 'desc')
                             ->take(10) 
                             ->get();
@@ -60,9 +57,6 @@ class AdminController extends Controller
         ));
     }
 
-    /**
-     * 2. NOTIFICATION CENTER
-     */
     public function notifications(Request $request)
     {
         $now = Carbon::now();
@@ -131,9 +125,6 @@ class AdminController extends Controller
         return view('admin.notifications', compact('activeList', 'recentUpdates', 'filter'));
     }
 
-    /**
-     * 3. CUSTOMER MANAGEMENT
-     */
     public function customers()
     {
         $customers = User::where('role', 'customer')
@@ -164,13 +155,16 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * 4. BOOKING ACTIONS
-     */
     public function allBookings()
     {
         $bookings = Booking::with(['user', 'vehicle', 'inspections'])->orderBy('created_at', 'desc')->paginate(10);
         return view('admin.bookings.index', compact('bookings'));
+    }
+
+    public function show($id)
+    {
+        $booking = Booking::with(['user', 'vehicle', 'payment', 'processedBy'])->findOrFail($id);
+        return view('admin.bookings.show', compact('booking'));
     }
 
     public function verifyPayment($id)
@@ -183,7 +177,11 @@ class AdminController extends Controller
     public function approvePayment($id)
     {
         $booking = Booking::findOrFail($id);
-        $booking->update(['status' => 'Approved', 'payment_verified' => true]);
+        $booking->update([
+            'status' => 'Approved', 
+            'payment_verified' => true,
+            'processed_by' => Auth::id()
+        ]);
         if($booking->payment) $booking->payment->update(['status' => 'Verified']);
         if($booking->user) $booking->user->notify(new BookingStatusUpdated($booking, 'Approved'));
         return redirect()->route('admin.dashboard')->with('success', 'Booking approved!');
@@ -192,7 +190,11 @@ class AdminController extends Controller
     public function rejectPayment($id)
     {
         $booking = Booking::findOrFail($id);
-        $booking->update(['status' => 'Rejected', 'payment_verified' => false]);
+        $booking->update([
+            'status' => 'Rejected', 
+            'payment_verified' => false,
+            'processed_by' => Auth::id()
+        ]);
         if($booking->payment) $booking->payment->update(['status' => 'Rejected']);
         if($booking->user) $booking->user->notify(new BookingStatusUpdated($booking, 'Rejected'));
         return redirect()->route('admin.dashboard')->with('error', 'Booking rejected.');
@@ -203,16 +205,15 @@ class AdminController extends Controller
         try {
             $booking = Booking::findOrFail($id);
             $booking->status = 'Completed';
+            $booking->processed_by = Auth::id(); 
             $booking->save();
+            
             return redirect()->back()->with('success', 'Vehicle marked as returned!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Operation failed.');
         }
     }
 
-    /**
-     * 5. REPORTS (Enhanced for Top Management)
-     */
     public function reports(Request $request)
     {
         if (!Auth::user()->isTopManagement()) {
@@ -221,16 +222,14 @@ class AdminController extends Controller
 
         $filter = $request->input('filter', 'monthly');
         
-       //(Total Revenue
         $totalRevenueAmount = Booking::where('payment_verified', true)->sum('total_rental_fee');
 
-        // Total Salaries
         $staffs = User::whereIn('role', ['admin', 'topmanagement'])->get();
         $totalSalaries = $staffs->sum('salary');
 
-        //Net Profit
         $netProfit = $totalRevenueAmount - $totalSalaries;
-        $query = Booking::where('payment_verified', true);
+
+        $query = Booking::where('payment_verified', true)->with('processedBy'); 
         $summaryQuery = Booking::where('payment_verified', true); 
         $groupBy = '';
 
@@ -259,7 +258,9 @@ class AdminController extends Controller
         }
 
         $revenueData = $query->selectRaw("$groupBy as date_key, SUM(total_rental_fee) as total")
-                             ->groupBy('date_key')->orderBy('date_key', 'asc')->get();
+                             ->groupBy('date_key')
+                             ->orderBy('date_key', 'asc')
+                             ->get();
 
         $formattedRevenue = $revenueData->mapWithKeys(function ($item) use ($filter) {
             if ($filter == 'daily') return [Carbon::parse($item->date_key)->format('d M') => $item->total];
@@ -267,6 +268,12 @@ class AdminController extends Controller
             if ($filter == 'weekly') return ['Week ' . substr($item->date_key, -2) => $item->total];
             return [$item->date_key => $item->total];
         });
+
+        $revenueList = Booking::where('payment_verified', true)
+                             ->with(['user', 'vehicle', 'processedBy'])
+                             ->orderBy('updated_at', 'desc')
+                             ->take(20) 
+                             ->get();
 
         $totalTransactions = $summaryQuery->count();
         $avgOrderValue = $totalTransactions > 0 ? $totalRevenueAmount / $totalTransactions : 0;
@@ -279,85 +286,67 @@ class AdminController extends Controller
             'totalRevenueAmount', 
             'avgOrderValue', 
             'highestTransaction',
-            'staffs',
+            'staffs',        
             'totalSalaries',
-            'netProfit'
+            'netProfit',      
+            'revenueList' 
         ));
     }
 
-    /**
-     * 6. STAFF LIST (For Top Management only)
-     */
     public function staffList()
     {
-        if (!Auth::user()->isTopManagement()) {
-            return redirect()->route('admin.dashboard')->with('error', 'Unauthorized access.');
-        }
-
         $staffs = User::whereIn('role', ['admin', 'topmanagement'])
-                      ->orderBy('role', 'asc')
+                      ->orderBy('name', 'asc')
                       ->get();
 
         return view('admin.staff.index', compact('staffs'));
     }
 
-    /**
-     * 7. MY PROFILE
-     */
+    public function showStaff($id)
+    {
+        $staff = User::whereIn('role', ['admin', 'topmanagement'])->findOrFail($id);
+        return view('admin.staff.show', compact('staff'));
+    }
+
     public function profile()
     {
-        if (!Auth::user()->isStaff()) {
-            return redirect()->route('admin.dashboard')->with('error', 'Unauthorized access.');
-        }
-        $admin = Auth::user();
-        return view('admin.profile', compact('admin'));
+        $user = Auth::user();
+        return view('admin.profile', compact('user'));
     }
 
     public function updateProfile(Request $request)
     {
-         if (!auth()->user()->isStaff()) {
-            return redirect()->route('admin.dashboard')->with('error', 'Access denied.');
-        }
-
-        $user = auth()->user();
-    
-
-        $rules = [
+        $user = Auth::user();
+        
+        $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-        ];
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+        ]);
 
-            if ($user->isAdmin()) {
-                $rules['salary'] = 'required|numeric|min:0';
-                $rules['staff_id'] = 'required|string|max:50';
-                $rules['bank_name'] = 'required|string|max:100';
-                $rules['account_number'] = 'required|string|max:50';
-                $rules['account_holder'] = 'required|string|max:100';
-            }
+        $user->update($request->only('name', 'email', 'phone'));
 
-            if ($request->filled('password')) {
-                $rules['password'] = 'required|string|min:8|confirmed';
-            }
+        return redirect()->back()->with('success', 'Profile updated successfully!');
+    }
 
-            $request->validate($rules);
-
-             $user->name = $request->name;
-            $user->email = $request->email;
-
-        if ($user->isAdmin()) {
-            $user->bank_name = $request->bank_name;
-            $user->account_number = $request->account_number;
-            $user->account_holder = $request->account_holder;
-            $user->salary = $request->salary;
-            $user->matric_staff_id = $request->staff_id;
-        }
-
-        if ($request->filled('password')) {
-            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
-            }   
-
-            $user->save();
-
-            return redirect()->back()->with('success', 'Profile updated successfully!');
-        }
+    public function showBookingJson($id)
+    {
+        $booking = Booking::with(['user', 'vehicle', 'payment', 'processedBy'])->findOrFail($id);
+        
+        return response()->json([
+            'id' => $booking->id,
+            'status' => $booking->status,
+            'customer' => $booking->user->name,
+            'phone' => $booking->user->phone_number ?? $booking->user->phone,
+            'vehicle' => $booking->vehicle->brand . ' ' . $booking->vehicle->model,
+            'plate' => $booking->vehicle->plate_number,
+            'total' => number_format($booking->total_rental_fee, 2),
+            'processed_by' => $booking->processedBy->name ?? 'Not Processed',
+            'processed_at' => $booking->updated_at->format('d M Y, h:i A'),
+            
+            'payment_proof' => ($booking->payment && $booking->payment->proof_image) 
+                               ? asset('storage/' . $booking->payment->proof_image) 
+                               : 'https://via.placeholder.com/400x600?text=No+Receipt+Found'
+        ]);
+    }
 }
