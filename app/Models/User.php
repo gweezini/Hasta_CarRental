@@ -20,6 +20,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'bank_name', 'account_number', 'salary', 'staff_id',
         
         // --- ID & Contact ---
         'matric_staff_id',  // Stores Matric ID (Student) or Staff ID (Admin)
