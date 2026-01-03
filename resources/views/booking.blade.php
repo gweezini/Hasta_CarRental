@@ -1312,6 +1312,18 @@
              const minStart = getLocalISOString(now);
              startTimeInput.setAttribute("min", minStart);
 
+             // Validation: Check if < 24h on change (User requirement)
+             startTimeInput.addEventListener('change', function() {
+                 const selected = new Date(this.value);
+                 const currentLimit = new Date();
+                 currentLimit.setHours(currentLimit.getHours() + 24);
+                 
+                 if (selected < currentLimit) {
+                      alert("Invalid Pick Up Time! Bookings must be made at least 24 hours in advance.");
+                      this.value = ""; // Reset
+                 }
+             });
+
              function updateEndConstraint() {
                  if(startTimeInput.value) {
                     const start = new Date(startTimeInput.value);
