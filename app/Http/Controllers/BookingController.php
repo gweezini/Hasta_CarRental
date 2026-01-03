@@ -220,10 +220,12 @@ class BookingController extends Controller
 
             // 积分 & Voucher 标记
             // Fix: Award 1 stamp only if booking is > 3 hours
+            $stampAwarded = false;
             if ($hours > 3) {
                 $card = Auth::user()->loyaltyCard ?? LoyaltyCard::create(['user_id' => Auth::id()]);
                 $card->stamps += 1;
                 $card->save();
+                $stampAwarded = true;
             }
 
             if ($userVoucher) {
@@ -236,7 +238,10 @@ class BookingController extends Controller
                 return redirect(route('admin.dashboard'))->with('success', 'Booking created successfully!');
             }
 
-            return redirect(route('profile.edit'))->with('success', 'Booking created successfully! Please wait for verification.');
+            return redirect(route('profile.edit'))->with([
+                'success' => 'Booking created successfully! Please wait for verification.',
+                'stamp_awarded' => $stampAwarded
+            ]);
             
         } catch (\Exception $e) {
             Log::error('Booking creation failed: ' . $e->getMessage());
