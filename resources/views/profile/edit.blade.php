@@ -340,17 +340,28 @@
                                         @php
                                             $isMilestone = array_key_exists($i, $rewards);
                                             $hasStamp = $i <= $totalStamps;
+                                            
+                                            // Determine classes mutually exclusively to avoid conflicts
+                                            if ($hasStamp) {
+                                                $styleClass = 'bg-[#ec5a29] border-solid border-[#ec5a29] shadow-inner';
+                                                $textClass = 'text-white'; // Not really used for icon but consistent
+                                            } elseif ($isMilestone) {
+                                                $styleClass = 'border-[#ec5a29] border-dashed bg-[#ec5a29]/5';
+                                                $textClass = 'text-[#ec5a29]';
+                                            } else {
+                                                $styleClass = 'border-gray-300 border-dashed bg-white/50';
+                                                $textClass = 'text-gray-300';
+                                            }
                                         @endphp
                                         
                                         <div class="relative group aspect-square flex items-center justify-center rounded-full border-2 
-                                            {{ $isMilestone ? 'border-[#ec5a29] border-dashed bg-[#ec5a29]/5' : 'border-gray-300 border-dashed bg-white/50' }}
-                                            {{ $hasStamp ? 'bg-[#ec5a29] border-solid border-[#ec5a29] shadow-inner' : '' }}
+                                            {{ $styleClass }}
                                             transition-all duration-300 hover:scale-110 cursor-default"
                                         >
                                             @if($hasStamp)
                                                 <i class="ri-vip-crown-2-fill text-white text-xl drop-shadow-md transform -rotate-12"></i>
                                             @else
-                                                <span class="font-[Syncopate] font-bold text-sm {{ $isMilestone ? 'text-[#ec5a29]' : 'text-gray-300' }}">
+                                                <span class="font-[Syncopate] font-bold text-sm {{ $textClass }}">
                                                     {{ $i }}
                                                 </span>
                                             @endif
@@ -365,6 +376,15 @@
                                                 @if(!$hasStamp)
                                                 <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ec5a29] rounded-full animate-ping"></div>
                                                 <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ec5a29] rounded-full"></div>
+                                                @else
+                                                {{-- Redemption Overlay --}}
+                                                <form action="{{ route('vouchers.redeem.loyalty') }}" method="POST" class="absolute inset-0 z-20" onsubmit="return confirm('Are you sure you want to redeem this reward? It will deduct {{ $i }} stamps.');">
+                                                    @csrf
+                                                    <input type="hidden" name="tier" value="{{ $i }}">
+                                                    <button type="submit" class="w-full h-full rounded-full bg-black/80 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm">
+                                                        <span class="text-white text-[8px] font-bold uppercase text-center leading-tight tracking-wider">Redeem<br>Now</span>
+                                                    </button>
+                                                </form>
                                                 @endif
                                             @endif
                                         </div>
@@ -377,7 +397,7 @@
                                 <div class="text-left">
                                     <p class="text-[9px] text-gray-400 uppercase font-bold tracking-wider">Stamp Progress</p>
                                     <div class="w-32 h-1.5 bg-gray-200 rounded-full mt-1 overflow-hidden">
-                                        <div class="h-full bg-[#ec5a29]" style="width: {{ ($totalStamps / 15) * 100 }}%"></div>
+                                        <div class="h-full bg-[#ec5a29]" style="width: {{ min(100, ($totalStamps / 15) * 100) }}%"></div>
                                     </div>
                                 </div>
                                 <div class="text-right">
