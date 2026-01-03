@@ -18,6 +18,8 @@ class Inspection extends Model
         'photo_left',
         'photo_right',
         'photo_dashboard',
+        'damage_photo',
+        'damage_description',
         'created_by',
     ];
 

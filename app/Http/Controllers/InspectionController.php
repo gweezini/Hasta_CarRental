@@ -44,11 +44,13 @@ class InspectionController extends Controller
             'fuel_level' => 'required|integer|min:0|max:10',
             'mileage' => 'required|integer|min:0',
             'remarks' => 'nullable|string',
-            'photo_front' => 'nullable|image|max:2048',
-            'photo_back' => 'nullable|image|max:2048',
-            'photo_left' => 'nullable|image|max:2048',
-            'photo_right' => 'nullable|image|max:2048',
-            'photo_dashboard' => 'nullable|image|max:2048',
+            'photo_front' => 'required|image|max:2048',
+            'photo_back' => 'required|image|max:2048',
+            'photo_left' => 'required|image|max:2048',
+            'photo_right' => 'required|image|max:2048',
+            'photo_dashboard' => 'required|image|max:2048',
+            'damage_photo' => 'nullable|image|max:2048',
+            'damage_description' => 'nullable|string',
         ]);
 
         $data = [
@@ -57,6 +59,7 @@ class InspectionController extends Controller
             'fuel_level' => $request->fuel_level,
             'mileage' => $request->mileage,
             'remarks' => $request->remarks,
+            'damage_description' => $request->damage_description,
             'created_by' => auth()->id(),
         ];
 
@@ -66,6 +69,10 @@ class InspectionController extends Controller
             if ($request->hasFile("photo_{$side}")) {
                 $data["photo_{$side}"] = $request->file("photo_{$side}")->store('inspections', 'public');
             }
+        }
+
+        if ($request->hasFile('damage_photo')) {
+            $data['damage_photo'] = $request->file('damage_photo')->store('inspections', 'public');
         }
 
         Inspection::create($data);

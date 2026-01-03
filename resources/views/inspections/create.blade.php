@@ -194,7 +194,7 @@
                             <div x-data="{ preview: null }" class="space-y-2">
                                 <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Front View</label>
                                 <label class="block cursor-pointer relative group">
-                                    <input type="file" name="photo_front" accept="image/*" class="hidden" 
+                                    <input type="file" name="photo_front" accept="image/*" class="hidden" required 
                                            @change="preview = URL.createObjectURL($event.target.files[0])">
                                     <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
                                         <template x-if="!preview">
@@ -214,7 +214,7 @@
                             <div x-data="{ preview: null }" class="space-y-2">
                                 <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Back View</label>
                                 <label class="block cursor-pointer relative group">
-                                    <input type="file" name="photo_back" accept="image/*" class="hidden" 
+                                    <input type="file" name="photo_back" accept="image/*" class="hidden" required 
                                            @change="preview = URL.createObjectURL($event.target.files[0])">
                                     <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
                                         <template x-if="!preview">
@@ -234,7 +234,7 @@
                             <div x-data="{ preview: null }" class="space-y-2">
                                 <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Left Side</label>
                                 <label class="block cursor-pointer relative group">
-                                    <input type="file" name="photo_left" accept="image/*" class="hidden" 
+                                    <input type="file" name="photo_left" accept="image/*" class="hidden" required 
                                            @change="preview = URL.createObjectURL($event.target.files[0])">
                                     <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
                                         <template x-if="!preview">
@@ -254,7 +254,7 @@
                             <div x-data="{ preview: null }" class="space-y-2">
                                 <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Right Side</label>
                                 <label class="block cursor-pointer relative group">
-                                    <input type="file" name="photo_right" accept="image/*" class="hidden" 
+                                    <input type="file" name="photo_right" accept="image/*" class="hidden" required 
                                            @change="preview = URL.createObjectURL($event.target.files[0])">
                                     <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
                                         <template x-if="!preview">
@@ -276,7 +276,7 @@
                         <div x-data="{ preview: null }" class="mt-4 max-w-xs">
                              <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide mb-2">Dashboard / Interior</label>
                              <label class="block cursor-pointer relative group">
-                                <input type="file" name="photo_dashboard" accept="image/*" class="hidden" 
+                                <input type="file" name="photo_dashboard" accept="image/*" class="hidden" required 
                                        @change="preview = URL.createObjectURL($event.target.files[0])">
                                 <div class="h-24 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
                                     <template x-if="!preview">
@@ -290,6 +290,42 @@
                                     </template>
                                 </div>
                              </label>
+                        </div>
+                    </div>
+
+                    <!-- Damage Reporting (Optional) -->
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-100">
+                        <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="ri-alert-line text-red-500"></i> Report Damage (Optional)
+                        </h3>
+                        <p class="text-xs text-gray-500 mb-4">If there is any visible damage, please upload a photo and describe it below.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Damage Photo -->
+                            <div x-data="{ preview: null }">
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Damage Photo</label>
+                                <label class="block cursor-pointer relative group">
+                                    <input type="file" name="damage_photo" accept="image/*" class="hidden" 
+                                           @change="preview = URL.createObjectURL($event.target.files[0])">
+                                    <div class="h-32 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-white group-hover:border-red-400 group-hover:bg-red-50 transition overflow-hidden">
+                                        <template x-if="!preview">
+                                            <div class="text-center p-2">
+                                                <i class="ri-camera-off-line text-2xl text-gray-400 group-hover:text-red-400"></i>
+                                                <span class="block text-[10px] text-gray-400 mt-1">Upload Photo</span>
+                                            </div>
+                                        </template>
+                                        <template x-if="preview">
+                                            <img :src="preview" class="w-full h-full object-cover">
+                                        </template>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Damage Description -->
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Description of Damage</label>
+                                <textarea name="damage_description" rows="5" class="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition text-sm" placeholder="Describe the damage (e.g. scratch on left bumper)..."></textarea>
+                            </div>
                         </div>
                     </div>
 
