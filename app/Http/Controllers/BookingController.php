@@ -65,7 +65,7 @@ class BookingController extends Controller
                     $hours = ceil($start->floatDiffInHours($end));
                     if ($hours < 1) $hours = 1;
                     $subtotal = $hours * $vehicle->price_per_hour;
-                    $stamps = floor($hours / 3);
+                    $stamps = ($hours > 3) ? 1 : 0;
 
                     // Voucher Logic...
                     if ($request->filled('selected_voucher_id')) {
@@ -216,10 +216,10 @@ class BookingController extends Controller
             $booking->save();
 
             // 积分 & Voucher 标记
-            $stampsEarned = floor($hours / 3);
-            if($stampsEarned > 0) {
+            // Fix: Award 1 stamp only if booking is > 3 hours
+            if ($hours > 3) {
                 $card = Auth::user()->loyaltyCard ?? LoyaltyCard::create(['user_id' => Auth::id()]);
-                $card->stamps += $stampsEarned;
+                $card->stamps += 1;
                 $card->save();
             }
 
@@ -439,7 +439,7 @@ class BookingController extends Controller
             }
 
             $total = max(0, $subtotal + $deliveryFee - $discount);
-            $stamps = floor($hours / 3);
+            $stamps = ($hours > 3) ? 1 : 0;
 
             return response()->json([
                 'hours' => $hours,
