@@ -35,7 +35,7 @@
                                 {{ $booking->user->name }}
                             </a>
                             <p class="text-xs text-gray-500 font-medium mt-1">
-                                <i class="ri-phone-line mr-1"></i>{{ $booking->user->phone_number ?? $booking->user->phone ?? 'No Phone' }}
+                                <i class="ri-phone-line mr-1"></i>{{ $booking->customer_phone ?? $booking->user->phone ?? 'No Phone' }}
                             </p>
                         </td>
 
