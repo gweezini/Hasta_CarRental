@@ -951,14 +951,7 @@
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  id="applyVoucherBtn"
-                  class="btn btn-transparent"
-                  style="margin-top: 15px; width: 100%; border: 1px solid var(--primary-color); color: var(--primary-color);"
-                >
-                  <i class="ri-refresh-line"></i> Apply Voucher & Update Price
-                </button>
+
                 <small style="color: red; display: block; margin-top: 5px;"
                   >* Apply voucher BEFORE uploading receipt/license.</small
                 >
@@ -1112,6 +1105,19 @@
               <button type="submit" class="btn btn-primary">
                 Confirm Booking
               </button>
+
+              {{-- SESSION ALERTS --}}
+              @if (session('success'))
+              <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                  <i class="ri-checkbox-circle-line"></i> {{ session('success') }}
+              </div>
+              @endif
+
+              @if (session('error'))
+              <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                  <i class="ri-error-warning-line"></i> {{ session('error') }}
+              </div>
+              @endif
               {{-- ERROR DISPLAY BLOCK --}}
               @if ($errors->any())
               <div
@@ -1187,318 +1193,234 @@
           </div>
         </div>
 
-        <script>
-          // --- 1. MOBILE MENU LOGIC (Add This) ---
-          const menuBtn = document.getElementById("menu-btn");
-          const navLinks = document.getElementById("nav-links");
-          const menuBtnIcon = menuBtn.querySelector("i");
-
-          menuBtn.addEventListener("click", (e) => {
-            navLinks.classList.toggle("open");
-
-            const isOpen = navLinks.classList.contains("open");
-            menuBtnIcon.setAttribute(
-              "class",
-              isOpen ? "ri-close-line" : "ri-menu-line"
-            );
-          });
-
-          // Close menu when a link is clicked
-          navLinks.addEventListener("click", (e) => {
-            navLinks.classList.remove("open");
-            menuBtnIcon.setAttribute("class", "ri-menu-line");
-          });
-
-          // --- 2. NAVBAR SCROLL EFFECT ---
-          const navbar = document.getElementById("navbar");
-          window.addEventListener("scroll", () => {
-            if (window.scrollY > 50) {
-              navbar.classList.add("nav__fixed");
-            } else {
-              navbar.classList.remove("nav__fixed");
-            }
-          });
-
-          // --- 3. PICKUP & DROPOFF LOCATION LOGIC ---
-          function handlePickupChange() {
-            const pickupValue = document.getElementById("pickup_location")
-              .value;
-            const customPickupGroup = document.getElementById(
-              "custom_pickup_group"
-            );
-            const customPickupInput = document.getElementById(
-              "custom_pickup_address"
-            );
-
-            if (pickupValue !== "office") {
-              customPickupGroup.style.display = "block";
-              customPickupInput.setAttribute("required", "required");
-            } else {
-              customPickupGroup.style.display = "none";
-              customPickupInput.removeAttribute("required");
-              customPickupInput.value = "";
-            }
-          }
-
-          function handleDropoffChange() {
-            const dropoffValue = document.getElementById("dropoff_location")
-              .value;
-            const dropoffHidden = document.getElementById(
-              "dropoff_location_hidden"
-            );
-            const customDropoffGroup = document.getElementById(
-              "custom_dropoff_group"
-            );
-            const customDropoffInput = document.getElementById(
-              "custom_dropoff_address"
-            );
-
-            // Always sync the hidden input
-            dropoffHidden.value = dropoffValue;
-
-            if (dropoffValue !== "office") {
-              customDropoffGroup.style.display = "block";
-              customDropoffInput.setAttribute("required", "required");
-            } else {
-              customDropoffGroup.style.display = "none";
-              customDropoffInput.removeAttribute("required");
-              customDropoffInput.value = "";
-            }
-          }
-
-          function handleSameLocationChange() {
-            const checkbox = document.getElementById("same_location_checkbox");
-            const dropoffSection = document.getElementById("dropoff_section");
-            const dropoffSelect = document.getElementById("dropoff_location");
-            const dropoffHidden = document.getElementById(
-              "dropoff_location_hidden"
-            );
-            const pickupValue = document.getElementById("pickup_location")
-              .value;
-
-            if (checkbox.checked) {
-              dropoffSection.style.display = "none";
-              dropoffSelect.removeAttribute("required");
-              // Remove name so it does not override the hidden input on submit
-              dropoffSelect.removeAttribute("name");
-              dropoffSelect.value = "";
-              dropoffHidden.value = pickupValue; // Set to same as pickup
-              document.getElementById("custom_dropoff_address").value = "";
-              document.getElementById("custom_dropoff_group").style.display =
-                "none";
-            } else {
-              dropoffSection.style.display = "block";
-              dropoffSelect.setAttribute("required", "required");
-              // Ensure the select will submit its value when visible
-              dropoffSelect.setAttribute("name", "dropoff_location");
-              dropoffHidden.value = dropoffSelect.value;
-            }
-          }
-
-          // Initialize on page load
-          document.addEventListener("DOMContentLoaded", function () {
-            handlePickupChange();
-            handleSameLocationChange();
-          });
-
-          // --- 4. EXISTING PRICE UPDATE LOGIC ---
-          function updatePrice() {
-            var form = document.getElementById("bookingForm");
-            // Force URL to current page (Booking Page)
-            form.action = "{{ url('/booking/' . $vehicle->id) }}";
-            // Force method to GET
-            form.method = "GET";
-            // Submit
-            form.submit();
-          }
-
-        // ============================================
-        // LIVE PRICE UPDATE & CONSTRAINTS SCRIPT
-        // ============================================
-      document.addEventListener("DOMContentLoaded", function () {
-        // Visual Inputs
-        const startDateInput = document.getElementById("start_date_visual");
-        const startTimeSelect = document.getElementById("start_time_visual");
-        const endDateInput = document.getElementById("end_date_visual");
-        const endTimeSelect = document.getElementById("end_time_visual");
-
-        // Hidden Inputs (Actual Form Data)
-        const hiddenStart = document.getElementById("start_time_hidden");
-        const hiddenEnd = document.getElementById("end_time_hidden");
-
-        // Other UI Elements
-        const pickupSelect = document.getElementById("pickup_location");
-        const sameLocCheckbox = document.getElementById("same-location"); // Verify ID
-        const dropoffContainer = document.getElementById("dropoff-input-group"); // Verify ID
-        const dropoffSelect = document.getElementById("dropoff_location"); // If exists
-        const voucherRadios = document.querySelectorAll(
-          'input[name="selected_voucher_id"]'
-        );
-        const manualCodeInput = document.getElementById("manual_code");
-
-        // Helper: Get ISO String (YYYY-MM-DDTHH:MM)
-        function getCombinedISO(dateInput, timeSelect) {
-          if (!dateInput.value || !timeSelect.value) return "";
-          return dateInput.value + "T" + timeSelect.value;
-        }
-
-        // 1. UPDATE HIDDEN & VALIDATE
-        function updateInputs() {
-          const startVal = getCombinedISO(startDateInput, startTimeSelect);
-          const endVal = getCombinedISO(endDateInput, endTimeSelect);
-
-          hiddenStart.value = startVal;
-          hiddenEnd.value = endVal; // Allow empty if incomplete
-
-          // Min Date Constraints (Visual Date Pickers)
-          // 1. Start Date >= Today (Already set in HTML min attribute usually, but enforce JS)
-          const today = new Date().toISOString().split("T")[0];
-          if (!startDateInput.min) startDateInput.min = today;
-
-          // 2. End Date >= Start Date
-          if (startDateInput.value) {
-            endDateInput.min = startDateInput.value;
-            if (endDateInput.value && endDateInput.value < startDateInput.value) {
-              endDateInput.value = startDateInput.value; // Auto-fix date
-            }
-          }
-
-          // Validation Logic
-          validateTimes(startVal, endVal);
-        }
-
-        function validateTimes(startVal, endVal) {
-          if (!startVal) return;
-
-          const start = new Date(startVal);
-          const now = new Date();
-
-          // Rule: Pickup must be >= 24h from now (Client Warning)
-          const minPickup = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-          if (start < minPickup) {
-            alert(
-              "Invalid Pick Up Time! Bookings must be made at least 24 hours in advance."
-            );
-            // Reset Time to empty or safe default?
-            // startTimeSelect.value = ""; // Optional: force reset
-            // hiddenStart.value = "";
-            return; // Stop calculation
-          }
-
-          if (!endVal) return;
-          const end = new Date(endVal);
-
-          // Rule: End > Start + 1 Hour
-          const minEnd = new Date(start.getTime() + 60 * 60 * 1000);
-          if (end < minEnd) {
-            alert(
-              "Invalid Range: Return time must be at least 1 hour after pickup time."
-            );
-            // endDateInput.value = ""; // Reset logic can be aggressive or passive
-            // hiddenEnd.value = "";
-            return;
-          }
-
-          // If all good, Calculate Price
-          calculatePrice();
-        }
-
-        // 2. AJAX PRICE CALCULATION
-        function calculatePrice() {
-          const start = hiddenStart.value;
-          const end = hiddenEnd.value;
-          const vehicleId = document.querySelector('input[name="vehicle_id"]').value;
-          const pickup = pickupSelect.value;
-
-          // Dropoff Logic
-          let dropoff = pickup;
-          const isSame = document.getElementById("same-location"); // Checkbox ID check
-          if (isSame && !isSame.checked) {
-              // Logic depends on your UI implementation for "different location"
-              // Assuming a select exists with ID 'dropoff_location' or similar
-             const ds = document.getElementById("dropoff_location_select"); // Adjust ID 
-             if(ds) dropoff = ds.value;
-          }
-
-          let voucherId = null;
-          voucherRadios.forEach((r) => {
-            if (r.checked) voucherId = r.value;
-          });
-          const manualCode = manualCodeInput ? manualCodeInput.value : "";
-
-          if (!start || !end) return;
-
-          fetch('{{ route("booking.calculate") }}', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRF-TOKEN": '{{ csrf_token() }}',
-            },
-            body: JSON.stringify({
-              vehicle_id: vehicleId,
-              start_time: start,
-              end_time: end,
-              pickup_location: pickup,
-              dropoff_location: dropoff,
-              selected_voucher_id: voucherId,
-              manual_code: manualCode,
-            }),
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              if (data.error) return;
-
-              // Updates
-              if(document.getElementById("summary-hours")) document.getElementById("summary-hours").innerText = data.hours + " Hours";
-              if(document.getElementById("summary-subtotal")) document.getElementById("summary-subtotal").innerText = "RM " + data.subtotal;
-              if(document.getElementById("summary-delivery")) document.getElementById("summary-delivery").innerText = "RM " + data.delivery_fee;
-              if(document.getElementById("summary-discount")) document.getElementById("summary-discount").innerText = "- RM " + data.discount;
-              if(document.getElementById("summary-total")) document.getElementById("summary-total").innerText = "RM " + data.total;
-              if(document.getElementById("summary-stamps")) document.getElementById("summary-stamps").innerText = "+ " + data.stamps + " Stamps";
-            });
-        }
-
-        // Attach Listeners to Visual Inputs
-        [startDateInput, startTimeSelect, endDateInput, endTimeSelect].forEach(
-          (el) => {
-            if (el) {
-              el.addEventListener("change", updateInputs);
-              el.addEventListener("input", updateInputs); // Capture typing in dates
-            }
-          }
-        );
-
-        // Other listeners
-        if (pickupSelect) pickupSelect.addEventListener("change", calculatePrice);
-        voucherRadios.forEach((r) => r.addEventListener("change", calculatePrice));
-        
-        // Initial Run
-        updateInputs();
-      });
-
-      // Session Timer Script
-      document.addEventListener("DOMContentLoaded", function() {
-          let duration = 600; // 10 minutes in seconds
-          const display = document.getElementById("timer-display");
-          
-          const timer = setInterval(function() {
-              let minutes = parseInt(duration / 60, 10);
-              let seconds = parseInt(duration % 60, 10);
-  
-              minutes = minutes < 10 ? "0" + minutes : minutes;
-              seconds = seconds < 10 ? "0" + seconds : seconds;
-  
-              display.textContent = minutes + ":" + seconds;
-  
-              if (--duration < 0) {
-                  clearInterval(timer);
-                  alert("Session timed out. Please try again.");
-                  window.location.href = "{{ route('home') }}";
-              }
-          }, 1000);
-      });
-    </script>
-      </section>
     </header>
+
+    <script>
+        (function() {
+            // --- 1. UI HELPERS (Mobile Menu & Navbar) ---
+            const menuBtn = document.getElementById("menu-btn");
+            const navLinks = document.getElementById("nav-links");
+            if (menuBtn && navLinks) {
+                const menuBtnIcon = menuBtn.querySelector("i");
+                menuBtn.addEventListener("click", () => {
+                    navLinks.classList.toggle("open");
+                    const isOpen = navLinks.classList.contains("open");
+                    if (menuBtnIcon) menuBtnIcon.setAttribute("class", isOpen ? "ri-close-line" : "ri-menu-line");
+                });
+            }
+            const navbar = document.getElementById("navbar");
+            if (navbar) {
+                window.addEventListener("scroll", () => {
+                    if (window.scrollY > 50) navbar.classList.add("nav__fixed");
+                    else navbar.classList.remove("nav__fixed");
+                });
+            }
+
+            // --- 2. LOCATION & SAME-LOCATION LOGIC (Teammate) ---
+            window.handlePickupChange = function() {
+                const pEl = document.getElementById("pickup_location");
+                if(!pEl) return;
+                const pickupValue = pEl.value;
+                const customGroup = document.getElementById("custom_pickup_group");
+                const customInput = document.getElementById("custom_pickup_address");
+                if (pickupValue !== "office") {
+                    if(customGroup) customGroup.style.display = "block";
+                    if(customInput) customInput.setAttribute("required", "required");
+                } else {
+                    if(customGroup) customGroup.style.display = "none";
+                    if(customInput) {
+                        customInput.removeAttribute("required");
+                        customInput.value = "";
+                    }
+                }
+                calculatePrice();
+            };
+
+            window.handleDropoffChange = function() {
+                const dEl = document.getElementById("dropoff_location");
+                if(!dEl) return;
+                const dropoffValue = dEl.value;
+                const dropoffHidden = document.getElementById("dropoff_location_hidden");
+                const customGroup = document.getElementById("custom_dropoff_group");
+                const customInput = document.getElementById("custom_dropoff_address");
+                if(dropoffHidden) dropoffHidden.value = dropoffValue;
+                if (dropoffValue !== "office") {
+                    if(customGroup) customGroup.style.display = "block";
+                    if(customInput) customInput.setAttribute("required", "required");
+                } else {
+                    if(customGroup) customGroup.style.display = "none";
+                    if(customInput) {
+                        customInput.removeAttribute("required");
+                        customInput.value = "";
+                    }
+                }
+                calculatePrice();
+            };
+
+            window.handleSameLocationChange = function() {
+                const checkbox = document.getElementById("same_location_checkbox");
+                if(!checkbox) return;
+                const dropoffSection = document.getElementById("dropoff_section");
+                const dropoffSelect = document.getElementById("dropoff_location");
+                const dropoffHidden = document.getElementById("dropoff_location_hidden");
+                const pickupEl = document.getElementById("pickup_location");
+                const pickupValue = pickupEl ? pickupEl.value : "";
+
+                if (checkbox.checked) {
+                    if(dropoffSection) dropoffSection.style.display = "none";
+                    if(dropoffSelect) {
+                        dropoffSelect.removeAttribute("required");
+                        dropoffSelect.removeAttribute("name");
+                        dropoffSelect.value = "";
+                    }
+                    if(dropoffHidden) dropoffHidden.value = pickupValue;
+                    const cdGroup = document.getElementById("custom_dropoff_group");
+                    if(cdGroup) cdGroup.style.display = "none";
+                } else {
+                    if(dropoffSection) dropoffSection.style.display = "block";
+                    if(dropoffSelect) {
+                        dropoffSelect.setAttribute("required", "required");
+                        dropoffSelect.setAttribute("name", "dropoff_location");
+                    }
+                    if(dropoffHidden && dropoffSelect) dropoffHidden.value = dropoffSelect.value;
+                }
+                calculatePrice();
+            };
+
+            // --- 3. PRICE CALCULATION ---
+            window.calculatePrice = function() {
+                const startH = document.getElementById("start_time_hidden");
+                const endH = document.getElementById("end_time_hidden");
+                if(!startH || !endH) return;
+                const startStr = startH.value;
+                const endStr = endH.value;
+                
+                const vIdEl = document.querySelector('input[name="vehicle_id"]');
+                const vehicleId = vIdEl ? vIdEl.value : null;
+                
+                const pEl = document.getElementById("pickup_location");
+                const pickup = pEl ? pEl.value : "";
+                
+                let dropoff = pickup;
+                const sameLocCb = document.getElementById("same_location_checkbox");
+                const isSame = sameLocCb ? sameLocCb.checked : true;
+                if (!isSame) {
+                    const dEl = document.getElementById("dropoff_location");
+                    if(dEl) dropoff = dEl.value;
+                }
+
+                const voucherSelect = document.querySelector('select[name="selected_voucher_id"]');
+                const voucherId = voucherSelect ? voucherSelect.value : null;
+                const manualCodeInput = document.querySelector('input[name="manual_code"]');
+                const manualCode = manualCodeInput ? manualCodeInput.value : '';
+
+                if (!startStr || !endStr) return;
+
+                fetch('{{ route("booking.calculate") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        vehicle_id: vehicleId,
+                        start_time: startStr,
+                        end_time: endStr,
+                        pickup_location: pickup,
+                        dropoff_location: dropoff,
+                        selected_voucher_id: voucherId,
+                        manual_code: manualCode
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.error) return;
+                    const update = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+                    update('summary-hours', data.hours + " Hours");
+                    update('summary-subtotal', "RM " + data.subtotal);
+                    update('summary-delivery', "RM " + data.delivery_fee);
+                    update('summary-discount', "- RM " + data.discount);
+                    update('summary-total', "RM " + data.total);
+                    update('summary-stamps', "+ " + data.stamps + " Stamps");
+                })
+                .catch(err => console.error(err));
+            };
+
+            // --- 4. DATE/TIME SYNC & CONSTRAINTS ---
+            const startD = document.getElementById("start_date_visual");
+            const startT = document.getElementById("start_time_visual");
+            const startH = document.getElementById("start_time_hidden");
+            const endD = document.getElementById("end_date_visual");
+            const endT = document.getElementById("end_time_visual");
+            const endH = document.getElementById("end_time_hidden");
+
+            const updateInputs = () => {
+                if (startD && startT && startH) {
+                    if (startD.value && startT.value) startH.value = startD.value + "T" + startT.value;
+                }
+                if (endD && endT && endH) {
+                    if (endD.value && endT.value) endH.value = endD.value + "T" + endT.value;
+                }
+
+                // Validation: 24h Advance Check
+                if (startH && startH.value) {
+                    const s = new Date(startH.value);
+                    const limit = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+                    if (s < limit) {
+                        alert("Bookings must be made at least 24 hours in advance.");
+                        if(startD) startD.value = ""; 
+                        startH.value = ""; 
+                        return;
+                    }
+                }
+                // Validation: 1h Duration Check
+                if (startH && startH.value && endH && endH.value) {
+                    const s = new Date(startH.value);
+                    const e = new Date(endH.value);
+                    if (e < new Date(s.getTime() + 60 * 60 * 1000)) {
+                        alert("Return time must be at least 1 hour after pickup time.");
+                        if(endD) endD.value = ""; 
+                        endH.value = ""; 
+                        return;
+                    }
+                }
+                calculatePrice();
+            };
+
+            [startD, startT, endD, endT].forEach(el => { if(el) el.addEventListener("change", updateInputs); });
+            
+            // --- 5. SESSION TIMER ---
+            const timerDisplay = document.getElementById("timer-display");
+            if (timerDisplay) {
+                let timeLeft = 600;
+                const timerInt = setInterval(() => {
+                    let m = Math.floor(timeLeft / 60);
+                    let s = timeLeft % 60;
+                    timerDisplay.innerText = m + ":" + (s < 10 ? '0' : '') + s;
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInt);
+                        alert("Session expired!");
+                        window.location.reload();
+                    }
+                    timeLeft--;
+                }, 1000);
+            }
+
+            // Initialize
+            document.addEventListener("DOMContentLoaded", () => {
+                handlePickupChange();
+                handleSameLocationChange();
+                updateInputs();
+            });
+
+            // Other Listeners
+            const pSel = document.getElementById("pickup_location");
+            if(pSel) pSel.addEventListener("change", handlePickupChange);
+            const vSel = document.querySelector('select[name="selected_voucher_id"]');
+            if(vSel) vSel.addEventListener("change", calculatePrice);
+            const mCode = document.querySelector('input[name="manual_code"]');
+            if(mCode) mCode.addEventListener('change', calculatePrice);
+        })();
+    </script>
   </body>
 </html>
