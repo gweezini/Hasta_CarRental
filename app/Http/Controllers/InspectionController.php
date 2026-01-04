@@ -12,7 +12,7 @@ class InspectionController extends Controller
     /**
      * Show the form for creating a new inspection.
      */
-    public function create(Booking $booking)
+    public function create(Request $request, Booking $booking)
     {
         // Ensure user can inspect this booking.
         if ($booking->user_id !== auth()->id()) {
@@ -23,7 +23,9 @@ class InspectionController extends Controller
             abort(403, 'You can only inspect approved bookings.'); 
         }
         
-        return view('inspections.create', compact('booking'));
+        $type = $request->query('type', 'pickup');
+
+        return view('inspections.create', compact('booking', 'type'));
     }
 
     /**
@@ -52,7 +54,7 @@ class InspectionController extends Controller
             'damage_photos.*' => 'image|max:2048',
             'damage_description' => 'nullable|string',
             'acknowledgement' => 'accepted',
-            'agreement_check' => 'accepted',
+            'agreement_check' => $request->type === 'pickup' ? 'accepted' : 'nullable',
         ]);
 
         $data = [

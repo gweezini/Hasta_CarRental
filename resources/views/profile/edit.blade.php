@@ -259,8 +259,18 @@
                                                 
                                                 @if($booking->inspections->where('type', 'pickup')->count() > 0)
                                                     <a href="{{ route('inspections.show', $booking->inspections->where('type', 'pickup')->first()) }}" class="text-xs md:text-sm text-white bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-lg transition font-medium flex items-center">
-                                                        <i class="ri-eye-line mr-1"></i> View Inspection
+                                                        <i class="ri-eye-line mr-1"></i> View Pickup
                                                     </a>
+
+                                                    @if($booking->inspections->where('type', 'return')->count() > 0)
+                                                        <a href="{{ route('inspections.show', $booking->inspections->where('type', 'return')->first()) }}" class="text-xs md:text-sm text-white bg-purple-600 hover:bg-purple-500 px-3 py-2 rounded-lg transition font-medium flex items-center">
+                                                            <i class="ri-eye-line mr-1"></i> View Return
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ route('inspections.create', ['booking' => $booking->id, 'type' => 'return']) }}" class="text-xs md:text-sm text-white bg-orange-600 hover:bg-orange-500 px-3 py-2 rounded-lg transition font-medium flex items-center">
+                                                            <i class="ri-edit-circle-line mr-1"></i> Return Car
+                                                        </a>
+                                                    @endif
                                                 @else
                                                     <a href="{{ route('inspections.create', $booking) }}" class="text-xs md:text-sm text-white bg-green-600 hover:bg-green-500 px-3 py-2 rounded-lg transition font-medium flex items-center">
                                                         <i class="ri-car-fill mr-1"></i> Pick up

@@ -138,32 +138,64 @@
 
                 <form action="{{ route('inspections.store', $booking) }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-8">
                     @csrf
-                    <input type="hidden" name="type" value="pickup">
+                    @csrf
+                    <input type="hidden" name="type" value="{{ $type ?? 'pickup' }}">
 
-                    <!-- Pickup Instructions -->
-                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-6">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <i class="ri-alert-line text-yellow-400 text-xl"></i>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-bold text-yellow-800 uppercase tracking-wide">
-                                    Pickup Procedure
-                                </h3>
-                                <div class="mt-2 text-sm text-yellow-700">
-                                    <p class="mb-2 font-semibold">Please follow this procedure correctly or you will be penalized.</p>
-                                    <p class="mb-2 font-bold text-black">
-                                        Car : {{ $booking->vehicle->brand }} {{ $booking->vehicle->model }} ({{ $booking->vehicle->plate_number }})
-                                    </p>
-                                    <ol class="list-decimal list-inside space-y-1">
-                                        <li>Read and agree to the agreement.</li>
-                                        <li>Take the car key below driver's seat.</li>
-                                        <li>Snap 4 sides pictures of the car & mileage and fuel of the car.</li>
-                                    </ol>
+                    <!-- Instructions -->
+                    @if(isset($type) && $type === 'return')
+                        <!-- Return Instructions -->
+                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg mb-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="ri-information-line text-blue-400 text-xl"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-bold text-blue-800 uppercase tracking-wide">
+                                        Return Procedure
+                                    </h3>
+                                    <div class="mt-2 text-sm text-blue-700">
+                                        <p class="mb-2 font-bold text-black">
+                                            Returning : {{ $booking->vehicle->brand }} {{ $booking->vehicle->model }} ({{ $booking->vehicle->plate_number }})
+                                        </p>
+                                        <ol class="list-decimal list-inside space-y-1">
+                                            <li><strong>Oil:</strong> Make sure oil level is returned the same as it was given. If overfill, no refund will be given.</li>
+                                            <li><strong>Deposit:</strong> Returned if car is in good condition, oil same as given, no summons, clean, and on time.</li>
+                                            <li><strong>Return Key:</strong> Put the key in front passenger seat's compartment.</li>
+                                            <li><strong>Photo:</strong> Take a picture of oil bar, and the car parked in front of the store.</li>
+                                        </ol>
+                                        <p class="mt-2 text-xs font-bold text-red-600">
+                                            * Penalty will be imposed if returned late or oil is less than given.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <!-- Pickup Instructions -->
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="ri-alert-line text-yellow-400 text-xl"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-bold text-yellow-800 uppercase tracking-wide">
+                                        Pickup Procedure
+                                    </h3>
+                                    <div class="mt-2 text-sm text-yellow-700">
+                                        <p class="mb-2 font-semibold">Please follow this procedure correctly or you will be penalized.</p>
+                                        <p class="mb-2 font-bold text-black">
+                                            Car : {{ $booking->vehicle->brand }} {{ $booking->vehicle->model }} ({{ $booking->vehicle->plate_number }})
+                                        </p>
+                                        <ol class="list-decimal list-inside space-y-1">
+                                            <li>Read and agree to the agreement.</li>
+                                            <li>Take the car key below driver's seat.</li>
+                                            <li>Snap 4 sides pictures of the car & mileage and fuel of the car.</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- Vehicle Info Card -->
                     <div class="flex items-center p-4 bg-blue-50 border border-blue-100 rounded-xl gap-4">
@@ -414,7 +446,8 @@
                         <textarea name="remarks" rows="4" class="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#ec5a29] focus:border-transparent outline-none transition text-sm" placeholder="Please describe any pre-existing scratches, dents, or cleanliness issues..."></textarea>
                     </div>
 
-                    <!-- Rental Agreement -->
+                    <!-- Rental Agreement (Pickup Only) -->
+                    @if(!isset($type) || $type !== 'return')
                     <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
                         <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="ri-file-list-3-line text-[#ec5a29]"></i> Rental Agreement
@@ -436,6 +469,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     <!-- Acknowledgement -->
                     <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-start gap-3">
