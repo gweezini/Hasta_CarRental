@@ -63,6 +63,7 @@
         <i class="ri-coupon-3-line mr-3 text-xl"></i> Vouchers
     </a>
 
+    @if(Auth::user()->isTopManagement())
     <div x-data="{ open: {{ request()->routeIs('admin.claims.*') ? 'true' : 'false' }} }">
         <button @click="open = !open" class="w-full flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition focus:outline-none" :class="{'bg-white/10': open}">
             <div class="flex items-center">
@@ -74,13 +75,16 @@
             <a href="{{ route('admin.claims.create') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.claims.create') ? 'text-white font-bold' : 'text-white/70' }}">
                 My Claims
             </a>
-            @if(Auth::user()->isTopManagement())
             <a href="{{ route('admin.claims.index') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.claims.index') ? 'text-white font-bold' : 'text-white/70' }}">
                 Review Claims
             </a>
-            @endif
         </div>
     </div>
+    @else
+    <a href="{{ route('admin.claims.create') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.claims.create') ? 'sidebar-active' : '' }}">
+        <i class="ri-money-dollar-circle-line mr-3 text-xl"></i> My Claims
+    </a>
+    @endif
 
     @if(Auth::user()->isTopManagement())
     <div x-data="{ open: {{ request()->routeIs('admin.reports') || request()->routeIs('admin.staff.*') ? 'true' : 'false' }} }">
