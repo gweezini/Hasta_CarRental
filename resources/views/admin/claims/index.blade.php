@@ -128,7 +128,7 @@
                                         {{ $claim->status === 'Approved' ? 'Verified' : 'Rejected' }}
                                     </span>
                                     @if($claim->receipt_path)
-                                        <a href="{{ asset($claim->receipt_path) }}" target="_blank" 
+                                        <a href="{{ asset('storage/' . $claim->receipt_path) }}" target="_blank" 
                                            class="text-[9px] font-black text-[#cb5c55] uppercase tracking-widest hover:underline flex items-center gap-1">
                                             <i class="ri-image-line"></i> View Receipt
                                         </a>
