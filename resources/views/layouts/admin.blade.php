@@ -63,6 +63,10 @@
         <i class="ri-coupon-3-line mr-3 text-xl"></i> Vouchers
     </a>
 
+    <a href="{{ route('admin.feedbacks.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.feedbacks*') ? 'sidebar-active' : '' }}">
+        <i class="ri-feedback-line mr-3 text-xl"></i> Feedbacks
+    </a>
+
     @if(Auth::user()->isTopManagement())
     <div x-data="{ open: {{ request()->routeIs('admin.claims.*') ? 'true' : 'false' }} }">
         <button @click="open = !open" class="w-full flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition focus:outline-none" :class="{'bg-white/10': open}">
