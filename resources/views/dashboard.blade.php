@@ -531,7 +531,7 @@
 
       .footer__container {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: 2fr 1fr 1fr;
         gap: 2rem;
         border-bottom: 1px solid var(--text-light);
         padding-bottom: 2rem;
@@ -542,6 +542,7 @@
         font-size: 1.2rem;
         font-family: var(--header-font);
         color: var(--white);
+        text-transform: uppercase;
       }
 
       .footer__links a {
@@ -660,8 +661,8 @@
         <ul class="nav__links" id="nav-links">
           <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
           <li><a href="{{ url('/#vehicles') }}">Vehicles</a></li>
-          <li><a href="{{ url('/#contact') }}">Contact</a></li>
-          <li><a href="{{ url('/#about') }}">About Us</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="#about">About Us</a></li>
           <li><a href="{{ route('profile.edit') }}">My Profile</a></li>
 
           <li class="mobile-only">
@@ -911,32 +912,24 @@
     <footer>
       <div class="section__container footer__container">
         <div class="footer__col">
-          <h4>Resources</h4>
-          <ul class="footer__links">
-            <li><a href="#">Installation Manual</a></li>
-            <li><a href="#">Release Note</a></li>
-            <li><a href="#">Community Help</a></li>
-          </ul>
+          <h4>Hasta Car Rental</h4>
+          <p style="color: var(--text-light); line-height: 1.6; margin-bottom: 1rem;">
+            Experience the freedom of the road with our premium car rental services. 
+            Reliable, affordable, and convenient vehicles for every journey.
+          </p>
         </div>
-        <div class="footer__col">
-          <h4>Company</h4>
+        
+        <div class="footer__col" id="about">
+          <h4>Quick Links</h4>
           <ul class="footer__links">
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Career</a></li>
-            <li><a href="#">Press</a></li>
-            <li><a href="#">Support</a></li>
-          </ul>
-        </div>
-        <div class="footer__col">
-          <h4>Product</h4>
-          <ul class="footer__links">
-            <li><a href="#">Demo</a></li>
-            <li><a href="#">Security</a></li>
+            <li><a href="#about">About Us</a></li>
             <li><a href="#">FAQ</a></li>
-            <li><a href="#">Features</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms & Conditions</a></li>
           </ul>
         </div>
-        <div class="footer__col">
+
+        <div class="footer__col" id="contact">
           <h4>Follow Us</h4>
           <ul class="footer__socials">
             <li>
@@ -962,9 +955,10 @@
           </ul>
         </div>
       </div>
+
       <div class="footer__bar">
         <p style="color: var(--text-light); text-align: center; padding: 2rem">
-          © 2025 Hasta Car Rental. All rights reserved.
+          © 2026 Hasta Car Rental. All rights reserved.
         </p>
       </div>
     </footer>
