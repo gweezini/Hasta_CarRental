@@ -782,7 +782,7 @@
           Welcome back, {{ Auth::user()->name }}
         </h3>
         <h1>AFFORDABLE CAR RENTAL SERVICE</h1>
-        <form action="/">
+        <form action="{{ route('dashboard') }}">
           <div class="input__group">
             <label for="pickup">Pick up location</label>
             <input
@@ -845,7 +845,7 @@
       <div class="range__grid">
         @foreach($vehicles as $vehicle)
         <div
-          class="range__card {{ $vehicle->status !== 'Available' ? 'unavailable' : '' }}"
+          class="range__card {{ !$vehicle->is_available ? 'unavailable' : '' }}"
         >
           <img
             src="{{ asset('images/' . $vehicle->vehicle_image) }}"
@@ -877,7 +877,7 @@
             </p>
 
             <div class="card__btn" style="background-color: transparent;">
-            @if($vehicle->status === 'Available')
+            @if($vehicle->is_available)
                 @auth
                     <a href="{{ route('booking.show', [
                     'id' => $vehicle->id, 
@@ -896,7 +896,11 @@
                @endauth
             @else
                 <button class="btn" disabled style="background-color: gray; color: white; cursor: not-allowed; opacity: 0.7; width: 100%;">
-                Not Available
+                @if($vehicle->status === 'Available')
+                    Booked for Dates
+                @else
+                    {{ $vehicle->status }}
+                @endif
                 </button>
             @endif
             </div>

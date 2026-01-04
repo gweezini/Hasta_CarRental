@@ -296,23 +296,56 @@
             <div class="form__section">
               <h3><i class="ri-calendar-check-line"></i> Rental Period</h3>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <!-- Start Date & Time -->
                 <div class="input__group">
                   <label>Start Date</label>
-                  <input
-                    type="datetime-local"
-                    name="start_time"
-                    value="{{ old('start_time', \Carbon\Carbon::parse($booking->pickup_date_time)->format('Y-m-d\TH:i')) }}"
-                    required
-                  />
+                  <div class="date-time-wrapper" style="display: flex; gap: 5px;">
+                        <input 
+                            type="date" 
+                            id="start_date_visual" 
+                            required 
+                            min="{{ date('Y-m-d') }}" 
+                            style="flex: 1;"
+                            value="{{ old('start_date', \Carbon\Carbon::parse($booking->pickup_date_time)->format('Y-m-d')) }}"
+                        />
+                        <select id="start_time_visual" required style="padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; flex: 1;">
+                            <option value="" disabled>Select Time</option>
+                            @php 
+                                $currentStart = \Carbon\Carbon::parse($booking->pickup_date_time)->format('H:i'); 
+                            @endphp
+                            @for($i=420; $i<1440; $i+=10)
+                                @php $t = sprintf('%02d:%02d', floor($i/60), $i%60); @endphp
+                                <option value="{{ $t }}" {{ $currentStart == $t ? 'selected' : '' }}>{{ $t }}</option>
+                            @endfor
+                        </select>
+                        <input type="hidden" name="start_time" id="start_time_hidden" value="{{ \Carbon\Carbon::parse($booking->pickup_date_time)->format('Y-m-d\TH:i') }}">
+                  </div>
                 </div>
+
+                <!-- End Date & Time -->
                 <div class="input__group">
                   <label>End Date</label>
-                  <input
-                    type="datetime-local"
-                    name="end_time"
-                    value="{{ old('end_time', \Carbon\Carbon::parse($booking->return_date_time)->format('Y-m-d\TH:i')) }}"
-                    required
-                  />
+                  <div class="date-time-wrapper" style="display: flex; gap: 5px;">
+                        <input 
+                            type="date" 
+                            id="end_date_visual" 
+                            required 
+                            min="{{ date('Y-m-d') }}" 
+                            style="flex: 1;"
+                            value="{{ old('end_date', \Carbon\Carbon::parse($booking->return_date_time)->format('Y-m-d')) }}"
+                        />
+                        <select id="end_time_visual" required style="padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; flex: 1;">
+                            <option value="" disabled>Select Time</option>
+                            @php 
+                                $currentEnd = \Carbon\Carbon::parse($booking->return_date_time)->format('H:i'); 
+                            @endphp
+                            @for($i=420; $i<1440; $i+=60)
+                                @php $t = sprintf('%02d:%02d', floor($i/60), $i%60); @endphp
+                                <option value="{{ $t }}" {{ $currentEnd == $t ? 'selected' : '' }}>{{ $t }}</option>
+                            @endfor
+                        </select>
+                        <input type="hidden" name="end_time" id="end_time_hidden" value="{{ \Carbon\Carbon::parse($booking->return_date_time)->format('Y-m-d\TH:i') }}">
+                  </div>
                 </div>
               </div>
             </div>
@@ -452,6 +485,42 @@
               </div>
             </div>
 
+            <!-- PAYMENT & REFUND SECTIONS -->
+            <input type="hidden" id="original_grand_total" value="{{ $booking->total_rental_fee + $booking->deposit_amount }}">
+
+            <!-- Payment Section (Hidden by default) -->
+            <div id="payment-section" class="form__section" style="display: none; background: #fff8f5; padding: 20px; border: 2px solid #ec5a29; border-radius: 10px; margin-top: 2rem;">
+                <h3 style="color: #d14a1e;"><i class="ri-money-dollar-circle-line"></i> Additional Payment Required</h3>
+                <p style="margin-bottom: 1rem;">The new total is higher than your previous booking. Please pay the difference.</p>
+                
+                <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem; color: #d14a1e;">
+                    Top-up Amount: <span id="payment-diff-amount">RM 0.00</span>
+                </div>
+
+                <!-- QR Code / Bank Details -->
+                <div style="text-align: center; margin-bottom: 1rem;">
+                     <img src="{{ asset('images/paymentqr.png') }}" style="max-width: 150px; border: 1px solid #ddd; padding: 5px; border-radius: 5px;">
+                     <p style="margin-top: 5px; font-weight: 600;">DuitNow QR / CIMB 8600123456</p>
+                </div>
+
+                <div class="input__group">
+                    <label>Upload Payment Receipt <span style="color: red;">*</span></label>
+                    <input type="file" name="receipt_image" id="receipt_image_input" accept="image/*, .pdf">
+                </div>
+            </div>
+
+            <!-- Refund Section (Hidden by default) -->
+            <div id="refund-section" class="form__section" style="display: none; background: #e8f5e9; padding: 20px; border: 2px solid #4caf50; border-radius: 10px; margin-top: 2rem;">
+                <h3 style="color: #2e7d32;"><i class="ri-refund-2-line"></i> Refund Information</h3>
+                <p>The new total is lower or equal. No additional payment is needed.</p>
+                <div style="font-size: 1.1rem; font-weight: bold; margin: 1rem 0; color: #2e7d32;">
+                    Refund Amount: <span id="refund-diff-amount">RM 0.00</span>
+                </div>
+                <p style="font-size: 0.9rem; color: #1b5e20;">
+                    If there is remaining money, it will be returned within 5 working days to the customer's bank account.
+                </p>
+            </div>
+
             @if ($errors->any())
             <div style="background-color: #ffe6e6; border: 1px solid #d93025; color: #d93025; padding: 1rem; border-radius: 8px; margin-top: 1.5rem;">
               <h4 style="margin: 0 0 0.5rem 0; font-weight: bold;">
@@ -574,131 +643,293 @@
       }
 
       document.addEventListener("DOMContentLoaded", function () {
-        handlePickupChange();
-        handleDropoffChange(); // Ensure dropoff UI is correct based on value
-        handleSameLocationChange();
+        // --- 1. SETUP VARIABLES ---
         
-        // --- LIVE PRICE UPDATE ---
-             const startTimeInput = document.querySelector('input[name="start_time"]');
-             const endTimeInput = document.querySelector('input[name="end_time"]');
-             const pickupSelect = document.getElementById('pickup_location');
-             const dropoffSelect = document.getElementById('dropoff_location'); 
-             const sameLocCheckbox = document.getElementById('same_location_checkbox');
+        // Date/Time Inputs
+        const startD = document.getElementById('start_date_visual');
+        const startT = document.getElementById('start_time_visual');
+        const startHidden = document.getElementById('start_time_hidden');
+        
+        const endD = document.getElementById('end_date_visual');
+        const endT = document.getElementById('end_time_visual');
+        const endHidden = document.getElementById('end_time_hidden');
 
-             // Helper to get Local ISO String (YYYY-MM-DDTHH:MM)
-             function getLocalISOString(date) {
-                 const offset = date.getTimezoneOffset() * 60000;
-                 const localDate = new Date(date.getTime() - offset);
-                 return localDate.toISOString().slice(0, 16);
-             }
+        // Location & Other
+        const pickupSelect = document.getElementById('pickup_location');
+        const dropoffSelect = document.getElementById('dropoff_location');
+        const sameLocCheckbox = document.getElementById('same_location_checkbox');
+        const vehicleId = document.querySelector('input[name="vehicle_id"]').value;
+        const currentBookingId = "{{ $booking->id }}";
 
-             // Set Min Start Date to NOW (Relaxed constraint)
-             const now = new Date();
-             const minStart = getLocalISOString(now);
-             startTimeInput.setAttribute("min", minStart);
+        let bookedRanges = []; // Store booked slots
 
-             // Function to update End Date Constraints
-             function updateEndConstraint() {
-                 if(startTimeInput.value) {
-                    const start = new Date(startTimeInput.value);
-                    const minEnd = new Date(start.getTime() + 60 * 60 * 1000); // +1 Hour
-                    const minEndStr = getLocalISOString(minEnd);
-                    endTimeInput.setAttribute("min", minEndStr);
-                 }
-             }
+        // --- 2. CORE LOGIC FUNCTIONS ---
 
-             // Listen to 'input' for immediate updates
-             startTimeInput.addEventListener("input", updateEndConstraint);
-             startTimeInput.addEventListener("change", function() {
-                updateEndConstraint();
-                if(this.value) {
-                    const start = new Date(this.value);
-                    const minEnd = new Date(start.getTime() + 60 * 60 * 1000);
-                    if(endTimeInput.value && new Date(endTimeInput.value) < minEnd) {
-                        endTimeInput.value = "";
-                        alert("End time has been reset because it must be at least 1 hour after start time.");
-                    }
-                }
-                calculatePrice();
-             });
-             
-             // Ensure constraint is fresh
-             endTimeInput.addEventListener("focus", updateEndConstraint);
-             endTimeInput.addEventListener("click", updateEndConstraint);
-             
-             // Initial Check
-             updateEndConstraint();
+        // Sync visual inputs to hidden inputs for submission and calculation
+        function syncHiddenInputs() {
+            if(startD.value && startT.value) {
+                startHidden.value = startD.value + 'T' + startT.value;
+            } else {
+                startHidden.value = '';
+            }
 
-             endTimeInput.addEventListener("change", function() {
-                 if(this.value && startTimeInput.value) {
-                     const start = new Date(startTimeInput.value);
-                     const end = new Date(this.value);
-                     const minEnd = new Date(start.getTime() + 60 * 60 * 1000);
-                     
-                     if(end < minEnd) {
-                         this.value = "";
-                         alert("Invalid Selection: Return time must be at least 1 hour after pickup time.");
-                         return;
-                     }
-                 }
-                 calculatePrice();
-             });
-             pickupSelect.addEventListener("change", calculatePrice);
-             dropoffSelect.addEventListener("change", calculatePrice);
-             sameLocCheckbox.addEventListener("change", calculatePrice);
-             
-             // Initial Check
-             updateEndConstraint();
-             if(startTimeInput.value && endTimeInput.value) calculatePrice();
-             
-             function calculatePrice() {
-                const vehicleId = document.querySelector('input[name="vehicle_id"]').value;
-                const start = startTimeInput.value;
-                const end = endTimeInput.value;
-                const pickup = pickupSelect.value;
-                let dropoff = pickup;
-                
-                const isSame = sameLocCheckbox.checked;
-                if(!isSame) {
-                     if(dropoffSelect) dropoff = dropoffSelect.value;
-                }
-                
-                // For Edit, we pass the existing voucher ID embedded in the booking if we want to preserve it.
-                // Or we can just let backend handle it? 
-                // The API expects 'selected_voucher_id'. 
-                // We'll output a hidden field with the current booking's voucher id
-                const voucherId = "{{ $booking->voucher_id ?? '' }}"; 
+            if(endD.value && endT.value) {
+                endHidden.value = endD.value + 'T' + endT.value;
+            } else {
+                endHidden.value = '';
+            }
+        }
 
-                if(!start || !end) return;
-
-                fetch('{{ route("booking.calculate") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        vehicle_id: vehicleId,
-                        start_time: start,
-                        end_time: end,
-                        pickup_location: pickup,
-                        dropoff_location: dropoff,
-                        selected_voucher_id: voucherId,
-                        manual_code: "{{ $booking->promo_code ?? '' }}"
-                    })
-                })
-                .then(response => response.json())
+        function fetchAvailability() {
+            // Include exclude_booking_id to allow self-overlap (editing own booking)
+            fetch(`/booking/vehicle/${vehicleId}/availability?exclude_booking_id=${currentBookingId}`)
+                .then(res => res.json())
                 .then(data => {
-                    if(data.error) return;
-                    
-                    document.getElementById('summary-hours').innerText = data.hours + " Hours";
-                    document.getElementById('summary-subtotal').innerText = "RM " + data.subtotal;
-                    document.getElementById('summary-delivery').innerText = "RM " + data.delivery_fee;
-                    document.getElementById('summary-discount').innerText = "- RM " + data.discount;
-                    document.getElementById('summary-deposit').innerText = "RM " + data.deposit;
-                    document.getElementById('summary-total').innerText = "RM " + data.grand_total;
+                    bookedRanges = data.active_bookings.map(r => ({
+                        start: new Date(r.start),
+                        end: new Date(r.end)
+                    }));
+                    updateAvailabilityUI(); // Re-check UI after fetching
                 });
-             }
+        }
+
+        function regenerateEndOptions() {
+            if(!startT || !endT) return;
+            const sTime = startT.value; 
+            let mins = "00";
+            if (sTime) {
+                const p = sTime.split(':');
+                if (p.length === 2) mins = p[1];
+            }
+
+            // Preserve hour choice if possible
+            const curVal = endT.value;
+            let curHour = -1;
+            if (curVal) curHour = parseInt(curVal.split(':')[0]);
+
+            // Rebuild options (07:00 to 23:00)
+            endT.innerHTML = '<option value="" disabled ' + (!curVal ? 'selected' : '') + '>Select Time</option>';
+
+            for (let i = 7; i < 24; i++) {
+                const hStr = i.toString().padStart(2, '0');
+                const val = `${hStr}:${mins}`;
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = val;
+                if (i === curHour) opt.selected = true;
+                endT.appendChild(opt);
+            }
+            updateAvailabilityUI();
+        }
+
+        function updateAvailabilityUI() {
+            const selectedDate = startD.value;
+            const startTime = startT.value;
+            const endDate = endD.value;
+
+            // Strict Overlap Helper: startA < endB && endA > startB
+            const isStrictOverlapping = (startA, endA, startB, endB) => {
+                return startA < endB && endA > startB;
+            };
+
+            // 1. Min Date Constraints
+            if (selectedDate) {
+                endD.min = selectedDate;
+                if (endDate && endDate < selectedDate) {
+                    endD.value = selectedDate;
+                }
+            }
+
+            // 2. Start Time Availability
+            if (selectedDate) {
+                Array.from(startT.options).forEach(opt => {
+                    const time = opt.value;
+                    if(!time) return;
+                    
+                    const myStart = new Date(selectedDate + 'T' + time);
+                    const myMinEnd = new Date(myStart.getTime() + 60 * 60 * 1000); // +1 Hour min duration
+                    
+                    const isBooked = bookedRanges.some(r => isStrictOverlapping(myStart, myMinEnd, r.start, r.end));
+
+                    if (isBooked) {
+                        opt.disabled = true;
+                        opt.style.color = '#ccc';
+                        opt.text = time + " (Unavailable)";
+                    } else {
+                        opt.disabled = false;
+                        opt.style.color = '';
+                        // Restore text if it was changed
+                        if(opt.text.includes('Unavailable')) opt.text = time;
+                    }
+                });
+            }
+            
+            // 3. End Time Logic (Availability AND Min 1 Hour Duration)
+            if (endDate) {
+                 // Base restriction: Start Time + 1hr (if same day)
+                 let minEndMinutes = -1;
+                 if (selectedDate && startTime && selectedDate === endDate) {
+                     const [h, m] = startTime.split(':').map(Number);
+                     minEndMinutes = (h * 60 + m) + 60;
+                 }
+
+                 let currentStart = null;
+                 if (selectedDate && startTime) {
+                     currentStart = new Date(selectedDate + 'T' + startTime);
+                 }
+
+                 Array.from(endT.options).forEach(opt => {
+                     const time = opt.value;
+                     if(!time) return;
+
+                     // A. Check Availability [currentStart, currentEnd]
+                     let isBooked = false;
+                     let isSlotBooked = false;
+                     
+                     if (currentStart) {
+                         const currentEnd = new Date(endDate + 'T' + time);
+                         isBooked = bookedRanges.some(r => isStrictOverlapping(currentStart, currentEnd, r.start, r.end));
+                     } else {
+                         // Loose check if strict unavailable
+                         const pt = new Date(endDate + 'T' + time);
+                         isSlotBooked = bookedRanges.some(r => pt >= r.start && pt < r.end); 
+                     }
+
+                     // B. Min Duration Check
+                     let isTooShort = false;
+                     if (minEndMinutes > -1) {
+                         const [oh, om] = time.split(':').map(Number);
+                         if ((oh * 60 + om) < minEndMinutes) isTooShort = true;
+                     }
+
+                     if (isBooked || isSlotBooked || isTooShort) {
+                         opt.disabled = true;
+                         opt.style.color = '#ccc';
+                         if (isBooked || isSlotBooked) opt.text = time + " (Booked)";
+                     } else {
+                         opt.disabled = false;
+                         opt.style.color = '';
+                         if(opt.text.includes('Booked')) opt.text = time;
+                     }
+                 });
+                 
+                 // If current selection became invalid, clear it
+                 if(endT.value) {
+                     const selectedOpt = endT.options[endT.selectedIndex];
+                     if(selectedOpt && selectedOpt.disabled) endT.value = "";
+                 }
+            }
+            
+            syncHiddenInputs();
+            if(startHidden.value && endHidden.value) calculatePrice();
+        }
+
+        // --- 3. PRICE CALCULATION ---
+        function calculatePrice() {
+            const start = startHidden.value;
+            const end = endHidden.value;
+            const pickup = pickupSelect.value;
+            let dropoff = pickup;
+            
+            if(!sameLocCheckbox.checked) {
+                 if(dropoffSelect) dropoff = dropoffSelect.value;
+            }
+            
+            const voucherId = "{{ $booking->voucher_id ?? '' }}"; 
+
+            if(!start || !end) return;
+
+            fetch('{{ route("booking.calculate") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    vehicle_id: vehicleId,
+                    start_time: start,
+                    end_time: end,
+                    pickup_location: pickup,
+                    dropoff_location: dropoff,
+                    selected_voucher_id: voucherId,
+                    manual_code: "{{ $booking->promo_code ?? '' }}"
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.error) return;
+                
+                const update = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+                update('summary-hours', data.hours + " Hours");
+                update('summary-subtotal', "RM " + data.subtotal);
+                update('summary-delivery', "RM " + data.delivery_fee);
+                update('summary-discount', "- RM " + data.discount);
+                update('summary-deposit', "RM " + data.deposit);
+                update('summary-total', "RM " + data.grand_total);
+
+                // --- CHECK PRICE DIFF ---
+                const newTotal = parseFloat((data.grand_total + "").replace(/,/g, ''));
+                const originalTotal = parseFloat(document.getElementById('original_grand_total').value);
+                const diff = newTotal - originalTotal;
+                
+                const paySec = document.getElementById('payment-section');
+                const refSec = document.getElementById('refund-section');
+                const fileInput = document.getElementById('receipt_image_input');
+                
+                if (diff > 0) {
+                    paySec.style.display = 'block';
+                    refSec.style.display = 'none';
+                    
+                    document.getElementById('payment-diff-amount').innerText = "RM " + diff.toFixed(2);
+                    if(fileInput) fileInput.setAttribute('required', 'required');
+                } else {
+                    paySec.style.display = 'none';
+                    refSec.style.display = 'block';
+                    
+                    const refundAmt = Math.abs(diff);
+                    document.getElementById('refund-diff-amount').innerText = "RM " + refundAmt.toFixed(2);
+                    if(fileInput) fileInput.removeAttribute('required');
+                }
+            });
+        }
+
+        // --- 4. EVENT LISTENERS ---
+        // Date/Time
+        startD.addEventListener('change', updateAvailabilityUI);
+        startT.addEventListener('change', function() {
+            regenerateEndOptions(); // Changing start time might shift end mins or invalidate end slots
+        });
+        endD.addEventListener('change', updateAvailabilityUI);
+        endT.addEventListener('change', function() {
+            updateAvailabilityUI();
+            calculatePrice();
+        });
+
+        // Location
+        pickupSelect.addEventListener("change", function() {
+            handlePickupChange();
+            calculatePrice();
+        });
+        if(dropoffSelect) {
+            dropoffSelect.addEventListener("change", function() {
+                handleDropoffChange();
+                calculatePrice();
+            });
+        }
+        sameLocCheckbox.addEventListener("change", function() {
+            handleSameLocationChange();
+            calculatePrice();
+        });
+
+        // --- 5. INITIALIZATION ---
+        handlePickupChange();
+        handleDropoffChange();
+        handleSameLocationChange();
+        fetchAvailability(); // Load booked slots
+        
+        // Initial Calculation
+        updateAvailabilityUI();
+        
       });
     </script>
   </body>

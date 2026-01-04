@@ -13,10 +13,15 @@ use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
-    public function getAvailability($id) {
-        $bookings = Booking::where('vehicle_id', $id)
-            ->whereIn('status', ['Pending', 'Waiting for Verification', 'Approved'])
-            ->get();
+    public function getAvailability(Request $request, $id) {
+        $query = Booking::where('vehicle_id', $id)
+            ->whereIn('status', ['Pending', 'Waiting for Verification', 'Approved']);
+            
+        if ($request->has('exclude_booking_id')) {
+            $query->where('id', '!=', $request->exclude_booking_id);
+        }
+
+        $bookings = $query->get();
             
         $ranges = $bookings->map(function($b) {
             return [
@@ -315,6 +320,8 @@ class BookingController extends Controller
              return redirect()->route('profile.edit')->with('error', 'Past bookings cannot be modified.');
         }
 
+        $oldGrandTotal = $booking->total_rental_fee + $booking->deposit_amount;
+
         $request->validate([
             'start_time' => 'required', 
             'end_time'   => 'required', 
@@ -404,6 +411,20 @@ class BookingController extends Controller
         // Recalculate Deposit
         $rentalDays = $start->floatDiffInDays($end);
         $deposit = ($rentalDays < 15) ? 50 : $final_total;
+        
+        $newGrandTotal = $final_total + $deposit;
+        
+        // Check if price increased
+        if ($newGrandTotal > $oldGrandTotal) {
+            $request->validate([
+                'receipt_image' => 'required|image|max:2048',
+            ]);
+            
+            if ($request->hasFile('receipt_image')) {
+                $booking->payment_receipt = $request->file('receipt_image')->store('payments', 'public');
+            }
+        }
+
         $booking->deposit_amount = $deposit;
         
         $booking->total_rental_fee = $final_total;
