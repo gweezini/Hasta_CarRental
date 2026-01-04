@@ -493,6 +493,7 @@ class BookingController extends Controller
             $deposit = ($rentalDays < 15) ? 50 : $total;
 
             $stamps = ($hours >= 3) ? 1 : 0;
+            $grandTotal = $total + $deposit;
 
             return response()->json([
                 'hours' => $hours,
@@ -501,6 +502,7 @@ class BookingController extends Controller
                 'discount' => number_format($discount, 2),
                 'total' => number_format($total, 2),
                 'deposit' => number_format($deposit, 2),
+                'grand_total' => number_format($grandTotal, 2),
                 'stamps' => $stamps
             ]);
 

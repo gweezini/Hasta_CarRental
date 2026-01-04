@@ -1421,7 +1421,7 @@
                     update('summary-delivery', "RM " + data.delivery_fee);
                     update('summary-discount', "- RM " + data.discount);
                     update('summary-deposit', "RM " + data.deposit);
-                    update('summary-total', "RM " + data.total);
+                    update('summary-total', "RM " + data.grand_total);
                     update('summary-stamps', "+ " + data.stamps + " Stamps");
                 })
                 .catch(err => console.error(err));

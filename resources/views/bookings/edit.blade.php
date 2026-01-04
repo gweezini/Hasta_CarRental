@@ -472,8 +472,8 @@
           <img src="{{ asset('images/' . $booking->vehicle->vehicle_image) }}" alt="Car" style="border-radius: 8px; margin-bottom: 1rem; width: 100%; object-fit: cover;" />
           
           <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-            <span>Current Total</span>
-            <strong>RM {{ number_format($booking->total_rental_fee, 2) }}</strong>
+            <span>Current Total (Inc. Deposit)</span>
+            <strong>RM {{ number_format($booking->total_rental_fee + $booking->deposit_amount, 2) }}</strong>
           </div>
           
           <hr style="margin: 1rem 0; opacity: 0.2;" />
@@ -696,7 +696,7 @@
                     document.getElementById('summary-delivery').innerText = "RM " + data.delivery_fee;
                     document.getElementById('summary-discount').innerText = "- RM " + data.discount;
                     document.getElementById('summary-deposit').innerText = "RM " + data.deposit;
-                    document.getElementById('summary-total').innerText = "RM " + data.total;
+                    document.getElementById('summary-total').innerText = "RM " + data.grand_total;
                 });
              }
       });
