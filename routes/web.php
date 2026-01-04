@@ -120,6 +120,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/claims', [App\Http\Controllers\ClaimController::class, 'index'])->name('admin.claims.index');
     Route::post('/claims/{id}/status', [App\Http\Controllers\ClaimController::class, 'updateStatus'])->name('admin.claims.status');
 
+    // Feedback
+    Route::get('/feedbacks', [App\Http\Controllers\FeedbackController::class, 'index'])->name('admin.feedbacks.index');
+
 });
 
 Route::middleware(['auth'])->group(function () {
