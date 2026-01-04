@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\BookingStatusUpdated;
+use App\Models\Claim;
 
 class AdminController extends Controller
 {
@@ -214,7 +215,7 @@ class AdminController extends Controller
         }
     }
 
-    public function reports(Request $request)
+    public function reports(Request $request) 
     {
         if (!Auth::user()->isTopManagement()) {
             return redirect()->route('admin.dashboard')->with('error', 'Authorized personnel only.');
@@ -227,7 +228,27 @@ class AdminController extends Controller
         $staffs = User::whereIn('role', ['admin', 'topmanagement'])->get();
         $totalSalaries = $staffs->sum('salary');
 
-        $netProfit = $totalRevenueAmount - $totalSalaries;
+        // Calculate Claims
+        $claimsQuery = Claim::where('status', 'Approved');
+
+        // Apply same date filtering (simplified based on general scope for now, 
+        // to match exact revenue scope would require replicating the switch logic or scoping later.
+        // But for Total Revenue Amount (line 225) it is GLOBAL sum (ignoring filter!).
+        // Wait, line 225 `Booking::where(...)->sum(...)` is NOT filtered by date?
+        // Let's look at lines 236-257. Those filter `$query` and `$summaryQuery` but `$totalRevenueAmount` at line 225 implies GLOBAL?
+        // Ah, `$totalRevenueAmount` (line 225) seems to be ALL time?
+        // But `$netProfit` uses it.
+        // If the report shows "Performance Overview" for "Monthly", but Net Profit is All Time?
+        // Let's check the view usage.
+        // View Section `Gross Revenue` uses `$totalRevenueAmount`.
+        // If line 225 is global, then the cards show global stats unless `$filter` logic updates them?
+        // Line 225 is BEFORE the switch. So it is global.
+        // However, this seems like a bug or design choice in existing code (Cards show total, Chart shows filtered).
+        // I will follow the existing pattern: Calculate GLOBAL claims for the Net Profit card (which seems to be global context).
+        
+        $totalClaims = Claim::where('status', 'Approved')->sum('amount');
+
+        $netProfit = $totalRevenueAmount - $totalSalaries - $totalClaims;
 
         $query = Booking::where('payment_verified', true)->with('processedBy'); 
         $summaryQuery = Booking::where('payment_verified', true); 
@@ -288,7 +309,8 @@ class AdminController extends Controller
             'highestTransaction',
             'staffs',        
             'totalSalaries',
-            'netProfit',      
+            'netProfit',
+            'totalClaims', // Added totalClaims
             'revenueList' 
         ));
     }
@@ -296,22 +318,83 @@ class AdminController extends Controller
     public function staffList()
     {
         $staffs = User::whereIn('role', ['admin', 'topmanagement'])
+                      ->with(['claims' => function($q) {
+                          $q->where('status', 'Approved')
+                            ->whereMonth('claim_date_time', Carbon::now()->month)
+                            ->whereYear('claim_date_time', Carbon::now()->year);
+                      }])
                       ->orderBy('name', 'asc')
                       ->get();
 
-        return view('admin.staff.index', compact('staffs'));
+        $totalSalaries = $staffs->sum('salary');
+        $totalClaims = $staffs->flatMap->claims->sum('amount');
+        $totalMonthlyPayroll = $totalSalaries + $totalClaims;
+
+        return view('admin.staff.index', compact('staffs', 'totalMonthlyPayroll'));
     }
 
     public function showStaff($id)
     {
-        $staff = User::whereIn('role', ['admin', 'topmanagement'])->findOrFail($id);
-        return view('admin.staff.show', compact('staff'));
+        $staff = User::whereIn('role', ['admin', 'topmanagement'])
+                     ->with(['claims' => function($q) {
+                         $q->where('status', 'Approved')->orderBy('claim_date_time', 'desc');
+                     }])
+                     ->findOrFail($id);
+
+        $monthlyClaims = $staff->claims->groupBy(function($claim) {
+            return Carbon::parse($claim->claim_date_time)->format('M Y');
+        });
+
+        // Generate months from Join Date until Now
+        $joinDate = Carbon::parse($staff->created_at)->startOfMonth();
+        $currentMonth = Carbon::now()->startOfMonth();
+        $months = collect([]);
+
+        while ($currentMonth->gte($joinDate)) {
+            $months->push($currentMonth->format('M Y'));
+            $currentMonth->subMonth();
+        }
+        
+        $payrollMonths = $months->merge($monthlyClaims->keys())
+                                ->unique()
+                                ->sort(function($a, $b) {
+                                    return Carbon::parse("1 $b")->timestamp <=> Carbon::parse("1 $a")->timestamp;
+                                });
+
+        return view('admin.staff.show', compact('staff', 'monthlyClaims', 'payrollMonths'));
     }
 
     public function profile()
     {
         $user = Auth::user();
-        return view('admin.profile', compact('user'));
+        
+        // Eager load for payroll history
+        $user->load(['claims' => function($q) {
+            $q->where('status', 'Approved')->orderBy('claim_date_time', 'desc');
+        }]);
+
+        $monthlyClaims = $user->claims->groupBy(function($claim) {
+            return Carbon::parse($claim->claim_date_time)->format('M Y');
+        });
+
+        // Generate months from Join Date until Now
+        $joinDate = Carbon::parse($user->created_at)->startOfMonth();
+        $currentMonth = Carbon::now()->startOfMonth();
+        $months = collect([]);
+
+        while ($currentMonth->gte($joinDate)) {
+            $months->push($currentMonth->format('M Y'));
+            $currentMonth->subMonth();
+        }
+        
+        $payrollMonths = $months->merge($monthlyClaims->keys())
+                                ->unique()
+                                ->sort(function($a, $b) {
+                                    return Carbon::parse("1 $b")->timestamp <=> Carbon::parse("1 $a")->timestamp;
+                                });
+
+        $admin = $user;
+        return view('admin.profile', compact('user', 'admin', 'monthlyClaims', 'payrollMonths'));
     }
 
     public function updateProfile(Request $request)
