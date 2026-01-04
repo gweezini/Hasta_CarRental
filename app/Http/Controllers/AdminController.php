@@ -188,12 +188,18 @@ class AdminController extends Controller
         return redirect()->route('admin.dashboard')->with('success', 'Booking approved!');
     }
 
-    public function rejectPayment($id)
+    public function rejectPayment(Request $request, $id)
     {
         $booking = Booking::findOrFail($id);
+        
+        $request->validate([
+            'rejection_reason' => 'required|string|max:500',
+        ]);
+
         $booking->update([
             'status' => 'Rejected', 
             'payment_verified' => false,
+            'rejection_reason' => $request->rejection_reason,
             'processed_by' => Auth::id()
         ]);
         if($booking->payment) $booking->payment->update(['status' => 'Rejected']);
