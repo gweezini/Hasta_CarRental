@@ -265,7 +265,10 @@
         </div>
         <ul class="nav__links">
             <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ route('profile.edit') }}">My Profile</a></li>
+            <li><a href="{{ url('/#vehicles') }}">Vehicles</a></li>
+            <li><a href="{{ url('/#contact') }}">Contact</a></li>
+            <li><a href="{{ url('/#about') }}">About Us</a></li>
+            <li><a href="{{ route('profile.edit') }}"><strong>My Profile</strong></a></li>
         </ul>
       </nav>
     </header>
