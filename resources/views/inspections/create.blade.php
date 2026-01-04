@@ -39,10 +39,10 @@
         .nav__btn { display: flex; align-items: center; gap: 1.5rem; }
 
         /* Footer Style */
-        footer { background-color: var(--text-dark); padding-top: 3rem; color: #fff; margin-top: auto; }
+        footer { background-color: #2d3748; padding-top: 3rem; color: #fff; margin-top: auto; }
         .footer__container { 
             max-width: 1200px; margin: auto; padding: 0 1rem 2rem; 
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;
+            display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 2rem;
             border-bottom: 1px solid #333;
         }
         .footer__col h4 { font-family: var(--header-font); margin-bottom: 1.5rem; }
@@ -730,44 +730,49 @@
         </div>
     </main>
 
-    <footer>
+    <footer id="about">
         <div class="footer__container">
             <div class="footer__col">
-                <h4>Resources</h4>
-                <ul class="footer__links">
-                    <li><a href="#">Installation Manual</a></li>
-                    <li><a href="#">Release Note</a></li>
-                    <li><a href="#">Community Help</a></li>
-                </ul>
+                <h4>Hasta Car Rental</h4>
+                <p class="text-[#737373] leading-relaxed mb-4">
+                    Experience the freedom of the road with our premium car rental services. 
+                    Reliable, affordable, and convenient vehicles for every journey.
+                </p>
             </div>
+
             <div class="footer__col">
-                <h4>Company</h4>
+                <h4>Quick Links</h4>
                 <ul class="footer__links">
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">Career</a></li>
-                    <li><a href="#">Press</a></li>
-                    <li><a href="#">Support</a></li>
-                </ul>
-            </div>
-            <div class="footer__col">
-                <h4>Product</h4>
-                <ul class="footer__links">
-                    <li><a href="#">Demo</a></li>
-                    <li><a href="#">Security</a></li>
+                    <li><a href="#about">About Us</a></li>
                     <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
                 </ul>
             </div>
-            <div class="footer__col">
+
+            <div class="footer__col" id="contact">
                 <h4>Follow Us</h4>
-                <div class="flex gap-4">
-                    <a href="#" class="text-gray-400 hover:text-[#ec5a29] text-xl"><i class="ri-facebook-fill"></i></a>
-                    <a href="#" class="text-gray-400 hover:text-[#ec5a29] text-xl"><i class="ri-instagram-fill"></i></a>
-                    <a href="#" class="text-gray-400 hover:text-[#ec5a29] text-xl"><i class="ri-twitter-fill"></i></a>
+                <div class="flex gap-4 mb-6">
+                    <a href="https://www.facebook.com/hastatraveltours" class="text-gray-400 hover:text-[#ec5a29] text-xl border-2 border-gray-400 rounded-full w-10 h-10 flex items-center justify-center transition hover:border-[#ec5a29]"><i class="ri-facebook-fill"></i></a>
+                    <a href="https://www.instagram.com/hastatraveltours/?hl=en" class="text-gray-400 hover:text-[#ec5a29] text-xl border-2 border-gray-400 rounded-full w-10 h-10 flex items-center justify-center transition hover:border-[#ec5a29]"><i class="ri-instagram-fill"></i></a>
+                    <a href="https://x.com/hastacarrental" class="text-gray-400 hover:text-[#ec5a29] text-xl border-2 border-gray-400 rounded-full w-10 h-10 flex items-center justify-center transition hover:border-[#ec5a29]"><i class="ri-twitter-fill"></i></a>
+                    <a href="https://www.linkedin.com/company/hasta-travel/" class="text-gray-400 hover:text-[#ec5a29] text-xl border-2 border-gray-400 rounded-full w-10 h-10 flex items-center justify-center transition hover:border-[#ec5a29]"><i class="ri-linkedin-fill"></i></a>
+                </div>
+
+                <div>
+                    <p class="text-[#737373] text-sm mb-2 flex items-center gap-2">
+                        <i class="ri-phone-line text-[#ec5a29]"></i> 
+                        <span>Car Rental Inquiry:<br><strong class="text-[#cbd5e1]">+60 11-1090 0700</strong></span>
+                    </p>
+                    <p class="text-[#737373] text-sm mb-2 flex items-center gap-2">
+                        <i class="ri-mail-line text-[#ec5a29]"></i> 
+                        <span>Support:<br><strong class="text-[#cbd5e1]">hastatraveltours@gmail.com</strong></span>
+                    </p>
                 </div>
             </div>
         </div>
-        <div class="text-center text-gray-500 pb-8 text-sm">
-            © 2025 Hasta Car Rental. All rights reserved.
+        <div class="text-center text-[#737373] py-8 text-sm bg-[#2d3748]">
+            © 2026 Hasta Car Rental. All rights reserved.
         </div>
     </footer>
 
