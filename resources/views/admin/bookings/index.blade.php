@@ -47,10 +47,10 @@
                         <td class="px-6 py-5">
                             <div class="flex flex-col gap-1.5">
                                 <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 w-fit">
-                                    FROM: {{ \Carbon\Carbon::parse($booking->start_time ?? $booking->start_date)->format('d M, h:i A') }}
+                                    FROM: {{ $booking->pickup_date_time->format('d M, h:i A') }}
                                 </span>
                                 <span class="text-[10px] font-bold text-gray-600 bg-gray-50 px-2 py-0.5 rounded border border-gray-200 w-fit">
-                                    TO: {{ \Carbon\Carbon::parse($booking->end_time ?? $booking->end_date)->format('d M, h:i A') }}
+                                    TO: {{ $booking->return_date_time->format('d M, h:i A') }}
                                 </span>
                             </div>
                         </td>
