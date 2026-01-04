@@ -126,8 +126,12 @@
             <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                 <div class="bg-gray-50 px-8 py-6 border-b border-gray-100 flex justify-between items-center">
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">Vehicle Inspection</h1>
-                        <p class="text-sm text-gray-500 mt-1">Pickup Verification</p>
+                        <h1 class="text-2xl font-bold text-gray-900">
+                            {{ (isset($type) && $type === 'return') ? 'Return Vehicle' : 'Vehicle Inspection' }}
+                        </h1>
+                        <p class="text-sm text-gray-500 mt-1">
+                            {{ (isset($type) && $type === 'return') ? 'Return Verification' : 'Pickup Verification' }}
+                        </p>
                     </div>
                     <div class="text-right">
                          <span class="px-3 py-1 bg-[#ec5a29]/10 text-[#ec5a29] rounded-full text-xs font-bold uppercase tracking-wider">
@@ -244,110 +248,162 @@
                         <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="ri-camera-lens-line text-[#ec5a29]"></i> Vehicle Photos
                         </h3>
-                        <p class="text-sm text-gray-500 mb-6">Please upload clear photos of the vehicle from all 4 sides and the dashboard.</p>
                         
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <!-- Front -->
-                            <div x-data="{ preview: null }" class="space-y-2">
-                                <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Front View</label>
-                                <label class="block cursor-pointer relative group">
-                                    <input type="file" name="photo_front" accept="image/*" class="hidden" required 
-                                           @change="preview = URL.createObjectURL($event.target.files[0])">
-                                    <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
-                                        <template x-if="!preview">
-                                            <div class="text-center p-2">
-                                                <i class="ri-image-add-line text-2xl text-gray-400 group-hover:text-[#ec5a29]"></i>
-                                                <span class="block text-[10px] text-gray-400 mt-1">Click to Upload</span>
-                                            </div>
-                                        </template>
-                                        <template x-if="preview">
-                                            <img :src="preview" class="w-full h-full object-cover">
-                                        </template>
-                                    </div>
-                                </label>
-                            </div>
+                        @if(isset($type) && $type === 'return')
+                            <!-- Return Photos (2 Required) -->
+                            <p class="text-sm text-gray-500 mb-6">Please upload the required return photos.</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Car Parked Front of Store (Mapped to photo_front) -->
+                                <div x-data="{ preview: null }" class="space-y-2">
+                                    <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">
+                                        Car Parked in Front of Store
+                                    </label>
+                                    <label class="block cursor-pointer relative group h-48">
+                                        <input type="file" name="photo_front" accept="image/*" class="hidden" required 
+                                               @change="preview = URL.createObjectURL($event.target.files[0])">
+                                        <div class="w-full h-full rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
+                                            <template x-if="!preview">
+                                                <div class="text-center p-2">
+                                                    <i class="ri-store-2-line text-3xl text-gray-400 group-hover:text-[#ec5a29]"></i>
+                                                    <span class="block text-[10px] text-gray-400 mt-2">Upload Store View</span>
+                                                </div>
+                                            </template>
+                                            <template x-if="preview">
+                                                <img :src="preview" class="w-full h-full object-cover">
+                                            </template>
+                                        </div>
+                                    </label>
+                                </div>
 
-                            <!-- Back -->
-                            <div x-data="{ preview: null }" class="space-y-2">
-                                <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Back View</label>
-                                <label class="block cursor-pointer relative group">
-                                    <input type="file" name="photo_back" accept="image/*" class="hidden" required 
-                                           @change="preview = URL.createObjectURL($event.target.files[0])">
-                                    <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
-                                        <template x-if="!preview">
-                                            <div class="text-center p-2">
-                                                <i class="ri-image-add-line text-2xl text-gray-400 group-hover:text-[#ec5a29]"></i>
-                                                <span class="block text-[10px] text-gray-400 mt-1">Click to Upload</span>
-                                            </div>
-                                        </template>
-                                        <template x-if="preview">
-                                            <img :src="preview" class="w-full h-full object-cover">
-                                        </template>
-                                    </div>
-                                </label>
+                                <!-- Oil Bar (Mapped to photo_dashboard) -->
+                                <div x-data="{ preview: null }" class="space-y-2">
+                                    <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">
+                                        Oil Bar / Fuel Gauge
+                                    </label>
+                                    <label class="block cursor-pointer relative group h-48">
+                                        <input type="file" name="photo_dashboard" accept="image/*" class="hidden" required 
+                                               @change="preview = URL.createObjectURL($event.target.files[0])">
+                                        <div class="w-full h-full rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
+                                            <template x-if="!preview">
+                                                <div class="text-center p-2">
+                                                    <i class="ri-gas-station-line text-3xl text-gray-400 group-hover:text-[#ec5a29]"></i>
+                                                    <span class="block text-[10px] text-gray-400 mt-2">Upload Fuel Gauge</span>
+                                                </div>
+                                            </template>
+                                            <template x-if="preview">
+                                                <img :src="preview" class="w-full h-full object-cover">
+                                            </template>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
-
-                            <!-- Left -->
-                            <div x-data="{ preview: null }" class="space-y-2">
-                                <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Left Side</label>
-                                <label class="block cursor-pointer relative group">
-                                    <input type="file" name="photo_left" accept="image/*" class="hidden" required 
-                                           @change="preview = URL.createObjectURL($event.target.files[0])">
-                                    <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
-                                        <template x-if="!preview">
-                                            <div class="text-center p-2">
-                                                <i class="ri-image-add-line text-2xl text-gray-400 group-hover:text-[#ec5a29]"></i>
-                                                <span class="block text-[10px] text-gray-400 mt-1">Click to Upload</span>
-                                            </div>
-                                        </template>
-                                        <template x-if="preview">
-                                            <img :src="preview" class="w-full h-full object-cover">
-                                        </template>
-                                    </div>
-                                </label>
-                            </div>
-
-                            <!-- Right -->
-                            <div x-data="{ preview: null }" class="space-y-2">
-                                <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Right Side</label>
-                                <label class="block cursor-pointer relative group">
-                                    <input type="file" name="photo_right" accept="image/*" class="hidden" required 
-                                           @change="preview = URL.createObjectURL($event.target.files[0])">
-                                    <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
-                                        <template x-if="!preview">
-                                            <div class="text-center p-2">
-                                                <i class="ri-image-add-line text-2xl text-gray-400 group-hover:text-[#ec5a29]"></i>
-                                                <span class="block text-[10px] text-gray-400 mt-1">Click to Upload</span>
-                                            </div>
-                                        </template>
-                                        <template x-if="preview">
-                                            <img :src="preview" class="w-full h-full object-cover">
-                                        </template>
-                                    </div>
-                                </label>
+                        @else
+                            <!-- Pickup Photos (Standard 5) -->
+                            <p class="text-sm text-gray-500 mb-6">Please upload clear photos of the vehicle from all 4 sides and the dashboard.</p>
+                            
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <!-- Front -->
+                                <div x-data="{ preview: null }" class="space-y-2">
+                                    <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Front View</label>
+                                    <label class="block cursor-pointer relative group">
+                                        <input type="file" name="photo_front" accept="image/*" class="hidden" required 
+                                               @change="preview = URL.createObjectURL($event.target.files[0])">
+                                        <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
+                                            <template x-if="!preview">
+                                                <div class="text-center p-2">
+                                                    <i class="ri-image-add-line text-2xl text-gray-400 group-hover:text-[#ec5a29]"></i>
+                                                    <span class="block text-[10px] text-gray-400 mt-1">Click to Upload</span>
+                                                </div>
+                                            </template>
+                                            <template x-if="preview">
+                                                <img :src="preview" class="w-full h-full object-cover">
+                                            </template>
+                                        </div>
+                                    </label>
+                                </div>
+    
+                                <!-- Back -->
+                                <div x-data="{ preview: null }" class="space-y-2">
+                                    <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Back View</label>
+                                    <label class="block cursor-pointer relative group">
+                                        <input type="file" name="photo_back" accept="image/*" class="hidden" required 
+                                               @change="preview = URL.createObjectURL($event.target.files[0])">
+                                        <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
+                                            <template x-if="!preview">
+                                                <div class="text-center p-2">
+                                                    <i class="ri-image-add-line text-2xl text-gray-400 group-hover:text-[#ec5a29]"></i>
+                                                    <span class="block text-[10px] text-gray-400 mt-1">Click to Upload</span>
+                                                </div>
+                                            </template>
+                                            <template x-if="preview">
+                                                <img :src="preview" class="w-full h-full object-cover">
+                                            </template>
+                                        </div>
+                                    </label>
+                                </div>
+    
+                                <!-- Left -->
+                                <div x-data="{ preview: null }" class="space-y-2">
+                                    <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Left Side</label>
+                                    <label class="block cursor-pointer relative group">
+                                        <input type="file" name="photo_left" accept="image/*" class="hidden" required 
+                                               @change="preview = URL.createObjectURL($event.target.files[0])">
+                                        <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
+                                            <template x-if="!preview">
+                                                <div class="text-center p-2">
+                                                    <i class="ri-image-add-line text-2xl text-gray-400 group-hover:text-[#ec5a29]"></i>
+                                                    <span class="block text-[10px] text-gray-400 mt-1">Click to Upload</span>
+                                                </div>
+                                            </template>
+                                            <template x-if="preview">
+                                                <img :src="preview" class="w-full h-full object-cover">
+                                            </template>
+                                        </div>
+                                    </label>
+                                </div>
+    
+                                <!-- Right -->
+                                <div x-data="{ preview: null }" class="space-y-2">
+                                    <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">Right Side</label>
+                                    <label class="block cursor-pointer relative group">
+                                        <input type="file" name="photo_right" accept="image/*" class="hidden" required 
+                                               @change="preview = URL.createObjectURL($event.target.files[0])">
+                                        <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
+                                            <template x-if="!preview">
+                                                <div class="text-center p-2">
+                                                    <i class="ri-image-add-line text-2xl text-gray-400 group-hover:text-[#ec5a29]"></i>
+                                                    <span class="block text-[10px] text-gray-400 mt-1">Click to Upload</span>
+                                                </div>
+                                            </template>
+                                            <template x-if="preview">
+                                                <img :src="preview" class="w-full h-full object-cover">
+                                            </template>
+                                        </div>
+                                    </label>
+                                </div>
+                                
                             </div>
                             
-                        </div>
-                        
-                        <!-- Dashboard (Optional) -->
-                        <div x-data="{ preview: null }" class="mt-4 max-w-xs">
-                             <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide mb-2">Dashboard / Interior</label>
-                             <label class="block cursor-pointer relative group">
-                                <input type="file" name="photo_dashboard" accept="image/*" class="hidden" required 
-                                       @change="preview = URL.createObjectURL($event.target.files[0])">
-                                <div class="h-24 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
-                                    <template x-if="!preview">
-                                        <div class="text-center flex items-center gap-2">
-                                            <i class="ri-image-add-line text-lg text-gray-400 group-hover:text-[#ec5a29]"></i>
-                                            <span class="text-[10px] text-gray-400">Upload Interior</span>
-                                        </div>
-                                    </template>
-                                    <template x-if="preview">
-                                        <img :src="preview" class="w-full h-full object-cover">
-                                    </template>
-                                </div>
-                             </label>
-                        </div>
+                            <!-- Dashboard -->
+                            <div x-data="{ preview: null }" class="mt-4 max-w-xs">
+                                 <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide mb-2">Dashboard / Interior</label>
+                                 <label class="block cursor-pointer relative group">
+                                    <input type="file" name="photo_dashboard" accept="image/*" class="hidden" required 
+                                           @change="preview = URL.createObjectURL($event.target.files[0])">
+                                    <div class="h-24 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
+                                        <template x-if="!preview">
+                                            <div class="text-center flex items-center gap-2">
+                                                <i class="ri-image-add-line text-lg text-gray-400 group-hover:text-[#ec5a29]"></i>
+                                                <span class="text-[10px] text-gray-400">Upload Interior</span>
+                                            </div>
+                                        </template>
+                                        <template x-if="preview">
+                                            <img :src="preview" class="w-full h-full object-cover">
+                                        </template>
+                                    </div>
+                                 </label>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Damage Reporting (Optional) -->
