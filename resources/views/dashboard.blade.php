@@ -660,8 +660,8 @@
         <ul class="nav__links" id="nav-links">
           <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
           <li><a href="{{ url('/#vehicles') }}">Vehicles</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li><a href="#about">About Us</a></li>
+          <li><a href="{{ url('/#contact') }}">Contact</a></li>
+          <li><a href="{{ url('/#about') }}">About Us</a></li>
           <li><a href="{{ route('profile.edit') }}">My Profile</a></li>
 
           <li class="mobile-only">
@@ -782,7 +782,7 @@
           Welcome back, {{ Auth::user()->name }}
         </h3>
         <h1>AFFORDABLE CAR RENTAL SERVICE</h1>
-        <form action="{{ route('dashboard') }}">
+        <form action="/">
           <div class="input__group">
             <label for="pickup">Pick up location</label>
             <input
@@ -845,7 +845,7 @@
       <div class="range__grid">
         @foreach($vehicles as $vehicle)
         <div
-          class="range__card {{ !$vehicle->is_available ? 'unavailable' : '' }}"
+          class="range__card {{ $vehicle->status !== 'Available' ? 'unavailable' : '' }}"
         >
           <img
             src="{{ asset('images/' . $vehicle->vehicle_image) }}"
@@ -877,7 +877,7 @@
             </p>
 
             <div class="card__btn" style="background-color: transparent;">
-            @if($vehicle->is_available)
+            @if($vehicle->status === 'Available')
                 @auth
                     <a href="{{ route('booking.show', [
                     'id' => $vehicle->id, 
@@ -896,11 +896,7 @@
                @endauth
             @else
                 <button class="btn" disabled style="background-color: gray; color: white; cursor: not-allowed; opacity: 0.7; width: 100%;">
-                @if($vehicle->status === 'Available')
-                    Booked for Dates
-                @else
-                    {{ $vehicle->status }}
-                @endif
+                Not Available
                 </button>
             @endif
             </div>
@@ -922,7 +918,7 @@
             <li><a href="#">Community Help</a></li>
           </ul>
         </div>
-        <div class="footer__col" id="about">
+        <div class="footer__col">
           <h4>Company</h4>
           <ul class="footer__links">
             <li><a href="#">About Us</a></li>
@@ -940,7 +936,7 @@
             <li><a href="#">Features</a></li>
           </ul>
         </div>
-        <div class="footer__col" id="contact">
+        <div class="footer__col">
           <h4>Follow Us</h4>
           <ul class="footer__socials">
             <li>
