@@ -658,7 +658,7 @@
 
                             <!-- 10. Value for Money -->
                              <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-2">10. Value for Money</label>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">10. Value for Money (Is the overall services worth the price paid?)</label>
                                 <div class="flex gap-4">
                                     @for($i=1; $i<=5; $i++)
                                         <label class="cursor-pointer">
