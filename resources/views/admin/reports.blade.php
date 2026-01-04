@@ -76,9 +76,9 @@
         {{-- Claims Expenses --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between border-l-4 border-l-orange-500 text-left">
             <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Claims & Expenses</p>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Claim Payouts</p>
                 <h3 class="text-2xl font-black text-gray-800 mt-1 print:text-lg">- RM {{ number_format($totalClaims ?? 0, 2) }}</h3>
-                <p class="text-[10px] text-orange-500 font-bold">Reimbursements</p>
+                <p class="text-[10px] text-orange-500 font-bold">Total Approved</p>
             </div>
             <div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 no-print">
                 <i class="ri-hand-coin-line text-xl"></i>
