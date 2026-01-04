@@ -115,4 +115,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserVoucher::class, 'user_id', 'matric_staff_id');
     }
+
+    public function claims(): HasMany
+    {
+        return $this->hasMany(Claim::class, 'user_id');
+    }
 }
