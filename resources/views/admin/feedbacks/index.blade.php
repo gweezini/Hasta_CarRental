@@ -49,7 +49,7 @@
                         </td>
                         <td class="px-6 py-4">
                             @php
-                                $ratings = $feedback->ratings ?? [];
+                                $ratings = is_array($feedback->ratings) ? array_map('intval', $feedback->ratings) : [];
                                 $avg = count($ratings) > 0 ? array_sum($ratings) / count($ratings) : 0;
                             @endphp
                             <div class="flex items-center space-x-1" title="Average: {{ number_format($avg, 1) }}">
