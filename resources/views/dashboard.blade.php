@@ -732,16 +732,46 @@
                 </div>
              </div>
           </div>
-          <a href="{{ route('profile.edit') }}" class="btn btn-transparent">
-             Profile
-          </a>
+            <div x-data="{ userOpen: false }" style="position: relative;">
+                <button @click="userOpen = !userOpen" @click.away="userOpen = false" style="display: flex; align-items: center; gap: 0.5rem; background: none; border: none; cursor: pointer; outline: none;" class="group">
+                    <img style="height: 36px; width: 36px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; transition: border-color 0.3s;" 
+                         onmouseover="this.style.borderColor='#ec5a29'" 
+                         onmouseout="this.style.borderColor='transparent'"
+                         src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=ec5a29&color=fff" 
+                         alt="Profile">
+                    <span style="color: white; font-size: 0.875rem; font-weight: 500; transition: color 0.3s;" 
+                          onmouseover="this.style.color='#ec5a29'" 
+                          onmouseout="this.style.color='white'"
+                          class="hidden md:block">{{ Auth::user()->name }}</span>
+                    <i class="ri-arrow-down-s-line" style="color: white; transition: color 0.3s;"
+                       onmouseover="this.style.color='#ec5a29'" 
+                       onmouseout="this.style.color='white'"></i>
+                </button>
 
-          <form method="POST" action="{{ route('logout') }}" style="display: inline-block;">
-            @csrf
-            <button type="submit" class="btn btn-primary" style="padding: 1rem 1.5rem">
-                Logout
-            </button>
-          </form>
+                <div x-show="userOpen" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 12px; width: 12rem; background-color: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; z-index: 50; border: 1px solid #f3f4f6; padding: 4px 0;"
+                     x-transition>
+                    
+                    <div style="padding: 12px 16px; border-bottom: 1px solid #f9fafb;">
+                        <p style="font-size: 0.75rem; color: #6b7280; margin-bottom: 2px;">Signed in as</p>
+                        <p style="font-size: 0.875rem; font-weight: 700; color: #1f2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ Auth::user()->email }}</p>
+                    </div>
+
+                    <a href="{{ route('profile.edit') }}" style="display: block; padding: 8px 16px; font-size: 0.875rem; color: #374151; transition: background-color 0.2s; text-decoration: none;"
+                       onmouseover="this.style.backgroundColor='#f9fafb'; this.style.color='#ec5a29'"
+                       onmouseout="this.style.backgroundColor='transparent'; this.style.color='#374151'">
+                        <i class="ri-user-line" style="margin-right: 8px; vertical-align: middle;"></i> Personal Info
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                        @csrf
+                        <button type="submit" style="width: 100%; text-align: left; padding: 8px 16px; font-size: 0.875rem; color: #dc2626; background: none; border: none; font-weight: 500; cursor: pointer; transition: background-color 0.2s;"
+                                onmouseover="this.style.backgroundColor='#fef2f2'"
+                                onmouseout="this.style.backgroundColor='transparent'">
+                            <i class="ri-logout-box-r-line" style="margin-right: 8px; vertical-align: middle;"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
 
         </div>
       </nav>
