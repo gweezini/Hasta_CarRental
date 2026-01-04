@@ -263,7 +263,7 @@
                                                     </a>
                                                 @else
                                                     <a href="{{ route('inspections.create', $booking) }}" class="text-xs md:text-sm text-white bg-green-600 hover:bg-green-500 px-3 py-2 rounded-lg transition font-medium flex items-center">
-                                                        <i class="ri-file-search-line mr-1"></i> Inspect
+                                                        <i class="ri-car-fill mr-1"></i> Pick up
                                                     </a>
                                                 @endif
                                             @endif
