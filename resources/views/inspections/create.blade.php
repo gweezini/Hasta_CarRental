@@ -389,6 +389,29 @@
                         <textarea name="remarks" rows="4" class="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#ec5a29] focus:border-transparent outline-none transition text-sm" placeholder="Please describe any pre-existing scratches, dents, or cleanliness issues..."></textarea>
                     </div>
 
+                    <!-- Rental Agreement -->
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                        <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="ri-file-list-3-line text-[#ec5a29]"></i> Rental Agreement
+                        </h3>
+                        <div class="mb-4 text-center">
+                            <img src="{{ asset('images/agreementform.png') }}" alt="Rental Agreement" class="max-w-full h-auto rounded-lg border border-gray-300 shadow-sm mx-auto">
+                            <a href="{{ asset('images/agreementform.png') }}" target="_blank" class="text-xs text-[#ec5a29] font-bold mt-2 inline-block hover:underline">
+                                <i class="ri-zoom-in-line"></i> View Full Size
+                            </a>
+                        </div>
+                        
+                        <div class="flex items-start gap-3 mt-4 p-4 bg-white rounded-lg border border-gray-100">
+                             <div class="flex items-center h-5">
+                                <input id="agreement_check" name="agreement_check" type="checkbox" required class="w-4 h-4 text-[#ec5a29] border-gray-300 rounded focus:ring-[#ec5a29]">
+                            </div>
+                            <div class="text-sm">
+                                <label for="agreement_check" class="font-medium text-gray-900">I have read and agree to the Rental Agreement Terms & Conditions</label>
+                                <p class="text-gray-500 text-xs">You must agree to the terms above to proceed with the rental.</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Acknowledgement -->
                     <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-start gap-3">
                         <div class="flex items-center h-5">
