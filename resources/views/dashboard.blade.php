@@ -525,7 +525,7 @@
       }
 
       footer {
-        background-color: var(--text-dark);
+        background-color: #2d3748;
         padding-top: 5rem;
       }
 
@@ -953,6 +953,18 @@
               ></a>
             </li>
           </ul>
+          
+          <div style="margin-top: 1.5rem;">
+              <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
+                  <i class="ri-phone-line" style="color: var(--primary-color);"></i> 
+                  <span>Car Rental Inquiry:<br><strong style="color: #cbd5e1;">+60 11-1090 0700</strong></span>
+              </p>
+              <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
+                  <i class="ri-mail-line" style="color: var(--primary-color);"></i> 
+                  <span>Support:<br><strong style="color: #cbd5e1;">hastatraveltours@gmail.com</strong></span>
+              </p>
+          </div>
+          <br>
         </div>
       </div>
 
