@@ -140,6 +140,31 @@
                     @csrf
                     <input type="hidden" name="type" value="pickup">
 
+                    <!-- Pickup Instructions -->
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="ri-alert-line text-yellow-400 text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-bold text-yellow-800 uppercase tracking-wide">
+                                    Pickup Procedure
+                                </h3>
+                                <div class="mt-2 text-sm text-yellow-700">
+                                    <p class="mb-2 font-semibold">Please follow this procedure correctly or you will be penalized.</p>
+                                    <p class="mb-2 font-bold text-black">
+                                        Car : {{ $booking->vehicle->brand }} {{ $booking->vehicle->model }} ({{ $booking->vehicle->plate_number }})
+                                    </p>
+                                    <ol class="list-decimal list-inside space-y-1">
+                                        <li>Read and agree to the agreement.</li>
+                                        <li>Take the car key below driver's seat.</li>
+                                        <li>Snap 4 sides pictures of the car & mileage and fuel of the car.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Vehicle Info Card -->
                     <div class="flex items-center p-4 bg-blue-50 border border-blue-100 rounded-xl gap-4">
                         <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
