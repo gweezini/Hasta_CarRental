@@ -110,8 +110,8 @@
             
             @if($booking->payment_receipt)
                 <div class="text-center mb-6">
-                    <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Total Rental Fee</p>
-                    <p class="text-3xl font-black text-[#cb5c55]">RM {{ number_format($booking->total_rental_fee, 2) }}</p>
+                    <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Total Fee (Inc. Deposit)</p>
+                    <p class="text-3xl font-black text-[#cb5c55]">RM {{ number_format($booking->total_rental_fee + $booking->deposit_amount, 2) }}</p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 mt-auto bg-white pt-2">
