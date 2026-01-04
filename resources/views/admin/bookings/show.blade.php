@@ -151,12 +151,7 @@
             </div>
         </div>
 
-        <div class="p-4 bg-yellow-50 rounded-2xl border border-yellow-100 border-l-4 border-l-yellow-400 text-left">
-            <p class="text-[10px] text-yellow-700 font-bold flex items-start gap-2 italic leading-relaxed">
-                <i class="ri-shield-user-fill text-sm shrink-0"></i>
-                AUDIT VIEW: This transaction record is finalized and verified against internal bank statements.
-            </p>
-        </div>
+
     </div>
 </div>
 
