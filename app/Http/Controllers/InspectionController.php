@@ -55,6 +55,19 @@ class InspectionController extends Controller
             'damage_description' => 'nullable|string',
             'acknowledgement' => 'accepted',
             'agreement_check' => $request->type === 'pickup' ? 'accepted' : 'nullable',
+            
+            // Check for Feedback fields if type is return
+            'rating_cleanliness_interior' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
+            'rating_smell' => $request->type === 'return' ? 'required|string' : 'nullable',
+            'rating_cleanliness_exterior' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
+            'rating_cleanliness_trash' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
+            'rating_condition_mechanical' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
+            'rating_condition_ac' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
+            'rating_condition_fuel' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
+            'rating_condition_safety' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
+            'rating_service_access' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
+            'rating_service_value' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
+            'feedback_text' => 'nullable|string',
         ]);
 
         $data = [
@@ -84,6 +97,27 @@ class InspectionController extends Controller
         }
 
         Inspection::create($data);
+
+        // Store Feedback if Return
+        if ($request->type === 'return') {
+            \App\Models\Feedback::create([
+                'booking_id' => $booking->id,
+                'category' => 'Return Inspection',
+                'description' => $request->feedback_text,
+                'ratings' => [
+                    'cleanliness_interior' => $request->rating_cleanliness_interior,
+                    'smell' => $request->rating_smell,
+                    'cleanliness_exterior' => $request->rating_cleanliness_exterior,
+                    'cleanliness_trash' => $request->rating_cleanliness_trash,
+                    'condition_mechanical' => $request->rating_condition_mechanical,
+                    'condition_ac' => $request->rating_condition_ac,
+                    'condition_fuel' => $request->rating_condition_fuel,
+                    'condition_safety' => $request->rating_condition_safety,
+                    'service_access' => $request->rating_service_access,
+                    'service_value' => $request->rating_service_value,
+                ]
+            ]);
+        }
 
         return redirect()->route('inspections.show', Inspection::latest()->first())
             ->with('success', 'Inspection recorded successfully.');

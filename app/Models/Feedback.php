@@ -9,6 +9,10 @@ class Feedback extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'ratings' => 'array',
+    ];
+
     public function booking(): BelongsTo
     {
         return $this->belongsTo(Booking::class);

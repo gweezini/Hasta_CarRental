@@ -502,6 +502,184 @@
                         <textarea name="remarks" rows="4" class="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#ec5a29] focus:border-transparent outline-none transition text-sm" placeholder="Please describe any pre-existing scratches, dents, or cleanliness issues..."></textarea>
                     </div>
 
+                    <!-- Customer Feedback (Return Only) -->
+                    @if(isset($type) && $type === 'return')
+                    <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-100 mb-8">
+                        <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="ri-thumb-up-line text-indigo-600"></i> Customer Feedback
+                        </h3>
+                        <p class="text-xs text-gray-500 mb-6">Please rate your experience to help us improve.</p>
+
+                        <!-- Category A: Hygiene & Cleanliness -->
+                        <h4 class="font-bold text-gray-800 text-sm uppercase tracking-wide mb-3 border-b border-indigo-200 pb-1">A. Hygiene & Cleanliness</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            
+                            <!-- 1. Interior Cleanliness -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">1. Interior Cleanliness</label>
+                                <div class="flex gap-4">
+                                    @for($i=1; $i<=5; $i++)
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="rating_cleanliness_interior" value="{{ $i }}" class="peer sr-only" required>
+                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
+                                                {{ $i }}
+                                            </div>
+                                        </label>
+                                    @endfor
+                                </div>
+                            </div>
+
+                            <!-- 2. Odor & Freshness -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">2. Odor & Freshness</label>
+                                <select name="rating_smell" class="w-full p-2 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-indigo-500" required>
+                                    <option value="" disabled selected>Select smell...</option>
+                                    <option value="Fresh">Fresh</option>
+                                    <option value="Neutral">Neutral</option>
+                                    <option value="Smoke">Smoke</option>
+                                    <option value="Bad Odor">Bad Odor</option>
+                                </select>
+                            </div>
+
+                            <!-- 3. Exterior Appearance -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">3. Exterior Appearance</label>
+                                <div class="flex gap-4">
+                                    @for($i=1; $i<=5; $i++)
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="rating_cleanliness_exterior" value="{{ $i }}" class="peer sr-only" required>
+                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
+                                                {{ $i }}
+                                            </div>
+                                        </label>
+                                    @endfor
+                                </div>
+                            </div>
+
+                            <!-- 4. Sanitization & Trash -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">4. Free of Trash</label>
+                                <div class="flex gap-4">
+                                    @for($i=1; $i<=5; $i++)
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="rating_cleanliness_trash" value="{{ $i }}" class="peer sr-only" required>
+                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
+                                                {{ $i }}
+                                            </div>
+                                        </label>
+                                    @endfor
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Category B: Vehicle Condition -->
+                        <h4 class="font-bold text-gray-800 text-sm uppercase tracking-wide mb-3 border-b border-indigo-200 pb-1">B. Vehicle Condition</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            
+                            <!-- 5. Mechanical Performance -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">5. Mechanical (Engine/Brakes)</label>
+                                <div class="flex gap-4">
+                                    @for($i=1; $i<=5; $i++)
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="rating_condition_mechanical" value="{{ $i }}" class="peer sr-only" required>
+                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
+                                                {{ $i }}
+                                            </div>
+                                        </label>
+                                    @endfor
+                                </div>
+                            </div>
+
+                            <!-- 6. Air Conditioning -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">6. Air Conditioning</label>
+                                <div class="flex gap-4">
+                                    @for($i=1; $i<=5; $i++)
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="rating_condition_ac" value="{{ $i }}" class="peer sr-only" required>
+                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
+                                                {{ $i }}
+                                            </div>
+                                        </label>
+                                    @endfor
+                                </div>
+                            </div>
+
+                             <!-- 7. Fuel / Battery -->
+                             <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">7. Fuel / Battery Level</label>
+                                <div class="flex gap-4">
+                                    @for($i=1; $i<=5; $i++)
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="rating_condition_fuel" value="{{ $i }}" class="peer sr-only" required>
+                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
+                                                {{ $i }}
+                                            </div>
+                                        </label>
+                                    @endfor
+                                </div>
+                            </div>
+
+                             <!-- 8. Safety & Features -->
+                             <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">8. Safety Features</label>
+                                <div class="flex gap-4">
+                                    @for($i=1; $i<=5; $i++)
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="rating_condition_safety" value="{{ $i }}" class="peer sr-only" required>
+                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
+                                                {{ $i }}
+                                            </div>
+                                        </label>
+                                    @endfor
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Category C: Service Experience -->
+                        <h4 class="font-bold text-gray-800 text-sm uppercase tracking-wide mb-3 border-b border-indigo-200 pb-1">C. Service Experience</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            
+                            <!-- 9. Ease of Access -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">9. Ease of Access</label>
+                                <div class="flex gap-4">
+                                    @for($i=1; $i<=5; $i++)
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="rating_service_access" value="{{ $i }}" class="peer sr-only" required>
+                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
+                                                {{ $i }}
+                                            </div>
+                                        </label>
+                                    @endfor
+                                </div>
+                            </div>
+
+                            <!-- 10. Value for Money -->
+                             <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">10. Value for Money</label>
+                                <div class="flex gap-4">
+                                    @for($i=1; $i<=5; $i++)
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="rating_service_value" value="{{ $i }}" class="peer sr-only" required>
+                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
+                                                {{ $i }}
+                                            </div>
+                                        </label>
+                                    @endfor
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Optional Feedback -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-2">Additional Feedback (Optional)</label>
+                            <textarea name="feedback_text" rows="3" class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="Any other specific comments?"></textarea>
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- Rental Agreement (Pickup Only) -->
                     @if(!isset($type) || $type !== 'return')
                     <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
