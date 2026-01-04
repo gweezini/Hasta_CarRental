@@ -316,7 +316,7 @@
                                             <!-- We wrap it in a label if it's the 'add' button, otherwise it's just hidden -->
                                             
                                             <!-- CASE 1: Has File (Preview Mode) -->
-                                            <template x-if="file.preview">
+                                            <div x-show="file.preview" class="h-full">
                                                 <div class="aspect-square rounded-xl overflow-hidden border border-gray-200 relative">
                                                     <img :src="file.preview" class="w-full h-full object-cover">
                                                     
@@ -324,17 +324,11 @@
                                                     <button type="button" @click="removeFile(index)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600 transition">
                                                         <i class="ri-close-line"></i>
                                                     </button>
-                                                    
-                                                    <!-- The input must remain here to submit ! -->
-                                                    <!-- But we can't easily keep the input 'alive' if we just hide it, 
-                                                         actually in Alpine loop if we change structure, DOM might reset.
-                                                         BEST PRACTICE: The input is ALWAYS the same element, we just change appearance.
-                                                    -->
                                                 </div>
-                                            </template>
+                                            </div>
 
                                             <!-- CASE 2: No File (Add Button Mode) -->
-                                            <template x-if="!file.preview">
+                                            <div x-show="!file.preview" class="h-full">
                                                 <label class="cursor-pointer block h-full">
                                                     <div class="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-white group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
                                                         <div class="text-center p-2">
@@ -346,7 +340,7 @@
                                                     <input type="file" name="damage_photos[]" accept="image/*" class="hidden" 
                                                            @change="handleFileSelect($event, index)">
                                                 </label>
-                                            </template>
+                                            </div>
 
                                         </div>
                                     </template>
