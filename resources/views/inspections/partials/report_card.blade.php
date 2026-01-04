@@ -1,12 +1,16 @@
 <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
     <div class="bg-gray-50 px-8 py-6 border-b border-gray-100 flex justify-between items-start">
             <div>
-            <h1 class="text-2xl font-bold text-gray-900">Inspection Report</h1>
+            <h1 class="text-2xl font-bold text-gray-900">
+                @if($inspection->type === 'return')
+                    Return Vehicle
+                @else
+                    Pickup Inspection
+                @endif
+            </h1>
             <p class="text-sm text-gray-500 mt-1">Recorded on {{ $inspection->created_at->format('M d, Y h:i A') }}</p>
             </div>
-            <span class="px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider bg-green-100 text-green-700 shadow-sm">
-            Inspection Verified
-        </span>
+            <!-- Badge Removed -->
     </div>
 
     <div class="p-8 space-y-8">
@@ -99,5 +103,38 @@
             </div>
         </div>
         @endif
+
+        <!-- Customer Feedback Display -->
+        @if($inspection->type === 'return' && $inspection->booking->feedback)
+            <div class="bg-indigo-50 rounded-xl border border-indigo-100 p-6">
+                 <h3 class="font-bold text-indigo-900 mb-4 flex items-center gap-2">
+                    <i class="ri-feedback-line"></i> Your Feedback
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-xs font-bold text-indigo-400 uppercase mb-2">Detailed Ratings</p>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                             @if(is_array($inspection->booking->feedback->ratings))
+                                @foreach($inspection->booking->feedback->ratings as $key => $rating)
+                                    <li class="flex justify-between border-b border-indigo-100 pb-1">
+                                        <span class="capitalize">{{ str_replace(['rating_', '_'], ['', ' '], $key) }}</span>
+                                        <span class="font-bold text-indigo-600">{{ $rating }}</span>
+                                    </li>
+                                @endforeach
+                             @endif
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-indigo-400 uppercase mb-2">Written Description</p>
+                        <div class="p-4 bg-white rounded-xl border border-indigo-100 text-gray-700 italic h-full">
+                            "{{ $inspection->booking->feedback->description ?? 'No written feedback provided.' }}"
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
     </div>
 </div>
+
