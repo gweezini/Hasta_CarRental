@@ -19,6 +19,12 @@ use App\Http\Controllers\UserVoucherController;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/blacklisted', function () {
+    if (!Auth::check() || !Auth::user()->is_blacklisted) {
+        return redirect()->route('home');
+    }
+    return view('blacklist.notice');
+})->name('blacklist.notice');
 
 Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     if (Auth::user()->isStaff()) {

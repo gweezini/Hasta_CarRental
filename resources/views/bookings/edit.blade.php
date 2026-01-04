@@ -8,6 +8,19 @@
       href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
       rel="stylesheet"
     />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ec5a29',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Syncopate:wght@400;700&display=swap");
 
@@ -79,10 +92,7 @@
         color: var(--white);
       }
 
-      img {
-        display: block;
-        width: 100%;
-      }
+      /* img { display: block; width: 100%; }  -- Removed to prevent conflict with Navbar icons */
 
       a {
         text-decoration: none;
@@ -103,53 +113,7 @@
         background-color: #f9f9f9; /* Light background for edit page */
       }
 
-      /* --- HEADER & BACKGROUND (Modified for Edit Page) --- */
-      header {
-        background-color: var(--text-dark);
-        padding-bottom: 2rem;
-      }
-
-      /* --- NAVIGATION --- */
-      nav {
-        position: relative; /* Not fixed on this page */
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1.5rem 2rem;
-        background-color: var(--text-dark);
-      }
-
-      .nav__header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .nav__logo img {
-        width: 120px;
-        height: auto;
-      }
-
-      .nav__links {
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-      }
-
-      .nav__links a {
-        font-weight: 500;
-        color: var(--white);
-      }
-
-      .nav__links a:hover {
-        color: var(--primary-color);
-      }
-
-      .nav__btn {
-        display: flex;
-        gap: 1rem;
-      }
+      /* Removed legacy nav styles */
 
       /* Booking Grid */
       .booking__grid {
@@ -176,6 +140,8 @@
         top: 20px;
       }
 
+
+
       .form__section {
         margin-bottom: 2rem;
       }
@@ -191,6 +157,7 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+        margin-bottom: 1rem;
       }
 
       .input__group label {
@@ -254,26 +221,122 @@
   </head>
 
   <body>
-    <header>
-      <nav>
-        <div class="nav__header">
-          <div class="nav__logo">
-            <a href="{{ route('home') }}">
-              <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Hasta" />
+    <nav class="fixed top-0 left-0 w-full z-50 bg-[#2d3748] shadow-md flex justify-between items-center px-8 py-4" id="navbar">
+        <!-- Logo -->
+        <div class="flex items-center">
+            <a href="{{ route('home') }}" class="flex items-center gap-2">
+                <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Hasta Logo" class="h-10 w-auto rounded-md">
             </a>
-          </div>
         </div>
-        <ul class="nav__links">
-            <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ url('/#vehicles') }}">Vehicles</a></li>
-            <li><a href="{{ url('/#contact') }}">Contact</a></li>
-            <li><a href="{{ url('/#about') }}">About Us</a></li>
-            <li><a href="{{ route('profile.edit') }}"><strong>My Profile</strong></a></li>
-        </ul>
-      </nav>
-    </header>
 
-    <section class="section__container">
+                <!-- Desktop Menu -->
+                <!-- Navigation Links (Center) -->
+                <ul class="hidden md:flex items-center gap-8 text-white font-medium"> <!-- Using UL to match Profile Page structure exactly -->
+                    <li><a href="{{ route('dashboard') }}" class="hover:text-[#ec5a29] transition text-sm">Dashboard</a></li>
+                    <li><a href="{{ url('/#vehicles') }}" class="hover:text-[#ec5a29] transition text-sm">Vehicles</a></li>
+                    <li><a href="{{ url('/#contact') }}" class="hover:text-[#ec5a29] transition text-sm">Contact</a></li>
+                    <li><a href="{{ url('/#about') }}" class="hover:text-[#ec5a29] transition text-sm">About Us</a></li>
+                </ul>
+
+                <!-- Icons (Right) -->
+                <div class="hidden md:flex items-center space-x-8">
+
+                    <!-- Notification Bell -->
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" @click.away="open = false" class="relative text-gray-300 hover:text-white transition focus:outline-none mt-1">
+                            <i class="ri-notification-3-line text-xl"></i>
+                            @if(auth()->user()->unreadNotifications->count() > 0)
+                                <span class="absolute -top-1 -right-1 bg-[#ec5a29] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                                    {{ auth()->user()->unreadNotifications->count() }}
+                                </span>
+                            @endif
+                        </button>
+
+                        <div x-show="open" style="display: none;" 
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="opacity-100 scale-100"
+                             x-transition:leave-end="opacity-0 scale-95"
+                             class="absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-2xl overflow-hidden z-50 border border-gray-100 origin-top-right">
+                            
+                            <div class="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Notifications</h3>
+                                @if(auth()->user()->unreadNotifications->count() > 0)
+                                    <form action="{{ route('notifications.markAllRead') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="text-[10px] text-[#ec5a29] hover:underline font-medium">Mark all read</button>
+                                    </form>
+                                @endif
+                            </div>
+
+                            <div class="max-h-64 overflow-y-auto custom-scrollbar">
+                                @forelse(auth()->user()->notifications as $notification)
+                                    <div class="flex items-start gap-3 p-3 border-b border-gray-50 hover:bg-gray-50 transition cursor-default {{ $notification->read_at ? 'opacity-60' : '' }}">
+                                        <div class="flex-shrink-0 mt-1">
+                                            @if($notification->type == 'App\Notifications\BookingStatusUpdated')
+                                                <div class="w-6 h-6 rounded-full bg-orange-100 text-[#ec5a29] flex items-center justify-center"><i class="ri-car-line text-xs"></i></div>
+                                            @elseif($notification->type == 'App\Notifications\PaymentStatusUpdated')
+                                                <div class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="ri-money-dollar-circle-line text-xs"></i></div>
+                                            @else
+                                                <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i class="ri-notification-line text-xs"></i></div>
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-800 leading-tight">{{ $notification->data['message'] ?? 'New Notification' }}</p>
+                                            <p class="text-[10px] text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="px-4 py-6 text-center text-xs text-gray-400">No notifications</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Profile Dropdown -->
+                    <div x-data="{ userOpen: false }" class="relative">
+                        <button @click="userOpen = !userOpen" @click.away="userOpen = false" class="flex items-center gap-2 group focus:outline-none">
+                            <img class="h-9 w-9 rounded-full object-cover border-2 border-transparent group-hover:border-[#ec5a29] transition" 
+                                 src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=ec5a29&color=fff" 
+                                 alt="Profile">
+                            <span class="text-white text-sm font-medium hidden md:block group-hover:text-[#ec5a29] transition">{{ Auth::user()->name }}</span>
+                            <i class="ri-arrow-down-s-line text-gray-400 group-hover:text-[#ec5a29] transition"></i>
+                        </button>
+
+                        <div x-show="userOpen" style="display: none;"
+                             x-transition.origin.top.right
+                             class="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-xl overflow-hidden z-50 border border-gray-100 py-1">
+                            
+                            <div class="px-4 py-3 border-b border-gray-50">
+                                <p class="text-xs text-gray-500">Signed in as</p>
+                                <p class="text-sm font-bold text-gray-800 truncate">{{ Auth::user()->email }}</p>
+                            </div>
+
+                            <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#ec5a29]">
+                                <i class="ri-home-line mr-2 align-middle"></i> Home
+                            </a>
+                            
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium">
+                                    <i class="ri-logout-box-r-line mr-2 align-middle"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="menu-btn" class="text-white hover:text-[#ec5a29] focus:outline-none">
+                        <i class="ri-menu-3-line text-2xl"></i>
+                    </button>
+                </div>
+      </nav>
+
+    <section class="section__container" style="padding-top: 8rem;">
       <h2 class="section__header" style="text-align: left; font-size: 2.5rem; margin-bottom: 1rem;">
         Modify Booking #{{ $booking->id }}
       </h2>
@@ -498,7 +561,7 @@
                 </div>
 
                 <!-- QR Code / Bank Details -->
-                <div style="text-align: center; margin-bottom: 1rem;">
+                <div style="text-align: left; margin-bottom: 1rem;">
                      <img src="{{ asset('images/paymentqr.png') }}" style="max-width: 150px; border: 1px solid #ddd; padding: 5px; border-radius: 5px;">
                      <p style="margin-top: 5px; font-weight: 600;">DuitNow QR / CIMB 8600123456</p>
                 </div>
@@ -537,8 +600,15 @@
         </div>
 
         <div class="booking__summary">
-          <h3>Booking Summary</h3>
-          <img src="{{ asset('images/' . $booking->vehicle->vehicle_image) }}" alt="Car" style="border-radius: 8px; margin-bottom: 1rem; width: 100%; object-fit: cover;" />
+          <h3 style="font-weight: 800;">Booking Summary</h3>
+          <img src="{{ asset('images/' . $booking->vehicle->vehicle_image) }}" alt="Car" style="border-radius: 8px; margin-bottom: 0.5rem; width: 100%; object-fit: cover;" />
+          
+          <h4 style="margin-top: 0.5rem; font-size: 1.1rem; font-weight: bold; color: var(--text-dark);">
+              {{ $booking->vehicle->brand }} {{ $booking->vehicle->model }}
+          </h4>
+          <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
+              {{ $booking->vehicle->plate_number }}
+          </p>
           
           <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
             <span>Current Total (Inc. Deposit)</span>
