@@ -307,7 +307,7 @@
                             <div x-data="damagePhotos()">
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Damage Photos</label>
                                 
-                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div class="grid grid-cols-1 gap-4">
                                     <!-- Loop through file inputs -->
                                     <template x-for="(file, index) in files" :key="file.id">
                                         <div class="relative group">
@@ -382,9 +382,9 @@
                             </div>
 
                             <!-- Damage Description -->
-                            <div class="md:col-span-2">
+                            <div class="md:col-span-2 flex flex-col">
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Description of Damage</label>
-                                <textarea name="damage_description" rows="5" class="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition text-sm" placeholder="Describe the damage (e.g. scratch on left bumper)..."></textarea>
+                                <textarea name="damage_description" class="w-full flex-grow p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition text-sm resize-none" placeholder="Describe the damage (e.g. scratch on left bumper)..."></textarea>
                             </div>
                         </div>
                     </div>
