@@ -10,7 +10,7 @@
             <p class="text-gray-500 text-sm mt-1 text-left">Manage and audit staff salaries and banking information</p>
         </div>
         <div class="flex gap-3">
-            <button onclick="window.print()" class="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition shadow-sm no-print">
+            <button onclick="window.print()" class="flex items-center gap-2 px-5 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow no-print">
                 <i class="ri-printer-line"></i> Print Payroll
             </button>
         </div>
