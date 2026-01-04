@@ -27,6 +27,7 @@ class UserSeeder extends Seeder
             'driving_license' => 'D-12345678', // Matching your new Model
             'address' => 'Kolej Tun Razak, UTM Skudai',
             'college_id' => 1, // Ensure CollegeSeeder runs before this!
+            'faculty_id' => 1, // Ensure FacultySeeder runs before this!
             
             // Emergency Info
             'emergency_name' => 'Abu Father',
