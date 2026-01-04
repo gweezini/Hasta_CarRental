@@ -536,10 +536,13 @@
           </div>
         </div>
         <ul class="nav__links" id="nav-links">
-          <li><a href="#home">Dashboard</a></li>
+          <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
           <li><a href="#vehicles">Vehicles</a></li>
           <li><a href="#contact">Contact</a></li>
           <li><a href="#about">About Us</a></li>
+          @auth
+          <li><a href="{{ route('profile.edit') }}">My Profile</a></li>
+          @endauth
 
           <li class="mobile-only">
             <a href="{{ route('login') }}">Login</a>
@@ -549,8 +552,21 @@
           </li>
         </ul>
         <div class="nav__btn">
-          <a href="{{ route('login') }}" class="btn btn-transparent">Login</a>
-          <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
+          @guest
+            <a href="{{ route('login') }}" class="btn btn-transparent">Login</a>
+            <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
+          @else
+            {{-- User is logged in --}}
+            <a href="{{ route('profile.edit') }}" class="btn btn-transparent">
+                <strong>My Profile</strong>
+            </a>
+            <form method="POST" action="{{ route('logout') }}" style="display: inline-block;">
+                @csrf
+                <button type="submit" class="btn btn-primary">
+                    Logout
+                </button>
+            </form>
+          @endguest
         </div>
       </nav>
 

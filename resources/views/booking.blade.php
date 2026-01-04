@@ -698,6 +698,7 @@
           <li><a href="{{ url('/#vehicles') }}">Vehicles</a></li>
           <li><a href="{{ url('/#contact') }}">Contact</a></li>
           <li><a href="{{ url('/#about') }}">About Us</a></li>
+          <li><a href="{{ route('profile.edit') }}">My Profile</a></li>
 
           <li class="mobile-only">
             <a href="{{ route('profile.edit') }}">Profile</a>
@@ -718,7 +719,7 @@
 
         <div class="nav__btn">
           <a href="{{ route('profile.edit') }}" class="btn btn-transparent">
-            Profile
+            <strong>My Profile</strong>
           </a>
 
           <form
@@ -988,7 +989,7 @@
               </div>
 
               <div class="form__section">
-                <h3><i class="ri-user-line"></i> Personal Information</h3>
+                <h3><i class="ri-user-line"></i> <strong>My Profile</strong></h3>
                 <div
                   style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;"
                 >
