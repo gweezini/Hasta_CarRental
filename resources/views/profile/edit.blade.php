@@ -318,6 +318,11 @@
                                             {{ $booking->status }}
                                         </span>
                                     </div>
+                                    @if($booking->status == 'Rejected' && $booking->rejection_reason)
+                                        <div class="bg-red-50 border border-red-100 rounded-lg p-3 mb-2 text-xs text-red-700">
+                                            <span class="font-bold">Reason:</span> {{ $booking->rejection_reason }}
+                                        </div>
+                                    @endif
                                     <p class="text-sm font-bold text-right text-gray-800">RM {{ number_format($booking->total_rental_fee, 2) }}</p>
                                 </div>
                             @endforeach

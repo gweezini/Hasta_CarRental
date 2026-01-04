@@ -114,9 +114,13 @@
                     <p class="text-3xl font-black text-[#cb5c55]">RM {{ number_format($booking->total_rental_fee + $booking->deposit_amount, 2) }}</p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 mt-auto bg-white pt-2">
+                <div class="grid grid-cols-1 gap-3 mt-auto bg-white pt-2">
                     <form action="{{ route('admin.payment.reject', $booking->id) }}" method="POST" onsubmit="return confirm('Reject this booking?');">
                         @csrf
+                        <div class="mb-3">
+                            <label for="rejection_reason" class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Rejection Reason</label>
+                            <textarea name="rejection_reason" id="rejection_reason" rows="3" class="w-full text-xs border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500" placeholder="Please provide a reason for rejection..." required></textarea>
+                        </div>
                         <button class="w-full py-3 bg-white text-red-600 font-bold rounded-lg border border-red-200 hover:bg-red-50 uppercase text-xs tracking-widest">Reject</button>
                     </form>
 
