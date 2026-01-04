@@ -37,7 +37,7 @@
                         <td class="px-6 py-4">
                             @if($feedback->booking->vehicle)
                             <div class="flex items-center gap-3">
-                                <img src="{{ asset('storage/' . $feedback->booking->vehicle->vehicle_image) }}" alt="Car" class="h-8 w-12 object-cover rounded shadow-sm border border-gray-100">
+                                <img src="{{ asset('images/' . $feedback->booking->vehicle->vehicle_image) }}" alt="Car" class="h-8 w-12 object-cover rounded shadow-sm border border-gray-100">
                                 <div>
                                     <p class="text-sm font-bold text-gray-800">{{ $feedback->booking->vehicle->brand }} {{ $feedback->booking->vehicle->model }}</p>
                                     <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 uppercase tracking-wide border border-gray-200">{{ $feedback->booking->vehicle->plate_number }}</span>
@@ -49,8 +49,11 @@
                         </td>
                         <td class="px-6 py-4">
                             @php
-                                $ratings = is_array($feedback->ratings) ? array_map('intval', $feedback->ratings) : [];
-                                $avg = count($ratings) > 0 ? array_sum($ratings) / count($ratings) : 0;
+                                $ratings = $feedback->ratings ?? [];
+                                $numericRatings = array_filter($ratings, function($val) {
+                                    return is_numeric($val) && $val > 0;
+                                });
+                                $avg = count($numericRatings) > 0 ? array_sum($numericRatings) / count($numericRatings) : 0;
                             @endphp
                             <div class="flex items-center space-x-1" title="Average: {{ number_format($avg, 1) }}">
                                 <i class="ri-star-fill text-yellow-400 text-base"></i>
@@ -72,8 +75,8 @@
                         </td>
                         <td class="px-6 py-4">
                             @if($feedback->booking)
-                                <a href="{{ route('admin.bookings.show_detail', $feedback->booking->id) }}" class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-gray-500 hover:bg-[#cb5c55] hover:text-white transition shadow-sm border border-gray-200" title="View Booking">
-                                    <i class="ri-file-list-line"></i>
+                                <a href="{{ route('admin.bookings.show_detail', $feedback->booking->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#cb5c55] text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-sm hover:bg-[#b04a44] transition">
+                                    <i class="ri-file-list-3-fill"></i> View Details
                                 </a>
                             @endif
                         </td>
