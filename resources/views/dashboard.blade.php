@@ -339,15 +339,16 @@
         color: var(--text-dark);
       }
 
-      .input__group input {
+      .input__group input, .input__group select {
         width: 100%;
         padding: 10px;
         border: 1px solid var(--extra-light);
         border-radius: 5px;
         font-size: 1rem;
-        color: var(--text-light);
+        color: var(--text-dark);
         outline: none;
       }
+      .input__group select:invalid { color: var(--text-light); }
 
       .date-time-wrapper {
         display: flex;
@@ -783,7 +784,7 @@
           Welcome back, {{ Auth::user()->name }}
         </h3>
         <h1>AFFORDABLE CAR RENTAL SERVICE</h1>
-        <form action="/">
+        <form action="{{ route('search') }}" method="GET">
           <div class="input__group">
             <label for="pickup">Pick up location</label>
             <input

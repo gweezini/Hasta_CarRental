@@ -19,6 +19,7 @@ use App\Http\Controllers\UserVoucherController;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/search', [App\Http\Controllers\SearchController::class, 'index'])->name('search');
 Route::get('/blacklisted', function () {
     if (!Auth::check() || !Auth::user()->is_blacklisted) {
         return redirect()->route('home');
@@ -30,41 +31,14 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     if (Auth::user()->isStaff()) {
         return redirect()->route('admin.dashboard');
     }
+    
+
 
     $vehicles = \App\Models\Vehicle::whereIn('status', ['Available', 'Rented'])->get();
 
     // Default availability
     foreach ($vehicles as $vehicle) {
         $vehicle->is_available = true;
-    }
-
-    // Filter if dates provided
-    $startDate = $request->input('start_date');
-    $startTime = $request->input('start_time');
-    $stopDate  = $request->input('stop_date');
-    $stopTime  = $request->input('stop_time');
-
-    if ($startDate && $startTime && $stopDate && $stopTime) {
-        try {
-            $start = \Carbon\Carbon::parse("$startDate $startTime");
-            $end   = \Carbon\Carbon::parse("$stopDate $stopTime");
-
-            foreach ($vehicles as $vehicle) {
-                $hasConflict = $vehicle->bookings()
-                    ->whereIn('status', ['Pending', 'Waiting for Verification', 'Approved'])
-                    ->where(function ($q) use ($start, $end) {
-                        $q->where('pickup_date_time', '<', $end)
-                          ->where('return_date_time', '>', $start);
-                    })
-                    ->exists();
-
-                if ($hasConflict) {
-                    $vehicle->is_available = false;
-                }
-            }
-        } catch (\Exception $e) {
-            // Invalid dates, just ignore filtering
-        }
     }
     
     return view('dashboard', compact('vehicles')); 
