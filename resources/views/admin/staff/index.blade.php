@@ -36,7 +36,7 @@
                 </div>
                 <div class="text-left">
                     <p class="text-xs font-bold text-white/70 uppercase tracking-widest">Total Monthly Payroll</p>
-                    <h3 class="text-2xl font-black text-white">RM {{ number_format($staffs->sum('salary'), 2) }}</h3>
+                    <h3 class="text-2xl font-black text-white">RM {{ number_format($totalMonthlyPayroll, 2) }}</h3>
                 </div>
             </div>
         </div>
@@ -62,7 +62,7 @@
                         <th class="px-8 py-5 text-xs font-black text-gray-400 uppercase tracking-widest">Staff Info</th>
                         <th class="px-8 py-5 text-xs font-black text-gray-400 uppercase tracking-widest">Position</th>
                         <th class="px-8 py-5 text-xs font-black text-gray-400 uppercase tracking-widest text-left">Banking Details</th>
-                        <th class="px-8 py-5 text-xs font-black text-gray-400 uppercase tracking-widest text-right">Salary (RM)</th>
+                        <th class="px-8 py-5 text-xs font-black text-gray-400 uppercase tracking-widest text-right">Total Payout (RM)</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
@@ -98,9 +98,19 @@
                             </div>
                         </td>
                         <td class="px-8 py-6 text-right">
-                            <span class="text-lg font-black text-gray-800">
-                                RM {{ number_format($staff->salary, 2) }}
-                            </span>
+                            @php
+                                // Claims are eager loaded for current month in controller
+                                $monthlyClaims = $staff->claims->sum('amount');
+                                $totalPayout = $staff->salary + $monthlyClaims;
+                            @endphp
+                            <div class="flex flex-col items-end">
+                                <span class="text-lg font-black text-gray-800">
+                                    RM {{ number_format($totalPayout, 2) }}
+                                </span>
+                                @if($monthlyClaims > 0)
+                                    <span class="text-[9px] text-[#cb5c55] font-bold uppercase tracking-widest">+ RM {{ number_format($monthlyClaims, 2) }} Claims</span>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                     @empty
@@ -116,7 +126,7 @@
                     <tr>
                         <td colspan="3" class="px-8 py-6 text-right text-xs font-black text-gray-400 uppercase tracking-widest">Total Payroll Amount</td>
                         <td class="px-8 py-6 text-right font-black text-2xl text-[#cb5c55]">
-                            RM {{ number_format($staffs->sum('salary'), 2) }}
+                            RM {{ number_format($totalMonthlyPayroll, 2) }}
                         </td>
                     </tr>
                 </tfoot>
