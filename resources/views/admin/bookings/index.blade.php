@@ -92,12 +92,22 @@
                                         </a>
                                     @endif
                                     
+                                    @php
+                                        $hasReturnInspection = $booking->inspections->contains('type', 'return');
+                                    @endphp
+                                    
+                                    @if($hasReturnInspection)
                                     <form action="{{ route('admin.booking.return', $booking->id) }}" method="POST" onsubmit="return confirm('Confirm vehicle return?')" onclick="event.stopPropagation()">
                                         @csrf
                                         <button type="submit" class="bg-white text-green-700 border-2 border-green-500 hover:bg-green-500 hover:text-white font-black text-[10px] px-3 py-2 rounded-lg transition-all flex items-center gap-1 uppercase shadow-sm h-full whitespace-nowrap">
                                             <i class="ri-checkbox-circle-line"></i> Return
                                         </button>
                                     </form>
+                                    @else
+                                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest border border-gray-200 px-3 py-2 rounded-lg bg-gray-50 cursor-not-allowed" title="Waiting for return inspection">
+                                            Wait Return
+                                        </span>
+                                    @endif
                                 </div>
                             
                             @elseif($booking->status == 'Completed')
