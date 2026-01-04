@@ -237,8 +237,9 @@
                                                 @php
                                                     $now = \Carbon\Carbon::now();
                                                     $pickup = \Carbon\Carbon::parse($booking->pickup_date_time);
-                                                    $canModify = $now->lt($pickup);
-                                                    $canCancel = $now->diffInHours($pickup, false) > 24;
+                                                    $hasPickup = $booking->inspections->where('type', 'pickup')->count() > 0;
+                                                    $canModify = !$hasPickup && $now->lt($pickup);
+                                                    $canCancel = !$hasPickup && $now->diffInHours($pickup, false) > 24;
                                                 @endphp
                                                 
                                                 @if($canModify)
