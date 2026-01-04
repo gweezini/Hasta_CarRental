@@ -253,6 +253,7 @@ class BookingController extends Controller
             $booking->save();
 
             // 积分 & Voucher 标记
+            $stampAwarded = false;
             // Fix: Award 1 stamp only if booking is >= 3 hours
             if ($hours >= 3) {
                 $card = Auth::user()->loyaltyCard ?? LoyaltyCard::create(['user_id' => Auth::id()]);
