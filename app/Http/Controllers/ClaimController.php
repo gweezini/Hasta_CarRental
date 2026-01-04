@@ -41,6 +41,7 @@ class ClaimController extends Controller
         ]);
 
         $claim = new Claim();
+        $claim->user_id = Auth::id(); // Assign the authenticated user's ID
         $claim->matric_staff_id = Auth::user()->matric_staff_id; 
         $claim->claim_type = $request->claim_type;
         $claim->vehicle_plate = $request->vehicle_plate;
