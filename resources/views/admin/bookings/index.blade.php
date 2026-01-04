@@ -22,7 +22,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @foreach($bookings as $booking)
-                    <tr class="hover:bg-gray-50 transition">
+                    <tr class="hover:bg-gray-50 transition cursor-pointer" onclick="window.location='{{ route('admin.bookings.show_detail', $booking->id) }}'">
                        
                         <td class="px-6 py-5 font-bold text-gray-400 text-xs">
                             <a href="{{ route('admin.bookings.show_detail', $booking->id) }}" class="hover:text-[#cb5c55] transition underline decoration-dotted">
@@ -31,7 +31,7 @@
                         </td>
                         
                         <td class="px-6 py-5">
-                            <a href="{{ route('admin.customers.show', $booking->user->id) }}" class="text-base font-bold text-gray-900 hover:text-[#cb5c55] hover:underline transition block leading-tight">
+                            <a href="{{ route('admin.customers.show', $booking->user->id) }}" onclick="event.stopPropagation()" class="text-base font-bold text-gray-900 hover:text-[#cb5c55] hover:underline transition block leading-tight">
                                 {{ $booking->user->name }}
                             </a>
                             <p class="text-xs text-gray-500 font-medium mt-1">
@@ -82,17 +82,17 @@
 
                         <td class="px-6 py-5 text-center">
                             @if($booking->status == 'Waiting for Verification' || $booking->status == 'Verify Receipt')
-                                <a href="{{ route('admin.payment.verify', $booking->id) }}" class="inline-block bg-[#cd5c5c] text-white text-[11px] font-black px-5 py-2 rounded-lg shadow hover:bg-[#b04a45] transition uppercase tracking-widest">Verify</a>
+                                <a href="{{ route('admin.payment.verify', $booking->id) }}" onclick="event.stopPropagation()" class="inline-block bg-[#cd5c5c] text-white text-[11px] font-black px-5 py-2 rounded-lg shadow hover:bg-[#b04a45] transition uppercase tracking-widest">Verify</a>
                             
                             @elseif($booking->status == 'Approved')
                                 <div class="flex items-center justify-center gap-2">
                                     @if($booking->inspections->count() > 0)
-                                        <a href="{{ route('inspections.show', $booking->inspections->first()) }}" class="bg-white text-blue-600 border-2 border-blue-200 hover:bg-blue-50 hover:border-blue-300 font-black text-[10px] px-3 py-2 rounded-lg transition-all flex items-center gap-1 uppercase shadow-sm h-full whitespace-nowrap">
+                                        <a href="{{ route('inspections.show', $booking->inspections->first()) }}" onclick="event.stopPropagation()" class="bg-white text-blue-600 border-2 border-blue-200 hover:bg-blue-50 hover:border-blue-300 font-black text-[10px] px-3 py-2 rounded-lg transition-all flex items-center gap-1 uppercase shadow-sm h-full whitespace-nowrap">
                                             <i class="ri-eye-line text-sm"></i> Inspection
                                         </a>
                                     @endif
                                     
-                                    <form action="{{ route('admin.booking.return', $booking->id) }}" method="POST" onsubmit="return confirm('Confirm vehicle return?')">
+                                    <form action="{{ route('admin.booking.return', $booking->id) }}" method="POST" onsubmit="return confirm('Confirm vehicle return?')" onclick="event.stopPropagation()">
                                         @csrf
                                         <button type="submit" class="bg-white text-green-700 border-2 border-green-500 hover:bg-green-500 hover:text-white font-black text-[10px] px-3 py-2 rounded-lg transition-all flex items-center gap-1 uppercase shadow-sm h-full whitespace-nowrap">
                                             <i class="ri-checkbox-circle-line"></i> Return
