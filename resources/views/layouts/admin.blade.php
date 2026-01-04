@@ -83,15 +83,22 @@
     </div>
 
     @if(Auth::user()->isTopManagement())
-        <div class="my-4 border-t border-white/10 text-[10px] px-6 py-2 text-white/50 uppercase font-bold tracking-widest">Financial Control</div>
-        
-        <a href="{{ route('admin.reports') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.reports') ? 'sidebar-active' : '' }}">
-            <i class="ri-file-chart-line mr-3 text-xl"></i> Financial Reports
-        </a>
-
-        <a href="{{ route('admin.staff.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.staff*') ? 'sidebar-active' : '' }}">
-            <i class="ri-team-line mr-3 text-xl"></i> Staff Payroll
-        </a>
+    <div x-data="{ open: {{ request()->routeIs('admin.reports') || request()->routeIs('admin.staff.*') ? 'true' : 'false' }} }">
+        <button @click="open = !open" class="w-full flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition focus:outline-none" :class="{'bg-white/10': open}">
+            <div class="flex items-center">
+                <i class="ri-bank-line mr-3 text-xl"></i> Finance Control
+            </div>
+            <i class="ri-arrow-down-s-line transition-transform duration-200" :class="{'rotate-180': open}"></i>
+        </button>
+        <div x-show="open" class="bg-black/10 text-sm">
+            <a href="{{ route('admin.reports') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.reports') ? 'text-white font-bold' : 'text-white/70' }}">
+                Reports
+            </a>
+            <a href="{{ route('admin.staff.index') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.staff*') ? 'text-white font-bold' : 'text-white/70' }}">
+                Staff Payroll
+            </a>
+        </div>
+    </div>
     @endif
 
 
