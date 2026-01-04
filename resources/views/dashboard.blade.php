@@ -660,8 +660,8 @@
         <ul class="nav__links" id="nav-links">
           <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
           <li><a href="{{ url('/#vehicles') }}">Vehicles</a></li>
-          <li><a href="{{ url('/#contact') }}">Contact</a></li>
-          <li><a href="{{ url('/#about') }}">About Us</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="#about">About Us</a></li>
           <li><a href="{{ route('profile.edit') }}">My Profile</a></li>
 
           <li class="mobile-only">
@@ -922,7 +922,7 @@
             <li><a href="#">Community Help</a></li>
           </ul>
         </div>
-        <div class="footer__col">
+        <div class="footer__col" id="about">
           <h4>Company</h4>
           <ul class="footer__links">
             <li><a href="#">About Us</a></li>
@@ -940,7 +940,7 @@
             <li><a href="#">Features</a></li>
           </ul>
         </div>
-        <div class="footer__col">
+        <div class="footer__col" id="contact">
           <h4>Follow Us</h4>
           <ul class="footer__socials">
             <li>
