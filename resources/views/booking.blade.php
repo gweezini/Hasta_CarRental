@@ -631,6 +631,34 @@
         }
       }
 
+      /* Refund Box Styling */
+      .refund-box {
+        background-color: #fcfcfc;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 1.5rem;
+        transition: 0.3s;
+      }
+      .refund-box:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 5px 15px rgba(236, 90, 41, 0.05);
+      }
+      
+      .input-with-icon {
+        position: relative;
+      }
+      .input-with-icon i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary-color);
+        font-size: 1.1rem;
+      }
+      .input-with-icon input {
+        padding-left: 45px !important; 
+      }
+
       /* Ensure typed form text is dark for readability */
       input[type="text"],
       input[type="tel"],
@@ -1019,11 +1047,44 @@
                     required
                   />
                 </div>
-              </div>
+                </div>
 
               <div class="form__section">
-                <h3><i class="ri-bank-card-line"></i> Payment Method</h3>
+                <h3><i class="ri-secure-payment-line"></i> Payment & Refund</h3>
+                
+                <h4 style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary-color);">Refund Details</h4>
+                <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
+                    <i class="ri-information-line"></i> Please provide your bank details for secure deposit refund.
+                </p>
+                <div class="refund-box" style="margin-bottom: 2rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="input__group">
+                            <label>Bank Name</label>
+                            <div class="input-with-icon">
+                                <i class="ri-bank-line"></i>
+                                <input type="text" name="refund_bank_name" placeholder="e.g. Maybank" required />
+                            </div>
+                        </div>
+                        <div class="input__group">
+                            <label>Account Number</label>
+                             <div class="input-with-icon">
+                                <i class="ri-hashtag"></i>
+                                <input type="text" name="refund_account_number" placeholder="e.g. 1122334455" required />
+                            </div>
+                        </div>
+                        <div class="input__group" style="grid-column: 1 / -1;">
+                            <label>Recipient Name</label>
+                             <div class="input-with-icon">
+                                <i class="ri-user-star-line"></i>
+                                <input type="text" name="refund_recipient_name" placeholder="Name as per bank account" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                <hr style="border: 0; border-top: 1px dashed #ccc; margin-bottom: 2rem;">
+
+                <h4 style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary-color);">Make Payment</h4>
                 <div class="payment-card">
                   <input
                     type="radio"
@@ -1104,9 +1165,7 @@
                 </div>
               </div>
 
-              <button type="submit" class="btn btn-primary">
-                Confirm Booking
-              </button>
+
 
               {{-- SESSION ALERTS --}}
               @if (session('success'))
@@ -1181,6 +1240,14 @@
               <span>Discount</span>
               <strong id="summary-discount">- RM {{ number_format($discount ?? 0, 2) }}</strong>
             </div>
+            
+            <div
+              style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"
+            >
+              <span>Security Deposit</span>
+              <strong id="summary-deposit">RM 0.00</strong>
+            </div>
+
             <hr style="margin: 1rem 0; opacity: 0.2;" />
 
             <div
@@ -1192,6 +1259,16 @@
              <div style="text-align: right; font-size: 0.8rem; color: #666; margin-top: 5px;">
                  <span id="summary-stamps">+ {{ $stamps ?? 0 }} Stamps</span>
              </div>
+
+             <!-- Moved generic submit button here -->
+              <button 
+                type="submit" 
+                form="bookingForm" 
+                class="btn btn-primary" 
+                style="width: 100%; margin-top: 1.5rem; font-size: 1.2rem; padding: 15px;"
+              >
+                  Confirm Booking <i class="ri-arrow-right-line"></i>
+              </button>
           </div>
         </div>
 
@@ -1342,6 +1419,7 @@
                     update('summary-subtotal', "RM " + data.subtotal);
                     update('summary-delivery', "RM " + data.delivery_fee);
                     update('summary-discount', "- RM " + data.discount);
+                    update('summary-deposit', "RM " + data.deposit);
                     update('summary-total', "RM " + data.total);
                     update('summary-stamps', "+ " + data.stamps + " Stamps");
                 })

@@ -129,6 +129,9 @@ class BookingController extends Controller
             'name' => 'required|string', 
             'phone' => 'required|string',
             'pickup_location' => 'required|string',
+            'refund_bank_name' => 'required|string',
+            'refund_account_number' => 'required|string',
+            'refund_recipient_name' => 'required|string',
         ]);
 
         $vehicle = Vehicle::findOrFail($request->vehicle_id);
@@ -224,8 +227,19 @@ class BookingController extends Controller
             $booking->emergency_contact_name = $request->emergency_name;
             $booking->emergency_contact_phone = $request->emergency_contact;
             
+            // New Refund Details
+            $booking->refund_bank_name = $request->refund_bank_name;
+            $booking->refund_account_number = $request->refund_account_number;
+            $booking->refund_recipient_name = $request->refund_recipient_name;
+
+            // Deposit Logic
+            // The deposit is RM50 for rental period that is less than 15 days, 
+            // 15 days and above, the deposit equals to the rental price.
+            $rentalDays = $start->floatDiffInDays($end);
+            $deposit = ($rentalDays < 15) ? 50 : $final_total;
+
             $booking->total_rental_fee = $final_total;
-            $booking->deposit_amount = $request->input('deposit_amount', 0);
+            $booking->deposit_amount = $deposit;
             $booking->promo_code = $request->input('manual_code') ?? null;
             $booking->voucher_id = $voucherId;
             $booking->payment_receipt = $receiptPath;
@@ -307,6 +321,9 @@ class BookingController extends Controller
             'pickup_location' => 'required|string',
             'name' => 'required|string',
             'phone' => 'required|string',
+            'refund_bank_name' => 'required|string',
+            'refund_account_number' => 'required|string',
+            'refund_recipient_name' => 'required|string',
         ]);
 
         try {
@@ -379,6 +396,15 @@ class BookingController extends Controller
         $booking->customer_phone = $request->phone;
         $booking->emergency_contact_name = $request->emergency_name;
         $booking->emergency_contact_phone = $request->emergency_contact;
+
+        $booking->refund_bank_name = $request->refund_bank_name;
+        $booking->refund_account_number = $request->refund_account_number;
+        $booking->refund_recipient_name = $request->refund_recipient_name;
+
+        // Recalculate Deposit
+        $rentalDays = $start->floatDiffInDays($end);
+        $deposit = ($rentalDays < 15) ? 50 : $final_total;
+        $booking->deposit_amount = $deposit;
         
         $booking->total_rental_fee = $final_total;
         
@@ -461,6 +487,11 @@ class BookingController extends Controller
             }
 
             $total = max(0, $subtotal + $deliveryFee - $discount);
+
+            // Deposit Logic
+            $rentalDays = $start->floatDiffInDays($end);
+            $deposit = ($rentalDays < 15) ? 50 : $total;
+
             $stamps = ($hours >= 3) ? 1 : 0;
 
             return response()->json([
@@ -469,6 +500,7 @@ class BookingController extends Controller
                 'delivery_fee' => number_format($deliveryFee, 2),
                 'discount' => number_format($discount, 2),
                 'total' => number_format($total, 2),
+                'deposit' => number_format($deposit, 2),
                 'stamps' => $stamps
             ]);
 

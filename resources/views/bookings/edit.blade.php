@@ -220,6 +220,35 @@
             background-color: #fff8f5;
             border: 2px solid #ec5a29;
         }
+        }
+      }
+
+      /* Refund Box Styling */
+      .refund-box {
+        background-color: #fcfcfc;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 1.5rem;
+        transition: 0.3s;
+      }
+      .refund-box:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 5px 15px rgba(236, 90, 41, 0.05);
+      }
+      
+      .input-with-icon {
+        position: relative;
+      }
+      .input-with-icon i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary-color);
+        font-size: 1.1rem;
+      }
+      .input-with-icon input {
+        padding-left: 45px !important; 
       }
     </style>
   </head>
@@ -386,9 +415,39 @@
                 </div>
               </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%;">
-              Update Booking
-            </button>
+
+
+            <div class="form__section">
+              <h3><i class="ri-secure-payment-line"></i> Refund Details</h3>
+              <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
+                  <i class="ri-information-line"></i> Please ensure your bank details are correct for any potential refunds.
+              </p>
+              <div class="refund-box">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                      <div class="input__group">
+                          <label>Bank Name</label>
+                          <div class="input-with-icon">
+                              <i class="ri-bank-line"></i>
+                              <input type="text" name="refund_bank_name" value="{{ old('refund_bank_name', $booking->refund_bank_name) }}" placeholder="e.g. Maybank" required />
+                          </div>
+                      </div>
+                      <div class="input__group">
+                          <label>Account Number</label>
+                          <div class="input-with-icon">
+                              <i class="ri-hashtag"></i>
+                              <input type="text" name="refund_account_number" value="{{ old('refund_account_number', $booking->refund_account_number) }}" placeholder="e.g. 1122334455" required />
+                          </div>
+                      </div>
+                      <div class="input__group" style="grid-column: 1 / -1;">
+                          <label>Recipient Name</label>
+                          <div class="input-with-icon">
+                              <i class="ri-user-star-line"></i>
+                              <input type="text" name="refund_recipient_name" value="{{ old('refund_recipient_name', $booking->refund_recipient_name) }}" placeholder="Name as per bank account" required />
+                          </div>
+                      </div>
+                  </div>
+              </div>
+            </div>
 
             @if ($errors->any())
             <div style="background-color: #ffe6e6; border: 1px solid #d93025; color: #d93025; padding: 1rem; border-radius: 8px; margin-top: 1.5rem;">
@@ -435,10 +494,24 @@
                 <span>Discount (Orig)</span>
                 <strong id="summary-discount">-</strong>
              </div>
+             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span>Security Deposit</span>
+                <strong id="summary-deposit">-</strong>
+             </div>
               <div style="display: flex; justify-content: space-between; font-size: 1.2rem; color: var(--primary-color); margin-top: 0.5rem;">
                 <span>New Estimated Total</span>
                 <strong id="summary-total">-</strong>
              </div>
+             
+             <!-- Moved generic submit button here -->
+              <button 
+                type="submit" 
+                form="bookingForm" 
+                class="btn btn-primary" 
+                style="width: 100%; margin-top: 1.5rem; font-size: 1.2rem; padding: 15px;"
+              >
+                  Update Booking <i class="ri-arrow-right-line"></i>
+              </button>
           </div>
         </div>
       </div>
@@ -619,6 +692,7 @@
                     document.getElementById('summary-subtotal').innerText = "RM " + data.subtotal;
                     document.getElementById('summary-delivery').innerText = "RM " + data.delivery_fee;
                     document.getElementById('summary-discount').innerText = "- RM " + data.discount;
+                    document.getElementById('summary-deposit').innerText = "RM " + data.deposit;
                     document.getElementById('summary-total').innerText = "RM " + data.total;
                 });
              }
