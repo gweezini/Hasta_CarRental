@@ -7,6 +7,7 @@
       href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
       rel="stylesheet"
     />
+    <script src="//unpkg.com/alpinejs" defer></script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Syncopate:wght@400;700&display=swap");
 
@@ -166,7 +167,127 @@
 
       .nav__btn {
         display: flex;
+        align-items: center;
         gap: 1rem;
+      }
+
+      .notif-wrapper {
+        position: relative;
+        margin-right: 5px;
+      }
+
+      .notif-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--white);
+        font-size: 1.5rem;
+        position: relative;
+        display: flex;
+        align-items: center;
+        transition: 0.3s;
+      }
+      
+      .notif-btn:hover {
+        color: var(--primary-color);
+      }
+
+      .notif-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 10px;
+        height: 10px;
+        background-color: #ef4444;
+        border-radius: 50%;
+        border: 2px solid var(--text-dark);
+      }
+
+      nav.nav__fixed .notif-badge {
+        border-color: var(--text-dark);
+      }
+      
+      .notif-badge {
+         border-color: rgba(0,0,0,0.5);
+      }
+
+      .notif-dropdown {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 15px;
+        width: 320px;
+        background-color: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        overflow: hidden;
+        z-index: 1001;
+        text-align: left;
+        color: var(--text-dark);
+      }
+
+      .notif-header {
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        background: #f9f9f9;
+      }
+
+      .notif-item {
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: start;
+        gap: 10px;
+        transition: 0.2s;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .notif-item:hover {
+        background-color: #f5f5f5;
+      }
+
+      .notif-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .notif-icon.success { background: #dcfce7; color: #16a34a; }
+      .notif-icon.error { background: #fee2e2; color: #dc2626; }
+      .notif-icon.info { background: #dbeafe; color: #2563eb; }
+
+      .notif-content p {
+        font-size: 0.85rem;
+        font-weight: 500;
+        line-height: 1.4;
+        margin-bottom: 4px;
+      }
+
+      .notif-content span {
+        font-size: 0.7rem;
+        color: var(--text-light);
+      }
+
+      .notif-footer {
+        padding: 12px;
+        text-align: center;
+        background: #f9f9f9;
+        border-top: 1px solid #f0f0f0;
+      }
+
+      .notif-footer a {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--primary-color);
       }
 
       .mobile-only {
@@ -557,15 +678,93 @@
             <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
           @else
             {{-- User is logged in --}}
-            <a href="{{ route('profile.edit') }}" class="btn btn-transparent">
-                <strong>My Profile</strong>
-            </a>
-            <form method="POST" action="{{ route('logout') }}" style="display: inline-block;">
-                @csrf
-                <button type="submit" class="btn btn-primary">
-                    Logout
+            <div x-data="{ open: false }" class="notif-wrapper">
+              <button @click="open = !open" @click.away="open = false" class="notif-btn">
+                 <i class="ri-notification-3-line"></i>
+                 @if(Auth::user()->unreadNotifications->count() > 0)
+                     <span class="notif-badge"></span>
+                 @endif
+              </button>
+ 
+              <div x-show="open" style="display: none;" class="notif-dropdown">
+                 <div class="notif-header">
+                     <span>Notifications</span>
+                     @if(Auth::user()->unreadNotifications->count() > 0)
+                         <span style="font-size: 0.7rem; background: #fee2e2; color: #dc2626; padding: 2px 6px; border-radius: 10px;">{{ Auth::user()->unreadNotifications->count() }} New</span>
+                     @endif
+                 </div>
+ 
+                 <div style="max-height: 300px; overflow-y: auto;">
+                     @forelse(Auth::user()->notifications->take(3) as $notification)
+                         <div class="notif-item">
+                             <div class="notif-icon {{ isset($notification->data['status']) && $notification->data['status'] == 'Approved' ? 'success' : (isset($notification->data['status']) && $notification->data['status'] == 'Rejected' ? 'error' : 'info') }}">
+                                 @if(isset($notification->data['status']) && $notification->data['status'] == 'Approved')
+                                     <i class="ri-check-line"></i>
+                                 @elseif(isset($notification->data['status']) && $notification->data['status'] == 'Rejected')
+                                     <i class="ri-close-line"></i>
+                                 @else
+                                     <i class="ri-notification-line"></i>
+                                 @endif
+                             </div>
+                             <div class="notif-content">
+                                 <p>{{ $notification->data['message'] ?? 'New Notification' }}</p>
+                                 <span>{{ $notification->created_at->diffForHumans() }}</span>
+                             </div>
+                         </div>
+                     @empty
+                         <div style="padding: 20px; text-align: center; color: #999; font-size: 0.85rem;">
+                             No notifications
+                         </div>
+                     @endforelse
+                 </div>
+ 
+                 <div class="notif-footer">
+                     <a href="{{ route('profile.edit', ['tab' => 'notifications']) }}">View All Notifications</a>
+                 </div>
+              </div>
+           </div>
+
+
+            <div x-data="{ userOpen: false }" style="position: relative;">
+                <button @click="userOpen = !userOpen" @click.away="userOpen = false" style="display: flex; align-items: center; gap: 0.5rem; background: none; border: none; cursor: pointer; outline: none;" class="group">
+                    <img style="height: 36px; width: 36px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; transition: border-color 0.3s;" 
+                         onmouseover="this.style.borderColor='#ec5a29'" 
+                         onmouseout="this.style.borderColor='transparent'"
+                         src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=ec5a29&color=fff" 
+                         alt="Profile">
+                    <span style="color: white; font-size: 0.875rem; font-weight: 500; transition: color 0.3s;" 
+                          onmouseover="this.style.color='#ec5a29'" 
+                          onmouseout="this.style.color='white'"
+                          class="hidden md:block">{{ Auth::user()->name }}</span>
+                    <i class="ri-arrow-down-s-line" style="color: white; transition: color 0.3s;"
+                       onmouseover="this.style.color='#ec5a29'" 
+                       onmouseout="this.style.color='white'"></i>
                 </button>
-            </form>
+
+                <div x-show="userOpen" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 12px; width: 12rem; background-color: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; z-index: 50; border: 1px solid #f3f4f6; padding: 4px 0;"
+                     x-transition>
+                    
+                    <div style="padding: 12px 16px; border-bottom: 1px solid #f9fafb;">
+                        <p style="font-size: 0.75rem; color: #6b7280; margin-bottom: 2px;">Signed in as</p>
+                        <p style="font-size: 0.875rem; font-weight: 700; color: #1f2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ Auth::user()->email }}</p>
+                    </div>
+
+                    <a href="{{ route('profile.edit') }}" style="display: block; padding: 8px 16px; font-size: 0.875rem; color: #374151; transition: background-color 0.2s; text-decoration: none;"
+                       onmouseover="this.style.backgroundColor='#f9fafb'; this.style.color='#ec5a29'"
+                       onmouseout="this.style.backgroundColor='transparent'; this.style.color='#374151'">
+                        <i class="ri-user-line" style="margin-right: 8px; vertical-align: middle;"></i> <strong>My Profile</strong>
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                        @csrf
+                        <button type="submit" style="width: 100%; text-align: left; padding: 8px 16px; font-size: 0.875rem; color: #dc2626; background: none; border: none; font-weight: 500; cursor: pointer; transition: background-color 0.2s;"
+                                onmouseover="this.style.backgroundColor='#fef2f2'"
+                                onmouseout="this.style.backgroundColor='transparent'">
+                            <i class="ri-logout-box-r-line" style="margin-right: 8px; vertical-align: middle;"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
           @endguest
         </div>
       </nav>
@@ -730,7 +929,7 @@
             <li><a href="#">Community Help</a></li>
           </ul>
         </div>
-        <div class="footer__col">
+        <div class="footer__col" id="about">
           <h4>Company</h4>
           <ul class="footer__links">
             <li><a href="#">About Us</a></li>
@@ -748,7 +947,7 @@
             <li><a href="#">Features</a></li>
           </ul>
         </div>
-        <div class="footer__col">
+        <div class="footer__col" id="contact">
           <h4>Follow Us</h4>
           <ul class="footer__socials">
             <li>
