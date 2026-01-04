@@ -47,6 +47,7 @@
                         <option value="Extra Job (By Task)">Extra Job (By Task)</option>
                         <option value="Service & Maintenance">Service & Maintenance</option>
                         <option value="Office Equipments">Office Equipments</option>
+                        <option value="Summon">Summon</option>
                         <option value="Booth">Booth</option>
                         <option value="Others">Others</option>
                     </select>
