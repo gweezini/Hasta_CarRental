@@ -4,6 +4,12 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto">
+    @if(session('success'))
+        <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-xl shadow-sm flex items-center gap-3">
+            <i class="ri-checkbox-circle-fill text-xl"></i>
+            <span class="font-bold">{{ session('success') }}</span>
+        </div>
+    @endif
     <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
         {{-- Header Decoration --}}
         <div class="bg-[#cb5c55] p-8 text-center text-white">
@@ -141,7 +147,7 @@
                         </td>
                         <td class="px-8 py-5 text-center">
                             @if($claim->receipt_path)
-                                <a href="{{ asset($claim->receipt_path) }}" target="_blank" 
+                                <a href="{{ asset('storage/' . $claim->receipt_path) }}" target="_blank" 
                                     class="inline-flex items-center gap-1.5 text-[10px] font-black text-[#cb5c55] uppercase tracking-widest hover:underline">
                                     <i class="ri-file-list-3-line text-sm"></i> View Receipt
                                 </a>
