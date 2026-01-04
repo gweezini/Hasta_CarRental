@@ -32,18 +32,21 @@ class AdminController extends Controller
         $insuranceAlerts = Vehicle::where('insurance_expiry', '<=', Carbon::now()->addDays(30))
                                   ->orderBy('insurance_expiry', 'asc')->get();
 
-        $facultyStats = User::where('role', 'customer')
-                            ->select('faculty_id', DB::raw('count(*) as total'))
-                            ->groupBy('faculty_id')->with('faculty')->get();
-        
-        $facultyLabels = $facultyStats->map(fn($item) => str_replace('Faculty of ', '', $item->faculty->name ?? 'Unknown'));
-        $facultyCounts = $facultyStats->pluck('total');
+        $allCustomers = User::where('role', 'customer')->with(['faculty', 'college'])->get();
 
-        $collegeStats = User::where('role', 'customer')
-                            ->select('college_id', DB::raw('count(*) as total'))
-                            ->groupBy('college_id')->with('college')->get();
-        $collegeLabels = $collegeStats->map(fn($item) => $item->college->name ?? 'Unknown');
-        $collegeCounts = $collegeStats->pluck('total');
+        // Faculty Stats (PHP Groupping)
+        $facultyStats = $allCustomers->groupBy(fn($u) => $u->faculty->name ?? 'Unknown')
+                                     ->map->count();
+        
+        $facultyLabels = $facultyStats->keys()->map(fn($name) => str_replace('Faculty of ', '', $name))->values();
+        $facultyCounts = $facultyStats->values();
+
+        // College Stats (PHP Groupping)
+        $collegeStats = $allCustomers->groupBy(fn($u) => $u->college->name ?? 'Unknown')
+                                     ->map->count();
+        
+        $collegeLabels = $collegeStats->keys()->values();
+        $collegeCounts = $collegeStats->values();
 
         $bookings = Booking::with(['user', 'vehicle', 'processedBy'])
                             ->orderBy('updated_at', 'desc')
