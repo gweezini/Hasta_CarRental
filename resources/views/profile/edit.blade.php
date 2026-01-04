@@ -167,7 +167,7 @@
             </div>
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-900">My Profile</h1>
-                <p class="text-sm text-gray-500 mt-1">Manage your bookings and personal information</p>
+                <p class="text-sm text-gray-500 mt-1">Manage your bookings and profile information</p>
             </div>
 
             <div class="bg-white p-1.5 rounded-xl shadow-sm border border-gray-100 inline-flex items-center mb-6 overflow-x-auto max-w-full">
@@ -180,7 +180,7 @@
                 </button>
 
                 <button onclick="openTab('personal')" id="tab-personal" class="px-6 py-2.5 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 transition-all whitespace-nowrap mr-2">
-                    Personal Info
+                    My Profile
                 </button>
 
                 <button onclick="openTab('notifications')" id="tab-notifications" class="relative px-6 py-2.5 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 transition-all whitespace-nowrap flex items-center gap-2">
