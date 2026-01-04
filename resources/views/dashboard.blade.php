@@ -658,10 +658,11 @@
           </div>
         </div>
         <ul class="nav__links" id="nav-links">
-          <li><a href="#home">Dashboard</a></li>
-          <li><a href="#vehicles">Vehicles</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li><a href="#about">About Us</a></li>
+          <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url('/#vehicles') }}">Vehicles</a></li>
+          <li><a href="{{ url('/#contact') }}">Contact</a></li>
+          <li><a href="{{ url('/#about') }}">About Us</a></li>
+          <li><a href="{{ route('profile.edit') }}">My Profile</a></li>
 
           <li class="mobile-only">
             <a href="{{ route('profile.edit', ['tab' => 'notifications']) }}">Notifications 
@@ -759,7 +760,7 @@
                     <a href="{{ route('profile.edit') }}" style="display: block; padding: 8px 16px; font-size: 0.875rem; color: #374151; transition: background-color 0.2s; text-decoration: none;"
                        onmouseover="this.style.backgroundColor='#f9fafb'; this.style.color='#ec5a29'"
                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#374151'">
-                        <i class="ri-user-line" style="margin-right: 8px; vertical-align: middle;"></i> Personal Info
+                        <i class="ri-user-line" style="margin-right: 8px; vertical-align: middle;"></i> <strong>My Profile</strong>
                     </a>
 
                     <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
