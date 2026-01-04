@@ -205,6 +205,14 @@ class AdminController extends Controller
     {
         try {
             $booking = Booking::findOrFail($id);
+            
+            // Check if return inspection exists
+            $hasReturnInspection = $booking->inspections()->where('type', 'return')->exists();
+            
+            if (!$hasReturnInspection) {
+                return redirect()->back()->with('error', 'Cannot mark as returned. Customer has not submitted the return inspection form yet.');
+            }
+
             $booking->status = 'Completed';
             $booking->processed_by = Auth::id(); 
             $booking->save();
