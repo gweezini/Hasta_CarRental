@@ -23,7 +23,8 @@ class Vehicle extends Model
     'vehicle_id_custom',
     'current_fuel_bars', 
     'vehicle_image',     
-    'car_owner_id'      
+    'car_owner_id',
+    'pricing_tier_id'      
 ];
 
     public function bookings(): HasMany
