@@ -138,6 +138,111 @@
 
                 </div>
             </div>
+            {{-- Maintenance History Section --}}
+            <div class="mt-8 border-t border-gray-100 pt-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <i class="ri-tools-line text-[#cb5c55]"></i> Maintenance History
+                    </h3>
+                    <button onclick="document.getElementById('maintenanceModal').classList.remove('hidden')" 
+                            class="text-base font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-5 py-2.5 rounded-lg transition shadow-sm border border-blue-100">
+                        + Add Record
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-50 text-[10px] uppercase text-gray-400 font-bold tracking-wider border-b">
+                            <tr>
+                                <th class="px-6 py-4">Date</th>
+                                <th class="px-6 py-4">Description</th>
+                                <th class="px-6 py-4">Recorded By</th>
+                                <th class="px-6 py-4 text-right">Cost (RM)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse($vehicle->maintenanceLogs->sortByDesc('date') as $log)
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 font-mono text-gray-600">
+                                        {{ \Carbon\Carbon::parse($log->date)->format('d M Y') }}
+                                    </td>
+                                    <td class="px-6 py-4 font-medium text-gray-800">
+                                        {{ $log->description }}
+                                    </td>
+                                    <td class="px-6 py-4 text-xs text-gray-500">
+                                        {{ $log->user->name ?? 'System' }}
+                                    </td>
+                                    <td class="px-6 py-4 text-right font-bold text-[#cb5c55]">
+                                        {{ number_format($log->cost, 2) }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="px-6 py-8 text-center text-gray-400 italic">
+                                        No maintenance records found.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                        @if($vehicle->maintenanceLogs->count() > 0)
+                            <tfoot class="bg-gray-50 border-t">
+                                <tr>
+                                    <td colspan="3" class="px-6 py-4 text-right font-bold text-gray-600 uppercase text-xs tracking-wider">Total Cost</td>
+                                    <td class="px-6 py-4 text-right font-black text-lg text-[#cb5c55]">
+                                        {{ number_format($vehicle->maintenanceLogs->sum('cost'), 2) }}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        @endif
+                    </table>
+                </div>
+            </div>
+
         </div> 
     </div>
 @endsection
+
+{{-- Maintenance Modal --}}
+<div id="maintenanceModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('maintenanceModal').classList.add('hidden')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form action="{{ route('admin.vehicle.maintenance.store', $vehicle->id) }}" method="POST">
+                @csrf
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">Record Maintenance</h3>
+                            <div class="mt-4 space-y-4">
+                                <div>
+                                    <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                                    <input type="date" name="date" id="date" required
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                                    <input type="text" name="description" id="description" required placeholder="e.g. Oil Change, Tire Replacement"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label for="cost" class="block text-sm font-medium text-gray-700">Cost (RM)</label>
+                                    <input type="number" step="0.01" name="cost" id="cost" required placeholder="0.00"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#cb5c55] text-base font-medium text-white hover:bg-[#b04a43] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Save Record
+                    </button>
+                    <button type="button" onclick="document.getElementById('maintenanceModal').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
