@@ -418,6 +418,7 @@
       }
 
       .range__card {
+        flex: 0 1 calc((100% - 4rem) / 3); /* (100% - 2 gaps of 2rem) / 3 items */
         background-color: #ffffff;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -574,7 +575,7 @@
 
       @media (max-width: 1024px) {
         .range__card {
-          flex: 0 1 calc(50% - 2rem);
+          flex: 0 1 calc(50% - 1rem); /* 2 cols */
         }
       }
 
