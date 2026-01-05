@@ -77,6 +77,11 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     Route::get('/bookings/{id}/show', [AdminController::class, 'show'])->name('admin.bookings.show_detail');
     
+    // Fines Management
+    Route::post('/bookings/{id}/fine', [AdminController::class, 'storeFine'])->name('admin.bookings.fine.store');
+    Route::post('/fines/{id}/pay', [AdminController::class, 'payFine'])->name('admin.fines.pay');
+    Route::delete('/fines/{id}', [AdminController::class, 'deleteFine'])->name('admin.fines.destroy');
+    
     // Notification Center
     Route::get('/notifications', [AdminController::class, 'notifications'])->name('admin.notifications');
 
