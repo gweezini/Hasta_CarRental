@@ -26,19 +26,22 @@ class PasswordResetLinkController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'exists:users,email'],
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $request->only('email')
+        $otp = rand(100000, 999999);
+        $email = $request->email;
+
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $email],
+            [
+                'token' => \Illuminate\Support\Facades\Hash::make($otp),
+                'created_at' => \Carbon\Carbon::now()
+            ]
         );
 
-        return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+        \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\OtpMail($otp));
+
+        return redirect()->route('password.verify_otp', ['email' => $email])->with('status', 'OTP sent to your email!');
     }
 }
