@@ -169,6 +169,78 @@
     {{-- FULL WIDTH SECTION FOR INSPECTIONS & FEEDBACK --}}
     <div class="lg:col-span-3 space-y-8 mt-6 border-t border-gray-100 pt-8">
         
+        {{-- 0. FINES & PENALTIES --}}
+        <div id="fines-section" class="scroll-mt-24">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-gray-800 tracking-tight flex items-center gap-2">
+                    <i class="ri-alert-fill text-red-500"></i> Fines & Penalties
+                </h3>
+                <button onclick="document.getElementById('fineModal').classList.remove('hidden')" 
+                        class="bg-red-50 text-red-600 hover:bg-red-100 font-bold px-4 py-2 rounded-lg transition text-sm flex items-center gap-2 border border-red-200 shadow-sm">
+                    <i class="ri-add-line"></i> Issue Fine
+                </button>
+            </div>
+
+            @if($booking->fines->count() > 0)
+                <div class="bg-white rounded-xl border border-red-100 shadow-sm overflow-hidden">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-red-50 text-red-800 uppercase text-[10px] font-black tracking-widest border-b border-red-100">
+                            <tr>
+                                <th class="px-6 py-4">Reason</th>
+                                <th class="px-6 py-4">Amount</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @foreach($booking->fines as $fine)
+                                <tr class="hover:bg-red-50/30 transition">
+                                    <td class="px-6 py-4 font-bold text-gray-800">{{ $fine->reason }}</td>
+                                    <td class="px-6 py-4 font-mono text-gray-600">RM {{ number_format($fine->amount, 2) }}</td>
+                                    <td class="px-6 py-4">
+                                        @if($fine->status == 'Paid')
+                                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-200">
+                                                Paid
+                                            </span>
+                                            <div class="text-[10px] text-gray-400 mt-1">
+                                                {{ $fine->paid_at ? \Carbon\Carbon::parse($fine->paid_at)->format('d M Y') : '' }}
+                                            </div>
+                                        @else
+                                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-200">
+                                                Unpaid
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 text-center flex items-center justify-center gap-2">
+                                        @if($fine->status == 'Unpaid')
+                                            <form action="{{ route('admin.fines.pay', $fine->id) }}" method="POST" onsubmit="return confirm('Confirm fine collection?')">
+                                                @csrf
+                                                <button type="submit" class="bg-green-500 text-white text-[10px] font-black px-4 py-2 rounded-lg shadow hover:bg-green-600 transition uppercase tracking-widest transform hover:scale-105">
+                                                    Mark Paid
+                                                </button>
+                                            </form>
+                                        @endif
+                                        <form action="{{ route('admin.fines.destroy', $fine->id) }}" method="POST" onsubmit="return confirm('Delete this fine record?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="bg-white text-gray-400 border border-gray-200 hover:text-red-500 hover:border-red-200 hover:bg-red-50 font-bold text-[10px] px-3 py-2 rounded-lg transition uppercase shadow-sm flex items-center justify-center" title="Delete record">
+                                                <i class="ri-delete-bin-line text-sm"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-400">
+                    <i class="ri-shield-check-line text-3xl mb-2 text-green-500"></i>
+                    <p class="text-xs font-bold uppercase tracking-widest">Clean Record - No Fines</p>
+                </div>
+            @endif
+        </div>
+        
         {{-- 1. INSPECTION REPORTS --}}
         @if($booking->inspections->count() > 0)
             <div id="inspection-section" class="scroll-mt-24">
@@ -286,4 +358,50 @@ document.addEventListener('keydown', function(e) {
     if (e.key === "Escape") closeFullImage();
 });
 </script>
+
+{{-- Fine Modal --}}
+<div id="fineModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('fineModal').classList.add('hidden')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form action="{{ route('admin.bookings.fine.store', $booking->id) }}" method="POST">
+                @csrf
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i class="ri-alert-line text-red-600"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">Issue Fine / Penalty</h3>
+                            <div class="mt-2 text-sm text-gray-500">
+                                <p>This will be recorded in the booking details.</p>
+                            </div>
+                            <div class="mt-4 space-y-4">
+                                <div>
+                                    <label for="reason" class="block text-sm font-medium text-gray-700">Reason</label>
+                                    <input type="text" name="reason" id="reason" required placeholder="e.g. Minor scratch on bumper, Late return (2 hours)"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label for="amount" class="block text-sm font-medium text-gray-700">Amount (RM)</label>
+                                    <input type="number" step="0.01" name="amount" id="amount" required placeholder="0.00"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Issue Fine
+                    </button>
+                    <button type="button" onclick="document.getElementById('fineModal').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
