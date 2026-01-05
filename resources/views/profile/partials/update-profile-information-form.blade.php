@@ -19,21 +19,72 @@
         </div>
 
         <div>
+            <x-input-label for="matric_staff_id" :value="__('Matric / Staff ID')" />
+            <x-text-input id="matric_staff_id" name="matric_staff_id" type="text" class="mt-1 block w-full" :value="old('matric_staff_id', $user->matric_staff_id)" required />
+            <x-input-error class="mt-2" :messages="$errors->get('matric_staff_id')" />
+        </div>
+
+        <div>
+            <x-input-label for="nric_passport" :value="__('NRIC / Passport No.')" />
+            <x-text-input id="nric_passport" name="nric_passport" type="text" class="mt-1 block w-full" :value="old('nric_passport', $user->nric_passport)" required />
+            <x-input-error class="mt-2" :messages="$errors->get('nric_passport')" />
+        </div>
+
+        <div>
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
         </div>
 
+        @php
+            $currentNationality = old('nationality', $user->nationality);
+            $isCustom = !in_array($currentNationality, $nationalities) && !empty($currentNationality);
+            $selectedNationality = $isCustom ? 'Other' : $currentNationality;
+        @endphp
+
+        <div>
+            <x-input-label for="nationality" :value="__('Nationality')" />
+            <select id="nationality" name="nationality" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                @foreach($nationalities as $option)
+                    <option value="{{ $option }}" {{ $selectedNationality == $option ? 'selected' : '' }}>
+                        {{ $option }}
+                    </option>
+                @endforeach
+            </select>
+            <x-input-error class="mt-2" :messages="$errors->get('nationality')" />
+        </div>
+
+        <div id="other_nationality_wrapper" style="{{ $selectedNationality == 'Other' ? 'display: block;' : 'display: none;' }}">
+            <x-input-label for="other_nationality" :value="__('Please specify your Nationality')" />
+            <x-text-input id="other_nationality" name="other_nationality" type="text" class="mt-1 block w-full" :value="old('other_nationality', $isCustom ? $currentNationality : '')" />
+            <x-input-error class="mt-2" :messages="$errors->get('other_nationality')" />
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const natSelect = document.getElementById('nationality');
+                const otherWrapper = document.getElementById('other_nationality_wrapper');
+                const otherInput = document.getElementById('other_nationality');
+
+                function toggleOtherNationality() {
+                    if (natSelect.value === 'Other') {
+                        otherWrapper.style.display = 'block';
+                        otherInput.required = true;
+                    } else {
+                        otherWrapper.style.display = 'none';
+                        otherInput.required = false;
+                        otherInput.value = ''; // Optional: clear it if hidden
+                    }
+                }
+
+                natSelect.addEventListener('change', toggleOtherNationality);
+            });
+        </script>
+
         <div>
             <x-input-label for="phone_number" :value="__('Phone Number')" />
             <x-text-input id="phone_number" name="phone_number" type="text" class="mt-1 block w-full" :value="old('phone_number', $user->phone_number)" required />
             <x-input-error class="mt-2" :messages="$errors->get('phone_number')" />
-        </div>
-
-        <div>
-            <x-input-label for="address" :value="__('Address')" />
-            <x-text-input id="address" name="address" type="text" class="mt-1 block w-full" :value="old('address', $user->address)" required />
-            <x-input-error class="mt-2" :messages="$errors->get('address')" />
         </div>
 
         <div>
@@ -43,10 +94,11 @@
         </div>
 
         <div>
-            <x-input-label for="matric_staff_id" :value="__('Matric / Staff ID')" />
-            <x-text-input id="matric_staff_id" name="matric_staff_id" type="text" class="mt-1 block w-full" :value="old('matric_staff_id', $user->matric_staff_id)" required />
-            <x-input-error class="mt-2" :messages="$errors->get('matric_staff_id')" />
+            <x-input-label for="address" :value="__('Address')" />
+            <x-text-input id="address" name="address" type="text" class="mt-1 block w-full" :value="old('address', $user->address)" required />
+            <x-input-error class="mt-2" :messages="$errors->get('address')" />
         </div>
+
 
         <div>
             <x-input-label for="college_id" :value="__('College')" />
@@ -114,13 +166,17 @@
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
             @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Your profile has been updated.',
+                            confirmButtonColor: '#ec5a29',
+                            timer: 3000
+                        });
+                    });
+                </script>
             @endif
         </div>
     </form>
