@@ -31,8 +31,8 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @foreach($customers as $customer)
-                    <tr x-data="{ showBlacklistModal: false }" class="hover:bg-gray-50 transition {{ $customer->is_blacklisted ? 'bg-red-50/20' : '' }}">
-                        <td class="px-6 py-4 font-bold text-gray-400 text-xs">#{{ $customer->id }}</td>
+                    <tr x-data="{ showBlacklistModal: false }" class="hover:bg-gray-50 transition cursor-pointer {{ $customer->is_blacklisted ? 'bg-red-50/20' : '' }}" onclick="window.location='{{ route('admin.customers.show', $customer->id) }}'">
+                        <td class="px-6 py-4 font-bold text-gray-400 text-xs text-left">#{{ $customer->id }}</td>
                         
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
@@ -40,9 +40,9 @@
                                     {{ substr($customer->name, 0, 1) }}
                                 </div>
                                 <div>
-                                    <a href="{{ route('admin.customers.show', $customer->id) }}" class="font-bold text-gray-800 hover:text-[#cb5c55] hover:underline transition block">
+                                    <span class="font-bold text-gray-800 hover:text-[#cb5c55] transition block">
                                         {{ $customer->name }}
-                                    </a>
+                                    </span>
                                     
                                     @if($customer->is_blacklisted)
                                         <p class="text-[10px] text-red-600 font-bold mt-0.5 bg-red-100 px-1.5 py-0.5 rounded w-fit">
@@ -86,41 +86,19 @@
 
                         <td class="px-6 py-4 text-center">
                             <div class="flex items-center justify-center gap-2">
-                                <a href="{{ route('admin.customers.show', $customer->id) }}" class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-md text-[10px] font-bold uppercase tracking-wider hover:bg-gray-200 hover:text-gray-800 transition">
+                                <a href="{{ route('admin.customers.show', $customer->id) }}" class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-md text-[10px] font-bold uppercase tracking-wider hover:bg-gray-200 hover:text-gray-800 transition shadow-sm">
                                     View
                                 </a>
 
                                 @if($customer->is_blacklisted)
-                                    <form action="{{ route('admin.customers.blacklist', $customer->id) }}" method="POST" onsubmit="return confirm('Confirm to whitelist this user?')">
-                                        @csrf
-                                        <button type="submit" class="px-3 py-1.5 bg-green-50 text-green-600 rounded-md text-[10px] font-bold uppercase tracking-wider hover:bg-green-100 hover:text-green-800 transition">
-                                            Whitelist
-                                        </button>
-                                    </form>
+                                    <a href="{{ route('admin.customers.show', $customer->id) }}" class="px-3 py-1.5 bg-green-50 text-green-600 rounded-md text-[10px] font-bold uppercase tracking-wider hover:bg-green-100 hover:text-green-800 transition">
+                                        Whitelist
+                                    </a>
                                 @else
-                                    <button @click="showBlacklistModal = true" class="px-3 py-1.5 bg-red-50 text-red-600 rounded-md text-[10px] font-bold uppercase tracking-wider hover:bg-red-100 hover:text-red-800 transition">
+                                    <a href="{{ route('admin.customers.show', $customer->id) }}" class="px-3 py-1.5 bg-red-50 text-red-600 rounded-md text-[10px] font-bold uppercase tracking-wider hover:bg-red-100 hover:text-red-800 transition">
                                         Blacklist
-                                    </button>
+                                    </a>
                                 @endif
-                            </div>
-
-                            <div x-show="showBlacklistModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                                <div @click.away="showBlacklistModal = false" class="bg-white rounded-xl shadow-2xl w-96 p-6 text-left transform transition-all scale-100 border border-gray-100">
-                                    <h3 class="text-lg font-bold text-gray-800 mb-2">Blacklist User</h3>
-                                    <p class="text-xs text-gray-500 mb-4">Please provide a reason for blacklisting <strong>{{ $customer->name }}</strong>.</p>
-                                    
-                                    <form action="{{ route('admin.customers.blacklist', $customer->id) }}" method="POST">
-                                        @csrf
-                                        <textarea name="blacklist_reason" rows="3" required placeholder="Reason (e.g. Damaged vehicle...)" class="w-full text-sm border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 mb-4 p-3 bg-gray-50 border outline-none resize-none"></textarea>
-                                        
-                                        <div class="flex justify-end gap-2">
-                                            <button type="button" @click="showBlacklistModal = false" class="px-4 py-2 text-xs font-bold text-gray-500 bg-gray-100 rounded-lg hover:bg-gray-200 transition">Cancel</button>
-                                            <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition shadow-lg">
-                                                Confirm
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
                             </div>
                         </td>
                     </tr>
