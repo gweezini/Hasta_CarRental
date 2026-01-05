@@ -35,6 +35,7 @@ class User extends Authenticatable
 
         // --- Student Specific (Nullable for Staff) ---
         'driving_license',  // Renamed from 'license_number' to match ERD 'DrivingLicense'
+        'nationality',
         'address',          // From ERD 'CustomerAddress'
         'college_id',
         'faculty_id',

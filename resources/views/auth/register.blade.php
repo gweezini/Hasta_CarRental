@@ -49,6 +49,51 @@
             </div>
 
             <div class="mt-4">
+                <x-input-label for="nationality" :value="__('Nationality')" />
+                <select id="nationality" name="nationality" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                    <option value="" disabled selected>Select Nationality</option>
+                    @foreach($nationalities as $nationality)
+                        <option value="{{ $nationality }}" {{ old('nationality') == $nationality ? 'selected' : '' }}>
+                            {{ $nationality }}
+                        </option>
+                    @endforeach
+                </select>
+                </select>
+                <x-input-error :messages="$errors->get('nationality')" class="mt-2" />
+            </div>
+
+            <div class="mt-4" id="other_nationality_wrapper" style="display: none;">
+                <x-input-label for="other_nationality" :value="__('Please specify your Nationality')" />
+                <x-text-input id="other_nationality" class="block mt-1 w-full" type="text" name="other_nationality" :value="old('other_nationality')" />
+                <x-input-error :messages="$errors->get('other_nationality')" class="mt-2" />
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const natSelect = document.getElementById('nationality');
+                    const otherWrapper = document.getElementById('other_nationality_wrapper');
+                    const otherInput = document.getElementById('other_nationality');
+
+                    // Function to toggle visibility
+                    function toggleOtherNationality() {
+                        if (natSelect.value === 'Other') {
+                            otherWrapper.style.display = 'block';
+                            otherInput.required = true;
+                        } else {
+                            otherWrapper.style.display = 'none';
+                            otherInput.required = false;
+                        }
+                    }
+
+                    // Initial check (for old input or page reload)
+                    toggleOtherNationality();
+
+                    // Listen for changes
+                    natSelect.addEventListener('change', toggleOtherNationality);
+                });
+            </script>
+
+            <div class="mt-4">
                 <x-input-label for="phone_number" :value="__('Phone Number')" />
                 <div class="flex items-center mt-1">
                     <span class="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 bg-gray-100 text-gray-500 text-sm rounded-l-md">
@@ -175,10 +220,14 @@
     </form>
 
     <script>
-    function showStep2() {
+    async function showStep2() {
        const step1Inputs = document.querySelectorAll('#step1 input, #step1 select');
        let allValid = true;
        
+       // Clear previous JS error if any
+       const emailErrorContainer = document.getElementById('js-email-error');
+       if(emailErrorContainer) emailErrorContainer.remove();
+
        for (const input of step1Inputs) {
            if (!input.checkValidity()) {
                allValid = false;
@@ -188,6 +237,45 @@
         }
 
         if (allValid) {
+            // Check Email Uniqueness
+            const emailInput = document.getElementById('email');
+            const csrfToken = document.querySelector('input[name="_token"]').value;
+
+            try {
+                const response = await fetch("{{ route('check.email') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ email: emailInput.value })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.exists) {
+                        // Email taken
+                        const errorMsg = document.createElement('p');
+                        errorMsg.id = 'js-email-error';
+                        errorMsg.className = 'text-sm text-red-600 dark:text-red-400 space-y-1 mt-2';
+                        errorMsg.textContent = 'The email has already been taken.';
+                        
+                        // Insert after the existing error component
+                        const errorLocation = emailInput.parentElement.querySelector('.mt-2') || emailInput;
+                        errorLocation.after(errorMsg);
+                        
+                        emailInput.focus();
+                        return; // Stop here
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking email:', error);
+                // Optionally let them proceed if server check fails, or show generic error
+            }
+
+            // If we get here, email is fine or check failed silently (safe to proceed?)
+            // Proceed to Step 2
             document.getElementById('step1').style.display = 'none';
             document.getElementById('step2').style.display = 'block';
     

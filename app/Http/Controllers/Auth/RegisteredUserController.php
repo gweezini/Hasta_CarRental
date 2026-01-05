@@ -24,7 +24,22 @@ class RegisteredUserController extends Controller
     {
         $faculties = DB::table('faculties')->get(); 
         $colleges = DB::table('colleges')->get(); 
-        return view('auth.register', compact('faculties', 'colleges'));
+        
+        $nationalities = [
+            'Malaysian',
+            'Singaporean',
+            'Indonesian',
+            'Thai',
+            'Bruneian',
+            'Vietnamese',
+            'Filipino',
+            'Cambodian',
+            'Laotian',
+            'Burmese',
+            'Other'
+        ];
+
+        return view('auth.register', compact('faculties', 'colleges', 'nationalities'));
     }
 
     /**
@@ -42,6 +57,8 @@ class RegisteredUserController extends Controller
             // ID & Contact
             'matric_staff_id' => ['required', 'string', 'regex:/^[a-zA-Z0-9]+$/', 'max:15', 'unique:users'],
             'nric_passport' => ['required', 'string', 'regex:/^[a-zA-Z0-9]+$/', 'max:20', 'unique:users'],
+            'nationality' => ['required', 'string', 'max:255'],
+            'other_nationality' => ['nullable', 'required_if:nationality,Other', 'string', 'max:255'],
             'phone_number' => ['required', 'string', 'regex:/^[0-9]+$/', 'max:15'],
 
             // Student Specifics
@@ -71,6 +88,7 @@ class RegisteredUserController extends Controller
         }
 
         $fullPhoneNumber = '+6' . $request->phone_number;
+        $nationalityToSave = $request->nationality === 'Other' ? $request->other_nationality : $request->nationality;
 
         $user = User::create([
             'name' => $request->name,
@@ -80,6 +98,7 @@ class RegisteredUserController extends Controller
             // Save ID & Contact
             'matric_staff_id' => $request->matric_staff_id,
             'nric_passport'   => $request->nric_passport,
+            'nationality'     => $nationalityToSave,
             'phone_number' => $fullPhoneNumber,
 
             // Set Defaults for Role & Status
@@ -103,4 +122,17 @@ class RegisteredUserController extends Controller
         return redirect(route('login'))->with('status', 'Register Successfully! You can login to your profile now!');
     }
 
+    /**
+     * Check if email exists.
+     */
+    public function checkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $exists = User::where('email', $request->email)->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
 }
