@@ -345,10 +345,75 @@ class AdminController extends Controller
                              ->orderBy('updated_at', 'desc')
                              ->take(20) 
                              ->get();
-
+        
         $totalTransactions = $summaryQuery->count();
         $avgOrderValue = $totalTransactions > 0 ? $totalRevenueAmount / $totalTransactions : 0;
         $highestTransaction = $summaryQuery->max('total_rental_fee') ?? 0;
+
+        // Prepare Chart Data
+        $chartLabels = $formattedRevenue->keys();
+        $chartValues = $formattedRevenue->values();
+
+        // Comparison Logic (Current vs Previous)
+        $currentPeriodTotal = 0;
+        $previousPeriodTotal = 0;
+        $comparisonLabel = '';
+
+        switch ($filter) {
+            case 'daily':
+                $currentPeriodTotal = Booking::where('payment_verified', true)
+                    ->whereDate('updated_at', Carbon::today())
+                    ->sum('total_rental_fee');
+                $previousPeriodTotal = Booking::where('payment_verified', true)
+                    ->whereDate('updated_at', Carbon::yesterday())
+                    ->sum('total_rental_fee');
+                $comparisonLabel = "vs Yesterday";
+                break;
+            case 'weekly':
+                $currentPeriodTotal = Booking::where('payment_verified', true)
+                    ->whereBetween('updated_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                    ->sum('total_rental_fee');
+                $previousPeriodTotal = Booking::where('payment_verified', true)
+                    ->whereBetween('updated_at', [Carbon::now()->subWeek()->startOfWeek(), Carbon::now()->subWeek()->endOfWeek()])
+                    ->sum('total_rental_fee');
+                $comparisonLabel = "vs Last Week";
+                break;
+            case 'monthly':
+                $currentPeriodTotal = Booking::where('payment_verified', true)
+                    ->whereMonth('updated_at', Carbon::now()->month)
+                    ->whereYear('updated_at', Carbon::now()->year)
+                    ->sum('total_rental_fee');
+                $previousPeriodTotal = Booking::where('payment_verified', true)
+                    ->whereMonth('updated_at', Carbon::now()->subMonth()->month)
+                    ->whereYear('updated_at', Carbon::now()->subMonth()->year)
+                    ->sum('total_rental_fee');
+                $comparisonLabel = "vs Last Month";
+                break;
+            case 'yearly':
+                $currentPeriodTotal = Booking::where('payment_verified', true)
+                    ->whereYear('updated_at', Carbon::now()->year)
+                    ->sum('total_rental_fee');
+                $previousPeriodTotal = Booking::where('payment_verified', true)
+                    ->whereYear('updated_at', Carbon::now()->subYear()->year)
+                    ->sum('total_rental_fee');
+                $comparisonLabel = "vs Last Year";
+                break;
+        }
+
+        $percentageChange = 0;
+        if ($previousPeriodTotal > 0) {
+            $percentageChange = (($currentPeriodTotal - $previousPeriodTotal) / $previousPeriodTotal) * 100;
+        } elseif ($currentPeriodTotal > 0) {
+             $percentageChange = 100; // From 0 to something is 100% increase (technically infinite, but 100 for display)
+        }
+
+        $comparisonData = [
+            'current' => $currentPeriodTotal,
+            'previous' => $previousPeriodTotal,
+            'percentage' => round($percentageChange, 1),
+            'label' => $comparisonLabel,
+            'is_positive' => $percentageChange >= 0
+        ];
 
         return view('admin.reports', compact(
             'formattedRevenue', 
@@ -360,8 +425,11 @@ class AdminController extends Controller
             'staffs',        
             'totalSalaries',
             'netProfit',
-            'totalClaims', // Added totalClaims
-            'revenueList' 
+            'totalClaims', 
+            'revenueList',
+            'chartLabels',
+            'chartValues',
+            'comparisonData'
         ));
     }
 
