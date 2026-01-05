@@ -31,6 +31,20 @@ class ProfileController extends Controller
         // Fetch User's Vouchers
         $myVouchers = $user->userVouchers()->with('voucher')->whereNull('used_at')->get();
 
+        $nationalities = [
+            'Malaysian',
+            'Singaporean',
+            'Indonesian',
+            'Thai',
+            'Bruneian',
+            'Vietnamese',
+            'Filipino',
+            'Cambodian',
+            'Laotian',
+            'Burmese',
+            'Other'
+        ];
+
         return view('profile.edit', [
             'user' => $user,
             'colleges' => $colleges,
@@ -38,6 +52,7 @@ class ProfileController extends Controller
             'bookings' => $bookings,
             'myVouchers' => $myVouchers,
             'totalStamps' => $user->loyaltyCard ? $user->loyaltyCard->stamps : 0,
+            'nationalities' => $nationalities,
         ]);
     }
 
@@ -49,13 +64,21 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        $user->forceFill($request->except([
+        $data = $request->except([
             '_token', 
             '_method', 
             'matric_card_doc', 
             'driving_license_doc',
-            'nric_passport_doc'
-        ])); 
+            'nric_passport_doc',
+            'other_nationality' // Exclude this from direct fill
+        ]);
+
+        // Handle Nationality Logic
+        if ($request->nationality === 'Other') {
+            $data['nationality'] = $request->other_nationality;
+        }
+
+        $user->forceFill($data); 
     
         if ($request->hasFile('matric_card_doc')) {
             $path = $request->file('matric_card_doc')->store('matric_cards', 'public');

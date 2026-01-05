@@ -10,6 +10,7 @@
         <h2 class="text-3xl font-bold text-gray-900">Welcome back</h2>
         <p class="text-gray-500 text-sm mb-1">Please enter your details</p>
     </div>
+
     <!-- Session Status -->
     @if (session('status'))
         <div class="mb-6 p-4 rounded-xl bg-green-50 border border-green-200 text-center animate-pulse">

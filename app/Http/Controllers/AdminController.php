@@ -187,6 +187,18 @@ class AdminController extends Controller
             'processed_by' => Auth::id()
         ]);
         if($booking->payment) $booking->payment->update(['status' => 'Verified']);
+
+        // Award Stamp Logic
+        $start = Carbon::parse($booking->pickup_date_time);
+        $end = Carbon::parse($booking->return_date_time);
+        $hours = ceil($start->floatDiffInHours($end));
+
+        if ($hours >= 3 && $booking->user) {
+             $card = \App\Models\LoyaltyCard::firstOrCreate(['user_id' => $booking->user_id]);
+             $card->increment('stamps');
+             $card->increment('unread_stamps');
+        }
+
         if($booking->user) $booking->user->notify(new BookingStatusUpdated($booking, 'Approved'));
         return redirect()->route('admin.dashboard')->with('success', 'Booking approved!');
     }

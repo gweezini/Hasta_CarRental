@@ -13,6 +13,12 @@ use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
+    protected $pricingService;
+
+    public function __construct(\App\Services\PricingService $pricingService)
+    {
+        $this->pricingService = $pricingService;
+    }
     public function getAvailability(Request $request, $id) {
         $query = Booking::where('vehicle_id', $id)
             ->whereIn('status', ['Pending', 'Waiting for Verification', 'Approved']);
@@ -82,10 +88,13 @@ class BookingController extends Controller
                 $end = Carbon::parse($endString);
 
                 if ($end->gt($start)) {
-                    $hours = ceil($start->floatDiffInHours($end));
-                    if ($hours < 1) $hours = 1;
-                    $subtotal = $hours * $vehicle->price_per_hour;
-                    $stamps = ($hours > 3) ? 1 : 0;
+                    // Use PricingService
+                    $pricingResult = $this->pricingService->calculatePrice($vehicle, $start, $end);
+                    
+                    $hours = $pricingResult['hours'];
+                    $subtotal = $pricingResult['subtotal'];
+                    // Logic for stamps remains similar based on hours
+                    $stamps = ($hours >= 3) ? 1 : 0; 
 
                     // Voucher Logic...
                     if ($request->filled('selected_voucher_id')) {
@@ -95,6 +104,13 @@ class BookingController extends Controller
                             if ($v_master->type === 'percent') $discount = ($subtotal * $v_master->value) / 100;
                             elseif ($v_master->type === 'fixed') $discount = $v_master->value;
                             elseif ($v_master->type === 'free_hours') {
+                                // For free hours, we need the hourly rate effectively. 
+                                // Since prices are tiered, this is tricky. 
+                                // Simplified approach: Use subtotal / hours as avg rate, or just fallback to base price_per_hour if needed?
+                                // Prompt didn't specify, but let's assume worst case: use vehicle->price_per_hour or calculate effective rate.
+                                // Let's use the vehicle's base price_per_hour for deduction to be safe/conservative, or 
+                                // calculate the value of the first N hours? 
+                                // Let's stick to simple: $vehicle->price_per_hour * hours.
                                 $applicable = min($hours, (int)$v_master->value);
                                 $discount = $applicable * $vehicle->price_per_hour;
                             }
@@ -167,9 +183,9 @@ class BookingController extends Controller
             return redirect()->back()->with('error', 'Minimum rental time is 1 hour.');
         }
 
-        $hours = ceil($start->floatDiffInHours($end));
-        if ($hours < 1) $hours = 1;
-        $subtotal = $hours * $vehicle->price_per_hour;
+        $pricingResult = $this->pricingService->calculatePrice($vehicle, $start, $end);
+        $hours = $pricingResult['hours'];
+        $subtotal = $pricingResult['subtotal'];
 
         // 计算运费
         $prices = ['office' => 0, 'campus' => 2.50, 'taman_u' => 7.50, 'jb' => 25];
@@ -253,15 +269,8 @@ class BookingController extends Controller
             $booking->save();
 
             // 积分 & Voucher 标记
-            $stampAwarded = false;
-            // Fix: Award 1 stamp only if booking is >= 3 hours
-            if ($hours >= 3) {
-                $card = Auth::user()->loyaltyCard ?? LoyaltyCard::create(['user_id' => Auth::id()]);
-                $card->stamps += 1;
-                $card->save();
-                $stampAwarded = true;
-            }
 
+            // Voucher Used
             if ($userVoucher) {
                 $userVoucher->used_at = now();
                 $userVoucher->save();
@@ -273,8 +282,7 @@ class BookingController extends Controller
             }
 
             return redirect(route('profile.edit'))->with([
-                'success' => 'Booking created successfully! Please wait for verification.',
-                'stamp_awarded' => $stampAwarded
+                'success' => 'Booking received. You will receive a stamp after your booking is confirmed.',
             ]);
             
         } catch (\Exception $e) {
@@ -357,9 +365,9 @@ class BookingController extends Controller
              return redirect()->back()->with('error', 'Minimum rental time is 1 hour.');
         }
 
-        $hours = ceil($start->floatDiffInHours($end));
-        if ($hours < 1) $hours = 1;
-        $subtotal = $hours * $vehicle->price_per_hour;
+        $pricingResult = $this->pricingService->calculatePrice($vehicle, $start, $end);
+        $hours = $pricingResult['hours'];
+        $subtotal = $pricingResult['subtotal'];
 
         // Delivery Fee
         $prices = ['office' => 0, 'campus' => 2.50, 'taman_u' => 7.50, 'jb' => 25];
@@ -476,10 +484,11 @@ class BookingController extends Controller
                 return response()->json(['error' => 'End time must be after start time'], 400);
             }
 
-            $hours = ceil($start->floatDiffInHours($end));
-            if ($hours < 1) $hours = 1;
-            
-            $subtotal = $hours * $vehicle->price_per_hour;
+            $pricingResult = $this->pricingService->calculatePrice($vehicle, $start, $end);
+            $hours = $pricingResult['hours'];
+            $subtotal = $pricingResult['subtotal'];
+            $rateApplied = $pricingResult['rate_applied'];
+            $tierName = $pricingResult['tier_name'];
 
             // Delivery Fee
             $prices = ['office' => 0, 'campus' => 2.50, 'taman_u' => 7.50, 'jb' => 25];
@@ -525,7 +534,9 @@ class BookingController extends Controller
                 'total' => number_format($total, 2),
                 'deposit' => number_format($deposit, 2),
                 'grand_total' => number_format($grandTotal, 2),
-                'stamps' => $stamps
+                'stamps' => $stamps,
+                'tier_name' => $tierName,
+                'rate_applied' => $rateApplied
             ]);
 
         } catch (\Exception $e) {
