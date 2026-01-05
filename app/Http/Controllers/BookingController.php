@@ -141,7 +141,7 @@ class BookingController extends Controller
 
         $vehicle = Vehicle::findOrFail($request->vehicle_id);
 
-        // 🔥 强制格式化时间，解决 00:00:00 问题
+        // 强制格式化时间，解决 00:00:00 问题
         try {
             $pickupDateTime = Carbon::parse($request->start_time)->format('Y-m-d H:i:s');
             $returnDateTime = Carbon::parse($request->end_time)->format('Y-m-d H:i:s');
@@ -217,7 +217,7 @@ class BookingController extends Controller
             $booking->user_id = Auth::id();
             $booking->vehicle_id = $vehicle->id;
             
-            // 🔥 对应你的数据库列名
+            // 对应你的数据库列名
             $booking->pickup_date_time = $pickupDateTime; 
             $booking->return_date_time = $returnDateTime; 
             
@@ -226,7 +226,7 @@ class BookingController extends Controller
             $booking->dropoff_location = $dropoffLocation;
             $booking->custom_dropoff_address = $request->custom_dropoff_address ?? null;
             
-            // 🔥 对应你的数据库列名 customer_name
+            // 对应你的数据库列名 customer_name
             $booking->customer_name = $request->name;
             $booking->customer_phone = $request->phone;
             $booking->emergency_contact_name = $request->emergency_name;
