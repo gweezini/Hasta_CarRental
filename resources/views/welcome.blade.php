@@ -417,6 +417,7 @@
       }
 
       .range__card {
+        flex: 0 1 calc(33.333% - 2rem);
         background-color: #ffffff;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
