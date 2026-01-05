@@ -133,6 +133,131 @@
         </div>
     </div>
 
+    {{-- Graph and Comparison Section --}}
+    <div class="flex flex-col lg:flex-row gap-6 mb-8 print:block">
+        {{-- Chart Section --}}
+        <div class="flex-1 bg-white rounded-xl shadow-sm border border-gray-100 p-6 print:border-gray-200">
+            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="ri-line-chart-fill text-[#cb5c55]"></i> Revenue Trend ({{ ucfirst($filter) }})
+            </h3>
+            <div class="relative h-64 w-full">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        {{-- Comparison Widget --}}
+        <div class="w-full lg:w-1/3 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-center print:border-gray-200 print:mt-4">
+            <h3 class="font-bold text-gray-800 text-sm uppercase tracking-wide mb-1 text-gray-500">Period Comparison</h3>
+            <p class="text-xs text-gray-400 mb-6">Comparing current {{ $filter }} vs previous {{ $filter }}</p>
+
+            <div class="flex items-center gap-4 mb-6">
+                <div class="p-3 rounded-full {{ $comparisonData['is_positive'] ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500' }}">
+                    <i class="{{ $comparisonData['is_positive'] ? 'ri-arrow-right-up-line' : 'ri-arrow-right-down-line' }} text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-black {{ $comparisonData['is_positive'] ? 'text-green-600' : 'text-red-500' }}">
+                        {{ $comparisonData['percentage'] }}%
+                    </h2>
+                    <p class="text-xs font-bold text-gray-500 uppercase">{{ $comparisonData['is_positive'] ? 'Increase' : 'Decrease' }} {{ $comparisonData['label'] }}</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex justify-between items-center border-b border-gray-50 pb-2">
+                    <span class="text-sm text-gray-500">Current Period</span>
+                    <span class="font-bold text-gray-800">RM {{ number_format($comparisonData['current'], 2) }}</span>
+                </div>
+                <div class="flex justify-between items-center border-b border-gray-50 pb-2">
+                    <span class="text-sm text-gray-500">Previous Period</span>
+                    <span class="font-bold text-gray-800">RM {{ number_format($comparisonData['previous'], 2) }}</span>
+                </div>
+            </div>
+
+            @if($comparisonData['is_positive'])
+            <div class="mt-6 bg-green-50 p-3 rounded-lg border border-green-100 text-center">
+                <p class="text-green-700 text-xs font-bold">Great job! Performance is trending up. 🚀</p>
+            </div>
+            @else
+            <div class="mt-6 bg-red-50 p-3 rounded-lg border border-red-100 text-center">
+                <p class="text-red-700 text-xs font-bold">Revenue is down. Review strategies. 📉</p>
+            </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Chart.js Script --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(203, 92, 85, 0.5)'); // Brand color #cb5c55
+        gradient.addColorStop(1, 'rgba(203, 92, 85, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($chartLabels) !!},
+                datasets: [{
+                    label: 'Revenue (RM)',
+                    data: {!! json_encode($chartValues) !!},
+                    borderColor: '#cb5c55',
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#cb5c55',
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#1f2937',
+                        titleColor: '#f3f4f6',
+                        bodyColor: '#f3f4f6',
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Revenue: RM ' + context.parsed.y.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f3f4f6'
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8 print:border-gray-200">
         <div class="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center no-print text-left">
             <h3 class="font-bold text-gray-800 flex items-center gap-2 capitalize">
