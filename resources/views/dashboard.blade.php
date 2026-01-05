@@ -924,7 +924,7 @@
           <h4>Quick Links</h4>
           <ul class="footer__links">
             <li><a href="#about">About Us</a></li>
-            <li><a href="#">FAQ</a></li>
+            <li><a href="{{ route('faq') }}">FAQ</a></li>
             <li><a href="#">Privacy Policy</a></li>
             <li><a href="#">Terms & Conditions</a></li>
           </ul>
@@ -1146,7 +1146,6 @@
                         <div style="text-align: center;">
                             <i class="ri-vip-crown-2-fill" style="color: #ec5a29; font-size: 3.75rem; line-height: 1; display: inline-block; margin-bottom: 1rem; animation: bounce 1s infinite;"></i>
                             <p style="font-weight: 700; color: #1f2937; font-size: 1.125rem;">YOU EARNED A NEW STAMP!</p>
-                            <p style="font-weight: 600; color: #374151; font-size: 0.95rem; margin-top: 0.25rem;">Your booking is confirmed! 🎉</p>
                             <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;">You're getting closer to your next reward. Keep it up! ✨</p>
                             <style>
                                 @keyframes bounce {
