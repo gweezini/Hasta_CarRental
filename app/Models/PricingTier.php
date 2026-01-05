@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PricingTier extends Model
 {
-    protected $fillable = ['name', 'description'];
+    protected $guarded = [];
 
-    public function rates(): HasMany
+    public function rules(): HasMany
     {
-        return $this->hasMany(PricingRate::class);
+        return $this->hasMany(PricingRule::class);
     }
 
     public function vehicles(): HasMany

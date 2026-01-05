@@ -3,86 +3,88 @@
 namespace App\Services;
 
 use App\Models\Vehicle;
-use App\Models\PricingTier;
 use Carbon\Carbon;
+use App\Models\PricingRule;
 
 class PricingService
 {
-    /**
-     * Calculate price for a vehicle based on start and end times.
-     * 
-     * @param Vehicle $vehicle
-     * @param Carbon $start
-     * @param Carbon $end
-     * @return array
-     */
-    public function calculatePrice(Vehicle $vehicle, Carbon $start, Carbon $end)
+    public function calculatePrice(Vehicle $vehicle, Carbon $start, Carbon $end): array
     {
-        // 1. Calculate duration
-        $hours = ceil($start->floatDiffInHours($end));
+        // 1. Calculate duration hours (round up to next hour as efficient rental standard)
+        // User said: "for 2 hours booking, follow the 3 hour rule". 
+        // This implies we look for rules >= duration.
+        // We need exact hours first.
+        
+        $minutes = $start->floatDiffInMinutes($end);
+        $hours = ceil($minutes / 60);
         if ($hours < 1) $hours = 1;
 
-        // If vehicle has no pricing tier, fallback to old logic
+        // 2. Check for Pricing Tier
         if (!$vehicle->pricing_tier_id) {
+            // Fallback to legacy logic
             return [
+                'total_price' => $hours * $vehicle->price_per_hour,
                 'hours' => $hours,
-                'subtotal' => $hours * $vehicle->price_per_hour,
-                'tier_name' => 'Hourly (Legacy)',
-                'rate_applied' => $vehicle->price_per_hour . '/hr'
+                'tier_name' => null,
+                'rate_applied' => 'Standard Rate (RM ' . $vehicle->price_per_hour . '/hr)'
             ];
         }
 
-        // 2. Load Pricing Tier
         $tier = $vehicle->pricingTier;
-        // Sort rates by hour_limit asc
-        $rates = $tier->rates->sortBy('hour_limit');
-        
-        $rate24 = $rates->where('hour_limit', 24)->first();
-        
-        // If no 24h rate defined, fallback (safety check)
-        if (!$rate24) {
-             return [
-                'hours' => $hours,
-                'subtotal' => $hours * $vehicle->price_per_hour, // fallback
-                 'tier_name' => 'Error: No 24h rate',
-                'rate_applied' => 'Fallback'
-            ];
-        }
+        // Eager load rules if not loaded
+        $tier->load('rules');
+        $rules = $tier->rules->sortBy('hour_limit');
 
-        // 3. Logic: Days + Remainder
-        // 25h = 24h + 1h
-        $days = floor($hours / 24);
-        $remainder = $hours % 24;
-        
-        $subtotal = $days * $rate24->price;
-        $remainderPrice = 0;
-        $rateApplied = "";
+        // 3. Calculation Logic
+        $fullDays = floor($hours / 24);
+        $remainingHours = $hours % 24;
 
-        if ($remainder > 0) {
-            // Find smallest tier >= remainder
-            $foundRate = $rates->first(function($rate) use ($remainder) {
-                return $rate->hour_limit >= $remainder;
-            });
-            
-            // If remainder > largest defined tier (but < 24), defaults to 24h rate
-            // Example: 13h, but max tier is 12h. Next is 24h.
-            if (!$foundRate) {
-                $foundRate = $rate24;
+        $totalPrice = 0;
+
+        // Add 24-hour blocks
+        if ($fullDays > 0) {
+            $rule24 = $rules->firstWhere('hour_limit', 24);
+            if ($rule24) {
+                $totalPrice += $fullDays * $rule24->price;
+            } else {
+                // Fallback if 24h rule missing (shouldn't happen with seeder)
+                // Maybe take max rule or extrapolate? For now assume it exists.
+                $maxRule = $rules->last(); 
+                $totalPrice += $fullDays * ($maxRule ? $maxRule->price : 0);
             }
-            
-            $remainderPrice = $foundRate->price;
-            $rateApplied = "{$days} days @ RM{$rate24->price} + {$remainder}h (Tier {$foundRate->hour_limit}h @ RM{$foundRate->price})";
-        } else {
-             $rateApplied = "{$days} days @ RM{$rate24->price}";
         }
 
-        $subtotal += $remainderPrice;
+        // Add remaining hours
+        if ($remainingHours > 0) {
+            // Find smallest rule >= remainingHours
+            $rule = $rules->first(function ($rule) use ($remainingHours) {
+                return $rule->hour_limit >= $remainingHours;
+            });
+
+            if ($rule) {
+                $totalPrice += $rule->price;
+            } else {
+                // If remaining hours > max limit (e.g. max 12, but we have 18?)
+                // User defined rules up to 24.
+                // If we have remaining hours 13..23, and rules are 12, 24.
+                // Then 24 hour rule should technically cover it?
+                // Use case: "loop from the beginning" applies to > 25 hours.
+                // So 1-24 is covered by standard rules.
+                // If I have 15 hours, and rules are 12, 24. 
+                // It should likely pick 24. 
+                // The `first(>=)` logic handles this correctly (picks 24).
+                
+                // Fallback for safety
+                 $maxRule = $rules->last();
+                 if ($maxRule) $totalPrice += $maxRule->price;
+            }
+        }
 
         return [
             'hours' => $hours,
-            'subtotal' => $subtotal,
+            'subtotal' => $totalPrice, // Renaming for consistency with controller
             'tier_name' => $tier->name,
-            'rate_applied' => $rateApplied
+            'rate_applied' => $tier->name . ' Rules'
         ];
     }
 }

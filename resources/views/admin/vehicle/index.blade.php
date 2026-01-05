@@ -59,7 +59,7 @@
                             </div>
                         </td>
                         <td class="p-4">
-                            <button onclick="openRateModal({{ $v->id }}, '{{ $v->pricingTier ? $v->pricingTier->name : 'Default' }}', '{{ $v->brand }} {{ $v->model }}', {{ $v->pricingTier ? $v->pricingTier->rates->toJson() : '[]' }}, '{{ $v->pricingTier ? route('admin.pricing.edit', $v->pricingTier->id) : '' }}', '{{ route('admin.vehicle.edit', $v->id) }}')" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm font-bold flex items-center gap-2">
+                            <button onclick="openRateModal({{ $v->id }}, '{{ $v->pricingTier ? $v->pricingTier->name : 'Default' }}', '{{ $v->brand }} {{ $v->model }}', {{ $v->pricingTier ? $v->pricingTier->rules->toJson() : '[]' }}, '{{ $v->pricingTier ? route('admin.pricing.edit', $v->pricingTier->id) : '' }}', '{{ route('admin.vehicle.edit', $v->id) }}')" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm font-bold flex items-center gap-2">
                                 <i class="ri-eye-line"></i> View
                             </button>
                         </td>

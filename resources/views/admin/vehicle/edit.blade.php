@@ -127,7 +127,7 @@
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     @foreach([1, 3, 5, 7, 9, 12, 24] as $hour)
                                         @php
-                                            $rate = $vehicle->pricingTier->rates->where('hour_limit', $hour)->first();
+                                            $rate = $vehicle->pricingTier->rules->where('hour_limit', $hour)->first();
                                             $price = $rate ? $rate->price : '';
                                         @endphp
                                         <div>

@@ -1,44 +1,41 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Manage Pricing Tiers') }}
-        </h2>
-    </x-slot>
+@extends('layouts.admin')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="mb-4">
-                        <a href="{{ route('admin.pricing.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Create New Tier
-                        </a>
+@section('content')
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Pricing Management</h1>
+    </div>
+
+    <div class="row">
+        @foreach($tiers as $tier)
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                {{ $tier->name }}</div>
+                            <div class="mb-2">
+                                <small>Vehicles: {{ $tier->vehicles()->count() }}</small>
+                            </div>
+                            <a href="{{ route('admin.pricing.edit', $tier->id) }}" class="btn btn-sm btn-primary">Edit Prices</a>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tags fa-2x text-gray-300"></i>
+                        </div>
                     </div>
-
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr>
-                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicles</th>
-                                <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($tiers as $tier)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $tier->name }}</td>
-                                    <td class="px-6 py-4">{{ $tier->description }}</td>
-                                    <td class="px-6 py-4">{{ $tier->vehicles->count() }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <a href="{{ route('admin.pricing.edit', $tier) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                    </td>
-                                </tr>
+                    <div class="mt-3">
+                        <h6>Current Rates:</h6>
+                        <ul class="list-unstyled" style="font-size: 0.85rem;">
+                            @foreach($tier->rules->sortBy('hour_limit') as $rule)
+                                <li>{{ $rule->hour_limit }} Hour(s): RM {{ $rule->price }}</li>
                             @endforeach
-                        </tbody>
-                    </table>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
+        @endforeach
     </div>
-</x-app-layout>
+</div>
+@endsection

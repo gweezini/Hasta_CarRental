@@ -1425,7 +1425,7 @@
             >
               <span>Rate</span>
               <div>
-                  <strong class="text-primary">RM {{ number_format($vehicle->pricingTier ? $vehicle->pricingTier->rates->min('price') : $vehicle->price_per_hour, 2) }} / hr</strong>
+                  <strong class="text-primary">RM {{ number_format($vehicle->pricingTier ? $vehicle->pricingTier->rules->min('price') : $vehicle->price_per_hour, 2) }} / hr</strong>
                   @include('partials.price-modal', ['vehicle' => $vehicle])
               </div>
             </div>

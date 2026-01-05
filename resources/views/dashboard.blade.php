@@ -865,7 +865,7 @@
 
             <p class="card__price">
               Starting from
-              <strong>RM {{ number_format($vehicle->pricingTier ? $vehicle->pricingTier->rates->min('price') : $vehicle->price_per_hour, 2) }}</strong> / hour
+              <strong>RM {{ number_format($vehicle->pricingTier ? $vehicle->pricingTier->rules->min('price') : $vehicle->price_per_hour, 2) }}</strong> / hour
               @include('partials.price-modal', ['vehicle' => $vehicle])
             </p>
 
@@ -925,7 +925,7 @@
           <h4>Quick Links</h4>
           <ul class="footer__links">
             <li><a href="#about">About Us</a></li>
-            <li><a href="#">FAQ</a></li>
+            <li><a href="{{ route('faq') }}" style="position: relative; z-index: 100;">FAQ</a></li>
             <li><a href="#">Privacy Policy</a></li>
             <li><a href="#">Terms & Conditions</a></li>
           </ul>

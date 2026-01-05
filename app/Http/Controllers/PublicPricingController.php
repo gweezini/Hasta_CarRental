@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PricingTier;
 use Illuminate\Http\Request;
+use App\Models\PricingTier;
 
 class PublicPricingController extends Controller
 {
     public function index()
     {
-        $tiers = PricingTier::with('rates')->get();
+        $tiers = PricingTier::with('rules')->get();
         return view('pricing.index', compact('tiers'));
     }
 }
