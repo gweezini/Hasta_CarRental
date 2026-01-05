@@ -25,20 +25,15 @@
 
         body {
             font-family: "Poppins", sans-serif;
-            background-color: #2d3748;
+            background-color: #ffffff;
             color: var(--text-dark);
             line-height: 1.6;
         }
 
         .header {
             position: relative;
-            background-image: linear-gradient(
-                rgba(0, 0, 0, 0.6),
-                rgba(0, 0, 0, 0.4)
-            ),
-            url("{{ asset('images/hastabackground.png') }}");
-            background-size: cover;
-            background-position: center;
+            background-color: #2d3748;
+            /* background-image removed */
             padding: 4rem 2rem;
             text-align: center;
             color: var(--white);
