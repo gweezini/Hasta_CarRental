@@ -84,7 +84,7 @@
                 <select id="college_id" name="college_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                     <option value="" disabled selected>Select your College</option> 
                     @foreach($colleges as $college)
-                    <option value="{{ $college->id }}">
+                    <option value="{{ $college->id }}" {{ old('college_id') == $college->id ? 'selected' : '' }}>
                         {{ $college->name }} 
                     </option>
                     @endforeach
@@ -97,7 +97,7 @@
                 <select id="faculty_id" name="faculty_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                     <option value="" disabled selected>Select your Faculty</option>
                     @foreach($faculties as $faculty)
-                       <option value="{{ $faculty->id }}">
+                       <option value="{{ $faculty->id }}" {{ old('faculty_id') == $faculty->id ? 'selected' : '' }}>
                           {{ $faculty->name }}
                        </option>
                     @endforeach
@@ -205,6 +205,15 @@
         
         window.scrollTo(0, 0);
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        @if($errors->has('nric_passport_doc') || $errors->has('matric_card_doc') || $errors->has('driving_license_doc'))
+            // If there are errors in the document upload step, show Step 2 immediately
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            document.getElementById('step-indicator').innerText = "Part 2: Upload Documents";
+        @endif
+    });
    </script>
 
 </x-guest-layout>

@@ -10,14 +10,12 @@
         <h2 class="text-3xl font-bold text-gray-900">Welcome back</h2>
         <p class="text-gray-500 text-sm mb-1">Please enter your details</p>
     </div>
-    <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
         <div>
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
@@ -68,3 +66,11 @@
         </div>
     </form>
 </x-guest-layout>
+
+@if(session('status'))
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            alert("{{ session('status') }}");
+        });
+    </script>
+@endif
