@@ -1114,5 +1114,76 @@
           else updateConstraints();
       });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            @if(isset($showStampPopup) && $showStampPopup)
+                // Celebrate earning a stamp!
+                const duration = 3 * 1000;
+                const animationEnd = Date.now() + duration;
+                const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+                function randomInRange(min, max) {
+                    return Math.random() * (max - min) + min;
+                }
+
+                const interval = setInterval(function() {
+                    const timeLeft = animationEnd - Date.now();
+
+                    if (timeLeft <= 0) {
+                        return clearInterval(interval);
+                    }
+
+                    const particleCount = 50 * (timeLeft / duration);
+                    confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+                    confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+                }, 250);
+
+                Swal.fire({
+                    title: '<span style="font-family: var(--header-font); color: var(--primary-color);">YAAY! 👑</span>',
+                    html: `
+                        <div style="text-align: center;">
+                            <i class="ri-vip-crown-2-fill" style="color: #ec5a29; font-size: 3.75rem; line-height: 1; display: inline-block; margin-bottom: 1rem; animation: bounce 1s infinite;"></i>
+                            <p style="font-weight: 700; color: #1f2937; font-size: 1.125rem;">YOU EARNED A NEW STAMP!</p>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;">You're getting closer to your next reward. Keep it up! ✨</p>
+                            <style>
+                                @keyframes bounce {
+                                    0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+                                    50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); }
+                                }
+                            </style>
+                        </div>
+                    `,
+                    background: '#fff url("https://www.transparenttextures.com/patterns/cream-paper.png")',
+                    confirmButtonText: 'VIEW MY REWARDS',
+                    confirmButtonColor: '#ec5a29',
+                    customClass: {
+                        popup: 'swal2-custom-popup',
+                        confirmButton: 'swal2-custom-confirm'
+                    },
+                    didOpen: () => {
+                         const popup = Swal.getPopup();
+                         popup.style.borderRadius = '1rem';
+                         popup.style.border = '4px solid #2d3748';
+                         
+                         const confirmBtn = Swal.getConfirmButton();
+                         confirmBtn.style.borderRadius = '0.75rem';
+                         confirmBtn.style.fontWeight = '700';
+                         confirmBtn.style.letterSpacing = '0.1em';
+                         confirmBtn.style.padding = '0.75rem 2rem';
+                    },
+                    buttonsStyling: true,
+                    showClass: {
+                        popup: 'animate__animated animate__zoomIn'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{ route('profile.edit', ['tab' => 'rewards']) }}";
+                    }
+                });
+            @endif
+        });
+    </script>
   </body>
 </html>
