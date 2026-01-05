@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class User extends Authenticatable
 {
@@ -119,5 +120,10 @@ class User extends Authenticatable
     public function claims(): HasMany
     {
         return $this->hasMany(Claim::class, 'user_id');
+    }
+
+    public function fines(): HasManyThrough
+    {
+        return $this->hasManyThrough(Fine::class, Booking::class);
     }
 }
