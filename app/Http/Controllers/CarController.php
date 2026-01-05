@@ -95,7 +95,34 @@ class CarController extends Controller
         }
 
         $vehicle->update($data);
-        return redirect()->back()->with('success', 'Vehicle updated successfully!');
+
+        // Update Pricing Rates if present
+        if ($request->has('rates') && $vehicle->pricingTier) {
+            $ratesData = $request->validate([
+                'rates' => 'array',
+                'rates.*' => 'numeric|min:0',
+            ])['rates'];
+
+            foreach ($ratesData as $hour => $price) {
+                // Lookup by tier ID and hour limit since the input name is rates[hour]
+                $rate = \App\Models\PricingRate::where('pricing_tier_id', $vehicle->pricing_tier_id)
+                            ->where('hour_limit', $hour)
+                            ->first();
+                
+                if ($rate) {
+                    $rate->update(['price' => $price]);
+                } else {
+                    // Create if it doesn't exist (robustness)
+                    \App\Models\PricingRate::create([
+                        'pricing_tier_id' => $vehicle->pricing_tier_id,
+                        'hour_limit' => $hour,
+                        'price' => $price
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->back()->with('success', 'Vehicle and pricing updated successfully!');
     }
 
     public function destroy($id)
