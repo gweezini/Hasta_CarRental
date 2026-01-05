@@ -10,14 +10,15 @@
         <h2 class="text-3xl font-bold text-gray-900">Welcome back</h2>
         <p class="text-gray-500 text-sm mb-1">Please enter your details</p>
     </div>
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
-
-        <div>
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    @if (session('status'))
+        <div class="mb-6 p-4 rounded-xl bg-green-50 border border-green-200 text-center animate-pulse">
+            <div class="flex items-center justify-center gap-2 text-green-700 text-lg font-bold">
+                <i class="ri-checkbox-circle-fill text-2xl"></i>
+                <span>{{ session('status') }}</span>
+            </div>
+        </div>
+    @endif
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
