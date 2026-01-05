@@ -59,6 +59,10 @@
         <i class="ri-user-line mr-3 text-xl"></i> Customers
     </a>
 
+    <a href="{{ route('admin.pricing.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.pricing*') ? 'sidebar-active' : '' }}">
+        <i class="ri-price-tag-3-line mr-3 text-xl"></i> Pricing
+    </a>
+
     <a href="{{ route('admin.vouchers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vouchers*') ? 'sidebar-active' : '' }}">
         <i class="ri-coupon-3-line mr-3 text-xl"></i> Vouchers
     </a>
