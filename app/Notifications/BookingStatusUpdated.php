@@ -58,9 +58,10 @@ class BookingStatusUpdated extends Notification
             ];
             $actionText = 'View Booking Receipt';
         } else {
+            $reason = $this->booking->rejection_reason ?? 'The receipt uploaded was unclear or the amount was incorrect.';
             $lines = [
                 'We are sorry to inform you that your payment verification was REJECTED.',
-                'Reason: The receipt uploaded was unclear or the amount was incorrect.',
+                'Reason: ' . $reason,
                 'Please login to your profile to upload a new receipt or contact admin.',
                 'Vehicle: ' . $this->booking->vehicle->brand . ' ' . $this->booking->vehicle->model
             ];
