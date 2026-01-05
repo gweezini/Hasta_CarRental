@@ -17,7 +17,7 @@ class CarController extends Controller
 
     public function show($id)
     {
-        $vehicle = Vehicle::findOrFail($id);
+        $vehicle = Vehicle::with('maintenanceLogs')->findOrFail($id);
         return view('admin.vehicle.show', compact('vehicle'));
     } 
 
@@ -108,5 +108,24 @@ class CarController extends Controller
 
         $vehicle->delete();
         return redirect()->route('admin.vehicle.index')->with('success', 'Vehicle deleted successfully!');
+    }
+
+    public function storeMaintenance(Request $request, $id)
+    {
+        $request->validate([
+            'description' => 'required|string|max:255',
+            'date' => 'required|date',
+            'cost' => 'required|numeric|min:0',
+        ]);
+
+        \App\Models\MaintenanceLog::create([
+            'vehicle_id' => $id,
+            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+            'description' => $request->description,
+            'date' => $request->date,
+            'cost' => $request->cost,
+        ]);
+
+        return redirect()->back()->with('success', 'Maintenance record added successfully!');
     }
 }
