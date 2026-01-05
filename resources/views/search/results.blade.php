@@ -408,7 +408,10 @@
                     <div class="range__details">
                         <h4 class="card__title">{{ $vehicle->brand }} {{ $vehicle->model }}</h4>
                         <p style="font-size: 0.85rem; color: #666; margin: 0.5rem 0;"><strong>Plate:</strong> {{ $vehicle->plate_number }}</p>
-                        <p class="card__price">Starting from <strong>RM {{ $vehicle->price_per_hour }} / hour</strong></p>
+                        <p class="card__price">
+                            Starting from <strong>RM {{ number_format($vehicle->price_per_hour, 2) }} / hour</strong>
+                            @include('partials.price-modal', ['vehicle' => $vehicle])
+                        </p>
                         <hr class="card__divider" />
                         <div class="card__tags"><span class="card__tag"> {{ $vehicle->capacity }} Seater </span></div>
                         <p class="card__location"><i class="ri-map-pin-line"></i> UTM Campus</p>

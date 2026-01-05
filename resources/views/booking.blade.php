@@ -1424,7 +1424,10 @@
               style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;"
             >
               <span>Rate</span>
-              <strong>RM {{ $vehicle->price_per_hour }} / hr</strong>
+              <div>
+                  <strong class="text-primary">RM {{ number_format($vehicle->price_per_hour, 2) }} / hr</strong>
+                  @include('partials.price-modal', ['vehicle' => $vehicle])
+              </div>
             </div>
 
             <div

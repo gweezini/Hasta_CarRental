@@ -116,15 +116,40 @@
                             </select>
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Price Per Hour (RM)</label>
-                            <div class="relative rounded-md shadow-sm">
-                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <span class="text-gray-500 sm:text-sm">RM</span>
+
+
+                        @if($vehicle->pricingTier)
+                            <div class="col-span-1 md:col-span-2 bg-blue-50 p-4 rounded-lg border border-blue-100">
+                                <h3 class="text-sm font-bold text-blue-800 mb-3 flex items-center">
+                                    <i class="ri-price-tag-3-line mr-2"></i> 
+                                    Hourly Rates for Tier: <span class="underline ml-1">{{ $vehicle->pricingTier->name }}</span>
+                                </h3>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    @foreach([1, 3, 5, 7, 9, 12, 24] as $hour)
+                                        @php
+                                            $rate = $vehicle->pricingTier->rates->where('hour_limit', $hour)->first();
+                                            $price = $rate ? $rate->price : '';
+                                        @endphp
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-600 mb-1">{{ $hour }} Hour(s)</label>
+                                            <div class="relative rounded-md shadow-sm">
+                                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2">
+                                                    <span class="text-gray-500 text-xs">RM</span>
+                                                </div>
+                                                <input type="number" step="0.01" name="rates[{{ $hour }}]" value="{{ $price }}" class="block w-full rounded text-sm border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500" placeholder="0.00">
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
-                                <input type="number" step="0.01" name="price_per_hour" value="{{ old('price_per_hour', $vehicle->price_per_hour) }}" class="block w-full rounded-md border-gray-300 pl-10 focus:border-[#cb5c55] focus:ring-[#cb5c55]">
+                                <p class="text-xs text-blue-600 mt-2 italic">* Updating these rates will affect all vehicles in this tier.</p>
                             </div>
-                        </div>
+                        @else
+                            <div class="col-span-1 md:col-span-2 bg-yellow-50 p-4 rounded-lg border border-yellow-100 text-center">
+                                <p class="text-yellow-800 font-bold mb-2">No Custom Tier Assigned</p>
+                                <p class="text-sm text-yellow-700">Please assign a tier first to enable advanced hourly pricing.</p>
+                                <a href="{{ route('admin.pricing.index') }}" class="inline-block mt-2 text-sm font-bold text-blue-600 hover:underline">Manage Tiers</a>
+                            </div>
+                        @endif
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
@@ -176,5 +201,23 @@
             };
             reader.readAsDataURL(event.target.files[0]);
         }
+
+        function updateManageRatesLink() {
+            const select = document.getElementById('pricing-tier-select');
+            const link = document.getElementById('manage-rates-link');
+            const tierId = select.value;
+            
+            if (tierId) {
+                // Construct URL: /admin/pricing/{id}/edit using JS string replacement or base URL
+                const baseUrl = "{{ route('admin.pricing.edit', ':id') }}";
+                link.href = baseUrl.replace(':id', tierId);
+                link.classList.remove('hidden');
+            } else {
+                link.classList.add('hidden');
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', updateManageRatesLink);
     </script>
 @endsection

@@ -874,7 +874,8 @@
 
             <p class="card__price">
               Starting from
-              <strong>RM {{ $vehicle->price_per_hour }} / hour</strong>
+              <strong>RM {{ number_format($vehicle->price_per_hour, 2) }} / hour</strong>
+              @include('partials.price-modal', ['vehicle' => $vehicle])
             </p>
 
             <hr class="card__divider" />

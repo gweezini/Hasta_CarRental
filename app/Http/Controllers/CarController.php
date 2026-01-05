@@ -11,7 +11,7 @@ class CarController extends Controller
 {
     public function index()
     {
-        $vehicle = Vehicle::all();
+        $vehicle = Vehicle::with('pricingTier')->get();
         return view('admin.vehicle.index', compact('vehicle'));
     }
 
@@ -76,9 +76,9 @@ class CarController extends Controller
             'current_fuel_bars' => 'required|numeric|min:0|max:10',
             'road_tax_expiry' => 'required|date',
             'insurance_expiry' => 'required|date',
-            'price_per_hour' => 'required|numeric',
             'status' => 'required|string',
             'vehicle_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'pricing_tier_id' => 'nullable|exists:pricing_tiers,id',
         ]);
 
         if (!$request->hasFile('vehicle_image')) {

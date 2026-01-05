@@ -34,7 +34,7 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     
 
 
-    $vehicles = \App\Models\Vehicle::whereIn('status', ['Available', 'Rented'])->get();
+    $vehicles = \App\Models\Vehicle::with('pricingTier.rates')->whereIn('status', ['Available', 'Rented'])->get();
 
     // Default availability
     foreach ($vehicles as $vehicle) {
