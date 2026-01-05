@@ -27,12 +27,11 @@ Route::get('/blacklisted', function () {
     return view('blacklist.notice');
 })->name('blacklist.notice');
 
+Route::get('/faq', [App\Http\Controllers\FaqController::class, 'index'])->name('faq');
 Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     if (Auth::user()->isStaff()) {
         return redirect()->route('admin.dashboard');
     }
-    
-
 
     $vehicles = \App\Models\Vehicle::with('pricingTier.rates')->whereIn('status', ['Available', 'Rented'])->get();
 
