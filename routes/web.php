@@ -41,7 +41,14 @@ Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
         $vehicle->is_available = true;
     }
     
-    return view('dashboard', compact('vehicles')); 
+    // Check for new stamps (Moved from ProfileController)
+    $showStampPopup = false;
+    if (Auth::user()->loyaltyCard && Auth::user()->loyaltyCard->unread_stamps > 0) {
+        $showStampPopup = true;
+        Auth::user()->loyaltyCard->update(['unread_stamps' => 0]); 
+    }
+
+    return view('dashboard', compact('vehicles', 'showStampPopup')); 
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
