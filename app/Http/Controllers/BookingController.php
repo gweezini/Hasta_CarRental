@@ -42,7 +42,7 @@ class BookingController extends Controller
     // 1. SHOW METHOD (保持不变，计算价格)
     public function show($id, Request $request)
     {
-        $vehicle = Vehicle::with('pricingTier.rates')->findOrFail($id);
+        $vehicle = Vehicle::with('pricingTier.rules')->findOrFail($id);
         
         $myVouchers = Auth::user()->userVouchers()
             ->whereNull('used_at') 
