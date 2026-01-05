@@ -43,7 +43,7 @@ class BookingStatusUpdated extends Notification
         
         $subject = $isApproved 
             ? '✅ Booking Confirmed: #' . $this->booking->id 
-            : '❌ Action Required: Booking #' . $this->booking->id;
+            : 'Booking Rejected: #' . $this->booking->id;
 
         return (new MailMessage)
             ->subject($subject)
