@@ -141,7 +141,7 @@ class BookingController extends Controller
 
         $vehicle = Vehicle::findOrFail($request->vehicle_id);
 
-        // 🔥 强制格式化时间，解决 00:00:00 问题
+        // 强制格式化时间，解决 00:00:00 问题
         try {
             $pickupDateTime = Carbon::parse($request->start_time)->format('Y-m-d H:i:s');
             $returnDateTime = Carbon::parse($request->end_time)->format('Y-m-d H:i:s');
