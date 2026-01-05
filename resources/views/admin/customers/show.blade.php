@@ -10,11 +10,11 @@
 @endsection
 
 @section('content')
-<div x-data="{ showBlacklistModal: false }">
+<div>
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         
         <div class="bg-gray-50 border-b border-gray-100 p-8">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
                 
                 <div class="flex gap-6 items-center">
                     <img src="https://ui-avatars.com/api/?name={{ urlencode($customer->name) }}&background=cb5c55&color=fff&size=128" 
@@ -42,18 +42,44 @@
                     </div>
                 </div>
 
-                <div>
+                <div class="flex flex-col items-end gap-3" x-data="{ showBlacklistModal: false }">
                     @if($customer->is_blacklisted)
                         <form action="{{ route('admin.customers.blacklist', $customer->id) }}" method="POST" onsubmit="return confirm('Confirm to whitelist this user?')">
                             @csrf
                             <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl shadow-lg shadow-green-200 text-base font-bold tracking-wide transform hover:scale-105 transition-all">
-                                Whitelist User
+                                Whitelist
                             </button>
                         </form>
                     @else
-                        <button @click="showBlacklistModal = true" class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-xl shadow-lg shadow-red-200 text-base font-bold tracking-wide transform hover:scale-105 transition-all">
-                            Blacklist User
+                        {{-- Trigger Button --}}
+                        <button @click="showBlacklistModal = true" 
+                                class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-xl shadow-lg shadow-red-200 text-base font-bold tracking-wide transform hover:scale-105 transition-all">
+                            Blacklist
                         </button>
+
+                        {{-- Modal --}}
+                        <div x-show="showBlacklistModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" style="display: none;">
+                            <div @click.away="showBlacklistModal = false" class="bg-white rounded-xl shadow-2xl w-96 p-6 text-left transform transition-all scale-100 border border-gray-100 relative">
+                                <button @click="showBlacklistModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                                    <i class="ri-close-line text-xl"></i>
+                                </button>
+                                
+                                <h3 class="text-lg font-bold text-gray-800 mb-2">Blacklist User</h3>
+                                <p class="text-xs text-gray-500 mb-4">Please provide a reason for blacklisting <strong>{{ $customer->name }}</strong>.</p>
+                                
+                                <form action="{{ route('admin.customers.blacklist', $customer->id) }}" method="POST">
+                                    @csrf
+                                    <textarea name="blacklist_reason" rows="3" required placeholder="Reason (e.g. Damaged vehicle, Non-payment...)" class="w-full text-sm border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 mb-4 p-3 bg-gray-50 border outline-none resize-none"></textarea>
+                                    
+                                    <div class="flex justify-end gap-2">
+                                        <button type="button" @click="showBlacklistModal = false" class="px-5 py-2.5 text-xs font-bold text-gray-500 bg-gray-100 rounded-lg hover:bg-gray-200 transition">Cancel</button>
+                                        <button type="submit" class="px-5 py-2.5 text-xs font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition shadow-lg">
+                                            Confirm
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     @endif
                 </div>
 
@@ -138,25 +164,62 @@
                     @endif
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div x-show="showBlacklistModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div @click.away="showBlacklistModal = false" class="bg-white rounded-xl shadow-2xl w-96 p-6 text-left transform transition-all scale-100 border border-gray-100">
-            <h3 class="text-lg font-bold text-gray-800 mb-2">Blacklist User</h3>
-            <p class="text-xs text-gray-500 mb-4">Please provide a reason for blacklisting <strong>{{ $customer->name }}</strong>.</p>
-            
-            <form action="{{ route('admin.customers.blacklist', $customer->id) }}" method="POST">
-                @csrf
-                <textarea name="blacklist_reason" rows="3" required placeholder="Reason (e.g. Damaged vehicle...)" class="w-full text-sm border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 mb-4 p-3 bg-gray-50 border outline-none resize-none"></textarea>
+            {{-- Fines Section --}}
+            <div class="mt-10 pt-8 border-t border-gray-100">
+                <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+                    <i class="ri-alarm-warning-line text-red-500"></i> Fines & Violations
+                </h3>
                 
-                <div class="flex justify-end gap-2">
-                    <button type="button" @click="showBlacklistModal = false" class="px-5 py-2.5 text-xs font-bold text-gray-500 bg-gray-100 rounded-lg hover:bg-gray-200 transition">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 text-xs font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition shadow-lg">
-                        Confirm
-                    </button>
-                </div>
-            </form>
+                @if($customer->fines->count() > 0)
+                    <div class="bg-white rounded-xl border border-red-100 shadow-sm overflow-hidden">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-red-50 text-red-800 uppercase text-[10px] font-black tracking-widest border-b border-red-100">
+                                <tr>
+                                    <th class="px-6 py-4">Booking ID</th>
+                                    <th class="px-6 py-4">Reason</th>
+                                    <th class="px-6 py-4">Amount</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4">Recorded</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @foreach($customer->fines as $fine)
+                                    <tr class="hover:bg-red-50/30 transition">
+                                        <td class="px-6 py-4">
+                                            <a href="{{ route('admin.bookings.show_detail', $fine->booking_id) }}" class="text-blue-600 font-bold hover:underline">
+                                                #{{ $fine->booking_id }}
+                                            </a>
+                                        </td>
+                                        <td class="px-6 py-4 font-bold text-gray-800">{{ $fine->reason }}</td>
+                                        <td class="px-6 py-4 font-mono text-gray-600">RM {{ number_format($fine->amount, 2) }}</td>
+                                        <td class="px-6 py-4">
+                                            @if($fine->status == 'Paid')
+                                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-200">
+                                                    Paid
+                                                </span>
+                                            @else
+                                                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-200">
+                                                    Unpaid
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 text-xs text-gray-400">
+                                            {{ $fine->created_at->format('d M Y') }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-400">
+                        <i class="ri-shield-check-line text-3xl mb-2 text-green-500"></i>
+                        <p class="text-xs font-bold uppercase tracking-widest">Clean Record - No Violations</p>
+                    </div>
+                @endif
+            </div>
+
         </div>
     </div>
 </div>
