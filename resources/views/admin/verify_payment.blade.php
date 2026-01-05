@@ -115,18 +115,11 @@
                 </div>
 
                 <div class="grid grid-cols-1 gap-3 mt-auto bg-white pt-2">
-                    <form action="{{ route('admin.payment.reject', $booking->id) }}" method="POST" onsubmit="return confirm('Reject this booking?');">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="rejection_reason" class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Rejection Reason</label>
-                            <textarea name="rejection_reason" id="rejection_reason" rows="3" class="w-full text-xs border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500" placeholder="Please provide a reason for rejection..." required></textarea>
-                        </div>
-                        <button class="w-full py-3 bg-white text-red-600 font-bold rounded-lg border border-red-200 hover:bg-red-50 uppercase text-xs tracking-widest">Reject</button>
-                    </form>
+<button onclick="openRejectModal()" type="button" class="w-full py-4 bg-white text-red-600 font-bold rounded-xl border border-red-200 hover:bg-red-50 uppercase text-sm tracking-widest mb-3 shadow-sm transition-all hover:shadow-md">Reject</button>
 
                     <form action="{{ route('admin.payment.approve', $booking->id) }}" method="POST" onsubmit="return confirm('Approve this booking?');">
                         @csrf
-                        <button class="w-full py-3 bg-[#cb5c55] text-white font-bold rounded-lg hover:opacity-90 uppercase text-xs tracking-widest">Approve</button>
+                        <button class="w-full py-4 bg-[#cb5c55] text-white font-bold rounded-xl hover:bg-[#b04a44] shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 uppercase text-sm tracking-widest">Approve</button>
                     </form>
                 </div>
             @endif
@@ -135,3 +128,54 @@
     </div>
 </div>
 @endsection
+
+{{-- Reject Modal --}}
+<div id="rejectModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeRejectModal()"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom bg-white rounded-lg shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <form action="{{ route('admin.payment.reject', $booking->id) }}" method="POST">
+                @csrf
+                <div>
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                        <i class="ri-close-circle-line text-red-600 text-xl"></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-5">
+                        <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-title">Reject Booking</h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500">
+                                Please provide a reason for rejecting this booking payment. This information will be sent to the customer.
+                            </p>
+                        </div>
+                        <div class="mt-4">
+                            <label for="modal_rejection_reason" class="sr-only">Rejection Reason</label>
+                            <textarea name="rejection_reason" id="modal_rejection_reason" rows="3" class="w-full text-sm border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500" placeholder="Enter reason here..." required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-3 bg-red-600 text-base font-bold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:col-start-2">
+                        Confirm Rejection
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-4 py-3 bg-white text-base font-bold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1" onclick="closeRejectModal()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openRejectModal() {
+        document.getElementById('rejectModal').classList.remove('hidden');
+    }
+    function closeRejectModal() {
+        document.getElementById('rejectModal').classList.add('hidden');
+    }
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === "Escape") closeRejectModal();
+    });
+</script>
