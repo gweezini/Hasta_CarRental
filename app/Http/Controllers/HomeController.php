@@ -11,7 +11,7 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         // Fetch ALL vehicles to display on landing page with their pricing tiers
-        $vehicles = Vehicle::with('pricingTier.rates')->whereIn('status', ['Available', 'Rented'])->get();
+        $vehicles = Vehicle::with('pricingTier.rules')->whereIn('status', ['Available', 'Rented'])->get();
 
         // Default availability for display purposes
         foreach ($vehicles as $vehicle) {
