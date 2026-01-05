@@ -41,6 +41,11 @@ class Vehicle extends Model
         return $this->belongsTo(VehicleType::class, 'type_id', 'code');
     }
 
+    public function pricingTier(): BelongsTo
+    {
+        return $this->belongsTo(PricingTier::class);
+    }
+
     public function maintenanceLogs(): HasMany
     {
         return $this->hasMany(MaintenanceLog::class);
