@@ -1197,5 +1197,7 @@
           }
       });
     </script>
-  </body>
+
+    @include('partials.rate-modal-global')
+</body>
 </html>

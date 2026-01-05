@@ -491,5 +491,6 @@
           });
       });
     </script>
+    @include('partials.rate-modal-global')
   </body>
 </html>
