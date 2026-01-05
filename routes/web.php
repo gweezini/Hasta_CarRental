@@ -109,6 +109,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Feedback
     Route::get('/feedbacks', [App\Http\Controllers\FeedbackController::class, 'index'])->name('admin.feedbacks.index');
 
+
+
 });
 
 Route::middleware(['auth'])->group(function () {
