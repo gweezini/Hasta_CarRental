@@ -34,14 +34,14 @@
         }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex min-h-screen bg-[#f3f4f6]">
 
-    <aside class="w-64 bg-[#cb5c55] text-white flex flex-col flex-shrink-0 transition-all duration-300">
+    <aside class="w-64 bg-[#cb5c55] text-white flex flex-col flex-shrink-0 transition-all duration-300 sticky top-0 h-screen">
         <div class="p-6 flex items-center justify-center border-b border-white/10">
             <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Logo" class="h-10 rounded shadow-lg border-2 border-white/30">
         </div>
 
-        <nav class="flex-1 overflow-y-auto py-8 space-y-2">
+        <nav class="flex-1 overflow-y-auto py-8 space-y-2 custom-scrollbar">
     {{-- 1. Dashboard --}}
     <a href="{{ route('admin.dashboard') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.dashboard') ? 'sidebar-active' : '' }}">
         <i class="ri-dashboard-line mr-3 text-xl"></i> Dashboard
@@ -117,8 +117,8 @@
         </div>
     </aside>
 
-    <div class="flex-1 flex flex-col h-screen overflow-hidden">
-        <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 z-10">
+    <div class="flex-1 flex flex-col min-h-screen">
+        <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 z-10 sticky top-0">
             <h2 class="text-2xl font-bold text-gray-800">
                 @yield('header_title', 'Admin Portal')
             </h2>
@@ -226,7 +226,7 @@
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-8 bg-[#f3f4f6]">
+        <main class="flex-1 p-8 bg-[#f3f4f6]">
             @yield('content')
             <div class="mt-8 text-center text-xs text-gray-400 no-print">&copy; 2026 Hasta Car Rental Admin Panel</div>
         </main>
