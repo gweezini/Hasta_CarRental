@@ -140,7 +140,7 @@
         <div class="content">
             <div class="status-badge">
                 <span class="status-pill {{ $isApproved ? 'status-approved' : 'status-rejected' }}">
-                    {{ $isApproved ? 'Booking Confirmed' : 'Payment Rejected' }}
+                    {{ $isApproved ? 'Booking Confirmed' : 'Booking Unsuccessful' }}
                 </span>
             </div>
 
@@ -148,16 +148,11 @@
                 HI, <strong>{{ $notifiable->name }}</strong><br><br>
                 {{ $isApproved 
                     ? 'Your payment has been successfully verified and approved.' 
-                    : 'Sorry, your booking has been rejected. Please login to see the details.' 
+                    : 'Sorry, since ' . ($reason ?? 'requirements were not met') . ', your booking has been rejected. Please login to see the details.' 
                 }}
             </div>
 
-            @if(!$isApproved)
-            <div style="background-color: #fff1f2; border-left: 4px solid #f43f5e; padding: 16px; margin-bottom: 30px; border-radius: 4px;">
-                <strong style="color: #be123c; display: block; margin-bottom: 4px;">Reason for Rejection:</strong>
-                <span style="color: #881337;">{{ $reason }}</span>
-            </div>
-            @endif
+
 
             @if($isApproved)
             <h3 style="text-align: center; color: #333; margin-bottom: 15px; font-size: 18px;">Booking details:</h3>
@@ -202,7 +197,7 @@
             @endif
 
             <a href="{{ route('profile.edit') }}" class="action-btn">
-                {{ $isApproved ? 'View Booking & Upload Inspection' : 'Resolve Payment Issue' }}
+                {{ $isApproved ? 'View Booking & Upload Inspection' : 'View Details' }}
             </a>
         </div>
 
