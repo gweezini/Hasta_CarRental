@@ -167,7 +167,7 @@ class AdminController extends Controller
 
     public function show($id)
     {
-        $booking = Booking::with(['user', 'vehicle', 'payment', 'processedBy', 'inspections', 'feedback'])->findOrFail($id);
+        $booking = Booking::with(['user', 'vehicle', 'payment', 'processedBy', 'inspections', 'feedback', 'fines'])->findOrFail($id);
         return view('admin.bookings.show', compact('booking'));
     }
 
@@ -230,6 +230,39 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Operation failed.');
         }
+    }
+
+    public function storeFine(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0',
+        ]);
+
+        \App\Models\Fine::create([
+            'booking_id' => $id,
+            'reason' => $request->reason,
+            'amount' => $request->amount,
+            'status' => 'Unpaid',
+        ]);
+
+        return redirect()->back()->with('success', 'Fine issued successfully.');
+    }
+
+    public function payFine($id)
+    {
+        $fine = \App\Models\Fine::findOrFail($id);
+        $fine->update([
+            'status' => 'Paid',
+            'paid_at' => now(),
+        ]);
+        return redirect()->back()->with('success', 'Fine marked as paid.');
+    }
+
+    public function deleteFine($id)
+    {
+        \App\Models\Fine::findOrFail($id)->delete();
+        return redirect()->back()->with('success', 'Fine deleted.');
     }
 
     public function reports(Request $request) 
