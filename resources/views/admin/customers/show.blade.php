@@ -115,6 +115,10 @@
                     <span class="text-base font-medium text-gray-800">{{ $customer->nric_passport }}</span>
                 </div>
                 <div>
+                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Nationality</span>
+                    <span class="text-base font-medium text-gray-800">{{ $customer->nationality ?? '-' }}</span>
+                </div>
+                <div>
                     <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Phone Number</span>
                     <span class="text-base font-medium text-gray-800 font-mono">{{ $customer->phone_number ?? $customer->phone ?? 'N/A' }}</span>
                 </div>
@@ -130,7 +134,7 @@
                     <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Driving License</span>
                     <span class="text-base font-medium text-gray-800">{{ $customer->driving_license }}</span>
                 </div>
-                <div class="col-span-1 md:col-span-3">
+                <div class="col-span-1 md:col-span-2">
                     <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Home Address</span>
                     <span class="text-base font-medium text-gray-800">{{ $customer->address }}</span>
                 </div>
