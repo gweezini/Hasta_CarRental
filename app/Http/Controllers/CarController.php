@@ -105,7 +105,8 @@ class CarController extends Controller
 
             foreach ($ratesData as $hour => $price) {
                 // Lookup by tier ID and hour limit since the input name is rates[hour]
-                $rate = \App\Models\PricingRate::where('pricing_tier_id', $vehicle->pricing_tier_id)
+                // FIX: Use PricingRule model instead of PricingRate
+                $rate = \App\Models\PricingRule::where('pricing_tier_id', $vehicle->pricing_tier_id)
                             ->where('hour_limit', $hour)
                             ->first();
                 
@@ -113,7 +114,7 @@ class CarController extends Controller
                     $rate->update(['price' => $price]);
                 } else {
                     // Create if it doesn't exist (robustness)
-                    \App\Models\PricingRate::create([
+                    \App\Models\PricingRule::create([
                         'pricing_tier_id' => $vehicle->pricing_tier_id,
                         'hour_limit' => $hour,
                         'price' => $price
