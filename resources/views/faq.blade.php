@@ -118,8 +118,8 @@
 <body>
 
     <div class="header">
-        <a href="{{ route('dashboard') }}" class="back-btn">
-            <i class="ri-arrow-left-line"></i> Back to Dashboard
+        <a href="{{ url()->previous() }}" class="back-btn">
+            <i class="ri-arrow-left-line"></i> Back
         </a>
         <h1>Frequently Asked Questions</h1>
         <p>Find answers to common questions about our car rental services.</p>
