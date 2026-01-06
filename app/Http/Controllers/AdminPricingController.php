@@ -31,22 +31,46 @@ class AdminPricingController extends Controller
             'rules.*.price' => 'required|numeric|min:0',
         ]);
 
-        // Sync rules
-        // Simplest strategy: delete allow and recreate, or update existing if IDs provided.
-        // Given the requirement "edit the price, not empty", we want to keep the structure.
-        // Let's assume the form submits existing rules.
-        
-        // Better strategy: iterate and update/create.
-        // We will wipe and recreate to ensure clean slate if user adds/removes hours, 
-        // OR precise update if we want to keep IDs.
-        // Recreating is easier for "full list" editing.
-        
-        $pricing->rules()->delete();
-        
-        foreach ($request->rules as $ruleData) {
-            $pricing->rules()->create($ruleData);
-        }
+        \Illuminate\Support\Facades\DB::transaction(function () use ($pricing, $request) {
+            $pricing->rules()->delete();
+            
+            foreach ($request->rules as $rule) {
+                $pricing->rules()->create([
+                    'hour_limit' => $rule['hour_limit'],
+                    'price' => $rule['price'],
+                ]);
+            }
+        });
 
         return redirect()->route('admin.pricing.index')->with('success', 'Pricing rules updated successfully.');
+    }
+    public function create()
+    {
+        return view('admin.pricing.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'rates' => 'required|array|min:1',
+            'rates.*.hour_limit' => 'required|integer|min:1',
+            'rates.*.price' => 'required|numeric|min:0',
+        ]);
+
+        $tier = PricingTier::create([
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
+
+        foreach ($request->rates as $rate) {
+            $tier->rules()->create([
+                'hour_limit' => $rate['hour_limit'],
+                'price' => $rate['price'],
+            ]);
+        }
+
+        return redirect()->route('admin.pricing.index')->with('success', 'Pricing tier created successfully.');
     }
 }
