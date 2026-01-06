@@ -40,6 +40,14 @@ class User extends Authenticatable
         'college_id',
         'faculty_id',
 
+        // Emergency Contact
+        'emergency_name',
+        'emergency_contact',
+        'emergency_relationship',
+        
+        // Bank Details
+        'account_holder',
+
         'matric_card_path',
         'driving_license_path',
         'nric_passport_path',
