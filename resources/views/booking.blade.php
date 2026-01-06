@@ -798,6 +798,61 @@
       textarea::placeholder {
         color: #999 !important;
       }
+
+      /* --- AUTOFILL / READONLY STYLES --- */
+      .input-autofill[readonly] {
+          background-color: #f3f4f6 !important; /* Gray background */
+          border-color: #e5e7eb !important;
+          color: #6b7280 !important; /* Gray text */
+          cursor: not-allowed;
+      }
+
+      .btn-edit {
+          background: none;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          padding: 5px 10px;
+          font-size: 0.85rem;
+          color: #555;
+          cursor: pointer;
+          transition: 0.2s;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+      }
+      .btn-edit:hover {
+          background-color: #f0f0f0;
+          color: var(--primary-color);
+          border-color: var(--primary-color);
+      }
+
+      .autofill-hint {
+          font-size: 0.85rem;
+          color: var(--primary-color);
+          font-weight: 500;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+      }
+      
+      .autofill-notice {
+          font-size: 0.85rem;
+          background-color: #fff7ed; /* Light Orange */
+          color: #c2410c; /* Dark Orange/Red */
+          padding: 8px 12px;
+          border-radius: 6px;
+          margin-bottom: 15px;
+          border: 1px solid #ffedd5;
+          display: flex;
+          gap: 8px;
+          align-items: center;
+      }
+      
+      @media (max-width: 600px) {
+          .mobile-only-hide {
+              display: none;
+          }
+      }
     </style>
   </head>
 
@@ -1219,8 +1274,25 @@
                 </div>
               </div>
 
-              <div class="form__section">
-                <h3><i class="ri-alarm-warning-line"></i> Emergency Contact</h3>
+              <div class="form__section" id="emergency-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3><i class="ri-alarm-warning-line"></i> Emergency Contact</h3>
+                    @if($lastBooking)
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="autofill-hint mobile-only-hide"><i class="ri-sparkling-fill"></i> Autofilled from last booking</span>
+                            <button type="button" class="btn-edit" onclick="toggleEdit('emergency-section')">
+                                <i class="ri-pencil-line"></i> Edit
+                            </button>
+                        </div>
+                    @endif
+                </div>
+                
+                @if($lastBooking)
+                    <div class="autofill-notice">
+                        <i class="ri-information-line"></i> These details are from your last booking. Click <strong>Edit</strong> to change them.
+                    </div>
+                @endif
+
                 <div
                   style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;"
                 >
@@ -1229,8 +1301,10 @@
                     <input
                       type="text"
                       name="emergency_name"
-                      value="{{ Auth::user()->emergency_name }}"
+                      class="input-autofill"
+                      value="{{ old('emergency_name', $lastBooking->emergency_contact_name ?? Auth::user()->emergency_name) }}"
                       required
+                      {{ $lastBooking ? 'readonly' : '' }}
                     />
                   </div>
                   <div class="input__group">
@@ -1238,8 +1312,10 @@
                     <input
                       type="tel"
                       name="emergency_contact"
-                      value="{{ Auth::user()->emergency_contact }}"
+                      class="input-autofill"
+                      value="{{ old('emergency_contact', $lastBooking->emergency_contact_phone ?? Auth::user()->emergency_contact) }}"
                       required
+                      {{ $lastBooking ? 'readonly' : '' }}
                     />
                   </div>
                 </div>
@@ -1248,8 +1324,10 @@
                   <input
                     type="text"
                     name="emergency_relationship"
-                    value="{{ Auth::user()->emergency_relationship }}"
+                    class="input-autofill"
+                    value="{{ old('emergency_relationship', $lastBooking->emergency_relationship ?? Auth::user()->emergency_relationship) }}"
                     required
+                    {{ $lastBooking ? 'readonly' : '' }}
                   />
                 </div>
                 </div>
@@ -1257,31 +1335,47 @@
               <div class="form__section">
                 <h3><i class="ri-secure-payment-line"></i> Payment & Refund</h3>
                 
-                <h4 style="font-size: 1rem; margin-bottom: 1rem; color: var(--primary-color);">Refund Details</h4>
-                <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;">
-                    <i class="ri-information-line"></i> Please provide your bank details for secure deposit refund.
-                </p>
-                <div class="refund-box" style="margin-bottom: 2rem;">
+                <div class="refund-box" style="margin-bottom: 2rem;" id="refund-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="font-size: 1rem; margin-bottom: 0; color: var(--primary-color);">
+                            Refund Details
+                        </h4>
+                        @if($lastBooking)
+                             <div style="display: flex; align-items: center; gap: 10px;">
+                                <span class="autofill-hint mobile-only-hide" style="font-size: 0.8rem;"><i class="ri-sparkling-fill"></i> Autofilled</span>
+                                <button type="button" class="btn-edit" onclick="toggleEdit('refund-section')">
+                                    <i class="ri-pencil-line"></i> Edit
+                                </button>
+                            </div>
+                        @endif
+                    </div>
+
+                     @if($lastBooking)
+                        <div class="autofill-notice" style="margin-bottom: 1rem;">
+                            <i class="ri-information-line"></i> Check your bank details carefully. Click <strong>Edit</strong> if you changed banks.
+                        </div>
+                    @endif
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="input__group">
                             <label>Bank Name</label>
                             <div class="input-with-icon">
                                 <i class="ri-bank-line"></i>
-                                <input type="text" name="refund_bank_name" placeholder="e.g. Maybank" required />
+                                <input type="text" name="refund_bank_name" class="input-autofill" value="{{ old('refund_bank_name', $lastBooking->refund_bank_name ?? Auth::user()->bank_name ?? '') }}" placeholder="e.g. Maybank" required {{ $lastBooking ? 'readonly' : '' }} />
                             </div>
                         </div>
                         <div class="input__group">
                             <label>Account Number</label>
                              <div class="input-with-icon">
                                 <i class="ri-hashtag"></i>
-                                <input type="text" name="refund_account_number" placeholder="e.g. 1122334455" required />
+                                <input type="text" name="refund_account_number" class="input-autofill" value="{{ old('refund_account_number', $lastBooking->refund_account_number ?? Auth::user()->account_number ?? '') }}" placeholder="e.g. 1122334455" required {{ $lastBooking ? 'readonly' : '' }} />
                             </div>
                         </div>
                         <div class="input__group" style="grid-column: 1 / -1;">
                             <label>Recipient Name</label>
                              <div class="input-with-icon">
                                 <i class="ri-user-star-line"></i>
-                                <input type="text" name="refund_recipient_name" placeholder="Name as per bank account" required />
+                                <input type="text" name="refund_recipient_name" class="input-autofill" value="{{ old('refund_recipient_name', $lastBooking->refund_recipient_name ?? Auth::user()->account_holder ?? '') }}" placeholder="Name as per bank account" required {{ $lastBooking ? 'readonly' : '' }} />
                             </div>
                         </div>
                     </div>
@@ -1876,6 +1970,36 @@
             const mCode = document.querySelector('input[name="manual_code"]');
             if(mCode) mCode.addEventListener('change', calculatePrice);
         })();
+
+        function toggleEdit(sectionId) {
+            const section = document.getElementById(sectionId);
+            if(!section) return;
+            
+            // 1. Remove readonly from inputs
+            const inputs = section.querySelectorAll('input[readonly]');
+            inputs.forEach(input => {
+                input.removeAttribute('readonly');
+                // Optional: Flash visual effect
+                input.style.backgroundColor = '#fff';
+                input.style.color = '#15191d';
+                input.style.cursor = 'text';
+            });
+
+            // 2. Hide toggle button
+            const btn = section.querySelector('.btn-edit');
+            if(btn) btn.style.display = 'none';
+            
+            // 3. Hide hint text
+            const hint = section.querySelector('.autofill-hint');
+            if(hint) hint.style.display = 'none';
+
+             // 4. Hide notice
+            const notice = section.querySelector('.autofill-notice');
+            if(notice) notice.style.display = 'none';
+
+            // 5. Focus first input
+            if(inputs.length > 0) inputs[0].focus();
+        }
     </script>
     @include('partials.rate-modal-global')
   </body>
