@@ -18,11 +18,11 @@ class FaqController extends Controller
                 'answer' => 'Deposits will be returned after 7 working days if there are no issues after inspection has been made.'
             ],
             [
-                'question' => 'Can I rent if im still having a P license.',
+                'question' => 'Can I rent if im still having a P license?',
                 'answer' => 'Yes. You can still rent with us.'
             ],
             [
-                'question' => 'Can i pickup the car outside of UTM',
+                'question' => 'Can i pickup the car outside of UTM?',
                 'answer' => 'Yes, delivery charges will apply to any pickup location besides Hasta Travel Office in UTM.'
             ],
             [

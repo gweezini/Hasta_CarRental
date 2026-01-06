@@ -174,7 +174,7 @@
                 <h4>Quick Links</h4>
                 <ul class="footer__links">
                     <li><a href="#about">About Us</a></li>
-                    <li><a href="#">FAQ</a></li>
+                    <li><a href="{{ route('faq') }}">FAQ</a></li>
                     <li><a href="#">Privacy Policy</a></li>
                     <li><a href="#">Terms & Conditions</a></li>
                 </ul>
