@@ -28,6 +28,9 @@ Route::get('/blacklisted', function () {
 })->name('blacklist.notice');
 
 Route::get('/faq', [App\Http\Controllers\FaqController::class, 'index'])->name('faq');
+Route::get('/about', [App\Http\Controllers\StaticPageController::class, 'about'])->name('about');
+Route::get('/privacy', [App\Http\Controllers\StaticPageController::class, 'privacy'])->name('privacy');
+Route::get('/terms', [App\Http\Controllers\StaticPageController::class, 'terms'])->name('terms');
 Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
     if (Auth::user()->isStaff()) {
         return redirect()->route('admin.dashboard');

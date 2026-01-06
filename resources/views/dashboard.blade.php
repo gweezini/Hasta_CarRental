@@ -925,10 +925,10 @@
         <div class="footer__col" id="about">
           <h4>Quick Links</h4>
           <ul class="footer__links">
-            <li><a href="#about">About Us</a></li>
+            <li><a href="{{ route('about') }}">About Us</a></li>
             <li><a href="{{ route('faq') }}" style="position: relative; z-index: 100;">FAQ</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Terms & Conditions</a></li>
+            <li><a href="{{ route('privacy') }}">Privacy Policy</a></li>
+            <li><a href="{{ route('terms') }}">Terms & Conditions</a></li>
           </ul>
         </div>
 
