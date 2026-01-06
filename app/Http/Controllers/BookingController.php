@@ -49,6 +49,9 @@ class BookingController extends Controller
             ->with('voucher') 
             ->get();
 
+        // Fetch last booking for autofill
+        $lastBooking = Booking::where('user_id', Auth::id())->latest()->first();
+
         $prices = ['office' => 0, 'campus' => 2.50, 'taman_u' => 7.50, 'jb' => 25];
 
         $hours = 0;
@@ -133,7 +136,7 @@ class BookingController extends Controller
         return view('booking', compact(
             'vehicle', 'myVouchers', 'hours', 'subtotal', 
             'discount', 'deliveryFee', 'total', 'stamps', 'voucherMessage',
-            'pickupLoc', 'dropoffLoc'
+            'pickupLoc', 'dropoffLoc', 'lastBooking'
         ));
     }
 
@@ -247,6 +250,7 @@ class BookingController extends Controller
             $booking->customer_phone = $request->phone;
             $booking->emergency_contact_name = $request->emergency_name;
             $booking->emergency_contact_phone = $request->emergency_contact;
+            $booking->emergency_relationship = $request->emergency_relationship;
             
             // New Refund Details
             $booking->refund_bank_name = $request->refund_bank_name;
@@ -412,6 +416,7 @@ class BookingController extends Controller
         $booking->customer_phone = $request->phone;
         $booking->emergency_contact_name = $request->emergency_name;
         $booking->emergency_contact_phone = $request->emergency_contact;
+        $booking->emergency_relationship = $request->emergency_relationship;
 
         $booking->refund_bank_name = $request->refund_bank_name;
         $booking->refund_account_number = $request->refund_account_number;
