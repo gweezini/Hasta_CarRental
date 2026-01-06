@@ -41,6 +41,19 @@
                 </span>
             </div>
 
+            <div class="bg-gray-50 p-6 rounded-2xl flex gap-6 items-center border border-gray-200 mb-8">
+                <div class="w-32 h-20 bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm flex items-center justify-center">
+                    <img src="{{ asset('images/' . $booking->vehicle->vehicle_image) }}" class="object-contain w-full h-full p-1">
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-800 text-xl">{{ $booking->vehicle->brand }} {{ $booking->vehicle->model }}</h4>
+                    <p class="text-sm text-gray-600 font-mono bg-gray-200 px-3 py-1 rounded-md inline-block mt-1 tracking-wider">
+                        {{ $booking->vehicle->plate_number }}
+                    </p>
+                </div>
+            </div>
+
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               
                 <div>
@@ -60,19 +73,37 @@
                         <p class="text-sm text-gray-400 mt-1 italic">{{ $booking->user->email }}</p>
                     @endif
                 </div>
+                
+                {{-- Emergency & Bank Details (Added) --}}
+                <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-100 pt-6">
+                     <div>
+                        <p class="text-xs text-gray-400 uppercase font-bold tracking-widest mb-2 flex items-center gap-1">
+                            <i class="ri-alarm-warning-line text-orange-500"></i> Emergency Contact
+                        </p>
+                        <p class="font-bold text-gray-800 text-base">{{ $booking->emergency_contact_name ?? 'N/A' }}</p>
+                        <p class="text-sm text-gray-500">{{ $booking->emergency_contact_phone ?? 'N/A' }}</p>
+                        <p class="text-sm text-gray-500 mt-1 italic">{{ $booking->emergency_relationship ?? 'Relationship not specified' }}</p>
+                     </div>
+
+                     <div>
+                        <p class="text-xs text-gray-400 uppercase font-bold tracking-widest mb-2 flex items-center gap-1">
+                            <i class="ri-bank-card-line text-blue-500"></i> Banking Details
+                        </p>
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                             <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Bank Name</p>
+                             <p class="font-bold text-gray-800 mb-2">{{ $booking->refund_bank_name ?? 'N/A' }}</p>
+                             
+                             <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Account Number</p>
+                             <p class="font-mono text-gray-800 mb-2">{{ $booking->refund_account_number ?? 'N/A' }}</p>
+                             
+                             <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Recipient Name</p>
+                             <p class="text-sm text-gray-800">{{ $booking->refund_recipient_name ?? 'N/A' }}</p>
+                        </div>
+                     </div>
+                </div>
             </div>
 
-            <div class="bg-gray-50 p-6 rounded-2xl flex gap-6 items-center border border-gray-200 mb-8">
-                <div class="w-32 h-20 bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm flex items-center justify-center">
-                    <img src="{{ asset('images/' . $booking->vehicle->vehicle_image) }}" class="object-contain w-full h-full p-1">
-                </div>
-                <div>
-                    <h4 class="font-bold text-gray-800 text-xl">{{ $booking->vehicle->brand }} {{ $booking->vehicle->model }}</h4>
-                    <p class="text-sm text-gray-600 font-mono bg-gray-200 px-3 py-1 rounded-md inline-block mt-1 tracking-wider">
-                        {{ $booking->vehicle->plate_number }}
-                    </p>
-                </div>
-            </div>
+
 
             {{-- Pick-up & Return --}}
             @php
