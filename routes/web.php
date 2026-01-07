@@ -88,6 +88,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     
     // Fines Management
     Route::post('/bookings/{id}/fine', [AdminController::class, 'storeFine'])->name('admin.bookings.fine.store');
+    Route::post('/bookings/{id}/return-deposit', [AdminController::class, 'returnDeposit'])->name('admin.bookings.return_deposit');
     Route::post('/fines/{id}/pay', [AdminController::class, 'payFine'])->name('admin.fines.pay');
     Route::delete('/fines/{id}', [AdminController::class, 'deleteFine'])->name('admin.fines.destroy');
     
@@ -104,6 +105,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     // Staff Management
     Route::get('/staff-list', [AdminController::class, 'staffList'])->name('admin.staff.index');
+    Route::get('/staff/create', [AdminController::class, 'createStaff'])->name('admin.staff.create');
+    Route::post('/staff', [AdminController::class, 'storeStaff'])->name('admin.staff.store');
     Route::get('/staff/{id}', [AdminController::class, 'showStaff'])->name('admin.staff.show');
     
     Route::get('/my-profile', [AdminController::class, 'profile'])->name('admin.profile');

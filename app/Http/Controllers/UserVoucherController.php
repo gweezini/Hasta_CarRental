@@ -59,6 +59,10 @@ class UserVoucherController extends Controller
 
     public function redeemLoyalty(Request $request)
     {
+        return redirect()->back()->with('error', 'Loyalty rewards are now automatically redeemed upon booking completion!');
+        
+        // Disable manual redemption logic
+        /*
         $request->validate(['tier' => 'required|in:3,6,9,12,15']);
         $tier = (int)$request->tier;
         $user = Auth::user();
@@ -100,5 +104,6 @@ class UserVoucherController extends Controller
         $card->save();
 
         return redirect()->route('profile.edit', ['tab' => 'rewards'])->with('success', 'Loyalty reward created');
+        */
     }
 }

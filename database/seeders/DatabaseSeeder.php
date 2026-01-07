@@ -23,7 +23,6 @@ class DatabaseSeeder extends Seeder
         FacultySeeder::class,
         UserSeeder::class,
         VehicleSeeder::class,
-        FinalPricingSeeder::class,
         VoucherSeeder::class,
         PricingSeeder::class,
           
