@@ -449,14 +449,12 @@
                                                     <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ec5a29] rounded-full animate-ping"></div>
                                                     <div class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#ec5a29] rounded-full"></div>
                                                 @else
-                                                    {{-- Redemption Overlay --}}
-                                                    <form action="{{ route('vouchers.redeem.loyalty') }}" method="POST" class="absolute inset-0 z-20" onsubmit="return confirm('Are you sure you want to redeem this reward? It will deduct {{ $i }} stamps.');">
-                                                        @csrf
-                                                        <input type="hidden" name="tier" value="{{ $i }}">
-                                                        <button type="submit" class="w-full h-full rounded-full bg-black/80 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm">
-                                                            <span class="text-white text-[8px] font-bold uppercase text-center leading-tight tracking-wider">Redeem<br>Now</span>
-                                                        </button>
-                                                    </form>
+                                                    {{-- Redemption is now Automatic --}}
+                                                    <div class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                                                        <span class="bg-black/80 text-white text-[8px] font-bold uppercase text-center leading-tight tracking-wider px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            Auto<br>Claim
+                                                        </span>
+                                                    </div>
                                                 @endif
                                             @endif
                                         </div>
