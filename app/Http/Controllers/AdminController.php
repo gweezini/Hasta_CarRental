@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\BookingStatusUpdated;
 use App\Models\Claim;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -494,6 +495,52 @@ class AdminController extends Controller
         $totalMonthlyPayroll = $totalSalaries + $totalClaims;
 
         return view('admin.staff.index', compact('staffs', 'totalMonthlyPayroll'));
+    }
+
+    public function createStaff()
+    {
+        return view('admin.staff.create');
+    }
+
+    public function storeStaff(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+            'email' => 'required|string|email|max:255|unique:users',
+            'matric_staff_id' => 'required|string|max:20|unique:users',
+            'nric_passport' => ['required', 'string', 'max:20', 'unique:users', 'regex:/^[a-zA-Z0-9]+$/'],
+            'contact_number' => ['required', 'string', 'max:20', 'regex:/^\+[0-9]+$/'],
+            'salary' => 'required|numeric|min:0',
+            'role' => 'required|in:admin,topmanagement',
+            'password' => 'required|string|min:8|confirmed',
+            'bank_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+            'account_number' => ['nullable', 'string', 'max:50', 'regex:/^[0-9]+$/'],
+            'account_holder' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/'],
+        ], [
+            'name.regex' => 'Full name must contain only alphabets and spaces.',
+            'nric_passport.regex' => 'NRIC/Passport must contain only alphanumeric characters (no dashes).',
+            'contact_number.regex' => 'Contact number must start with + and contain only numbers.',
+            'bank_name.regex' => 'Bank name must contain only alphabets and spaces.',
+            'account_number.regex' => 'Account number must contain only numbers.',
+            'account_holder.regex' => 'Account holder name must contain only alphabets and spaces.',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'matric_staff_id' => $request->matric_staff_id,
+            'nric_passport' => $request->nric_passport,
+            'phone_number' => str_replace('+', '', $request->contact_number),
+            'salary' => $request->salary,
+            'role' => $request->role,
+            'password' => Hash::make($request->password),
+            'bank_name' => $request->bank_name,
+            'account_number' => $request->account_number,
+            'account_holder' => $request->account_holder,
+            'is_blacklisted' => false,
+        ]);
+
+        return redirect()->route('admin.staff.index')->with('success', 'New staff member registered successfully.');
     }
 
     public function showStaff($id)
