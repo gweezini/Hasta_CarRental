@@ -36,7 +36,8 @@ class BookingController extends Controller
             ];
         });
 
-        return response()->json(['active_bookings' => $ranges]);
+        return response()->json(['active_bookings' => $ranges])
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
 
     // 1. SHOW METHOD (保持不变，计算价格)

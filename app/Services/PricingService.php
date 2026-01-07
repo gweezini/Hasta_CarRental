@@ -23,7 +23,7 @@ class PricingService
         if (!$vehicle->pricing_tier_id) {
             // Fallback to legacy logic
             return [
-                'total_price' => $hours * $vehicle->price_per_hour,
+                'subtotal' => $hours * $vehicle->price_per_hour,
                 'hours' => $hours,
                 'tier_name' => null,
                 'rate_applied' => 'Standard Rate (RM ' . $vehicle->price_per_hour . '/hr)'

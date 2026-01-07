@@ -1808,7 +1808,7 @@
 
                 function fetchAvailability() {
                     const vehicleId = document.querySelector('input[name="vehicle_id"]').value;
-                    fetch(`/booking/vehicle/${vehicleId}/availability`)
+                    fetch(`/booking/vehicle/${vehicleId}/availability?_=${new Date().getTime()}`)
                         .then(res => res.json())
                         .then(data => {
                             bookedRanges = data.active_bookings.map(r => ({
