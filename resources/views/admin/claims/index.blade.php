@@ -41,11 +41,11 @@
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-3">
                                 <div class="h-10 w-10 rounded-full bg-[#cb5c55] text-white flex items-center justify-center font-bold text-sm shadow-sm">
-                                    {{ substr($claim->user->name, 0, 1) }}
+                                    {{ substr($claim->user->name ?? '?', 0, 1) }}
                                 </div>
                                 <div>
-                                    <p class="font-bold text-gray-900 text-sm leading-tight">{{ $claim->user->name }}</p>
-                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{{ $claim->user->matric_staff_id }}</p>
+                                    <p class="font-bold text-gray-900 text-sm leading-tight">{{ $claim->user->name ?? 'Unknown User' }}</p>
+                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{{ $claim->user->matric_staff_id ?? 'N/A' }}</p>
                                 </div>
                             </div>
                         </td>
