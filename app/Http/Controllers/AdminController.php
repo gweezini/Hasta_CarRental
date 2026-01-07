@@ -261,6 +261,39 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Fine issued successfully.');
     }
 
+    public function returnDeposit(Request $request, $id)
+    {
+        $request->validate([
+            'deposit_receipt' => 'required|image|max:2048', // Max 2MB
+        ]);
+
+        $booking = Booking::findOrFail($id);
+
+        try {
+            if ($request->hasFile('deposit_receipt')) {
+                $path = $request->file('deposit_receipt')->store('deposits', 'public');
+                
+                $booking->update([
+                    'deposit_status' => 'Returned',
+                    'deposit_receipt_path' => $path,
+                    'deposit_returned_at' => now(),
+                    'processed_by' => Auth::id()
+                ]);
+
+                // Notify User
+                if ($booking->user) {
+                    $booking->user->notify(new \App\Notifications\DepositReturned($booking));
+                }
+
+                return redirect()->back()->with('success', 'Deposit returned successfully!');
+            }
+            return redirect()->back()->with('error', 'Please upload a receipt.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to return deposit: ' . $e->getMessage());
+        }
+    }
+
     public function payFine($id)
     {
         $fine = \App\Models\Fine::findOrFail($id);
