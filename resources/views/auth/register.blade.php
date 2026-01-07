@@ -23,7 +23,7 @@
             
             <div>
                 <x-input-label for="name" :value="__('Full Name')" />
-                <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus />
+                <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" />
                 <x-input-error :messages="$errors->get('name')" class="mt-2" />
             </div>
 
@@ -43,7 +43,6 @@
                   type="text" 
                   name="nric_passport" 
                   required 
-                  placeholder="010203040506"
                   oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()" />
                 <x-input-error :messages="$errors->get('nric_passport')" class="mt-2" />
             </div>
@@ -113,7 +112,7 @@
 
             <div class="mt-4">
                 <x-input-label for="driving_license" :value="__('Serial Number (Refer behind of driving license)')" />
-                <x-text-input id="driving_license" class="block mt-1 w-full" type="text" name="driving_license" :value="old('driving_license')" required placeholder="12A1hewex" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()" />
+                <x-text-input id="driving_license" class="block mt-1 w-full" type="text" name="driving_license" :value="old('driving_license')" required placeholder="12A1hewex" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" />
                 
                 <x-input-error :messages="$errors->get('driving_license')" class="mt-2" />
             </div>
@@ -225,8 +224,8 @@
        let allValid = true;
        
        // Clear previous JS error if any
-       const emailErrorContainer = document.getElementById('js-email-error');
-       if(emailErrorContainer) emailErrorContainer.remove();
+       const existingErrors = document.querySelectorAll('.js-validation-error');
+       existingErrors.forEach(el => el.remove());
 
        for (const input of step1Inputs) {
            if (!input.checkValidity()) {
@@ -235,47 +234,67 @@
                break; 
            }
         }
+                if (allValid) {
+                // Check Uniqueness for multiple fields
+                const emailInput = document.getElementById('email');
+                const matricInput = document.getElementById('matric_staff_id');
+                const nricInput = document.getElementById('nric_passport');
+                const licenseInput = document.getElementById('driving_license');
+                const csrfToken = document.querySelector('input[name="_token"]').value;
 
-        if (allValid) {
-            // Check Email Uniqueness
-            const emailInput = document.getElementById('email');
-            const csrfToken = document.querySelector('input[name="_token"]').value;
+                // Clear previous JS errors
+                const existingErrors = document.querySelectorAll('.js-validation-error');
+                existingErrors.forEach(el => el.remove());
 
-            try {
-                const response = await fetch("{{ route('check.email') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ email: emailInput.value })
-                });
+                try {
+                    const response = await fetch("{{ route('check.uniqueness') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            email: emailInput.value,
+                            matric_staff_id: matricInput.value,
+                            nric_passport: nricInput.value,
+                            driving_license: licenseInput.value
+                        })
+                    });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.exists) {
-                        // Email taken
-                        const errorMsg = document.createElement('p');
-                        errorMsg.id = 'js-email-error';
-                        errorMsg.className = 'text-sm text-red-600 dark:text-red-400 space-y-1 mt-2';
-                        errorMsg.textContent = 'The email has already been taken.';
+                    if (response.ok) {
+                        const data = await response.json();
                         
-                        // Insert after the existing error component
-                        const errorLocation = emailInput.parentElement.querySelector('.mt-2') || emailInput;
-                        errorLocation.after(errorMsg);
-                        
-                        emailInput.focus();
-                        return; // Stop here
+                        if (Object.keys(data.errors).length > 0) {
+                            // Focus on the first error field
+                            let firstErrorInput = null;
+
+                            // Display errors
+                            for (const [field, message] of Object.entries(data.errors)) {
+                                let inputElement = document.getElementById(field);
+                                if (!inputElement) continue;
+
+                                const errorMsg = document.createElement('p');
+                                errorMsg.className = 'text-sm text-red-600 dark:text-red-400 space-y-1 mt-2 js-validation-error';
+                                errorMsg.textContent = message;
+                                
+                                // Insert after the existing error component or input
+                                const errorLocation = inputElement.parentElement.querySelector('.mt-2') || inputElement;
+                                errorLocation.after(errorMsg);
+
+                                if (!firstErrorInput) firstErrorInput = inputElement;
+                            }
+
+                            if (firstErrorInput) firstErrorInput.focus();
+                            return; // Stop here
+                        }
                     }
+                } catch (error) {
+                    console.error('Error checking uniqueness:', error);
                 }
-            } catch (error) {
-                console.error('Error checking email:', error);
-                // Optionally let them proceed if server check fails, or show generic error
-            }
 
-            // If we get here, email is fine or check failed silently (safe to proceed?)
-            // Proceed to Step 2
+                // If we get here, fields are valid or check failed silently
+                // Proceed to Step 2
             document.getElementById('step1').style.display = 'none';
             document.getElementById('step2').style.display = 'block';
     
