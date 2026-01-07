@@ -1090,8 +1090,8 @@
                       style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;"
                     >
                       <option
-                        value="office"
-                        {{ $pickupLoc == 'office' ? 'selected' : '' }}
+                        value="Student Mall"
+                        {{ $pickupLoc == 'Student Mall' ? 'selected' : '' }}
                         >Student Mall (Free)</option
                       >
                       <option
@@ -1147,7 +1147,7 @@
                     type="hidden"
                     name="dropoff_location"
                     id="dropoff_location_hidden"
-                    value="office"
+                    value="Student Mall"
                   />
 
                   <div id="dropoff_section" style="display: none;">
@@ -1161,8 +1161,8 @@
                       >
                         <option value="">-- Select Dropoff Location --</option>
                         <option
-                          value="office"
-                          {{ $dropoffLoc == 'office' ? 'selected' : '' }}
+                          value="Student Mall"
+                          {{ $dropoffLoc == 'Student Mall' ? 'selected' : '' }}
                           >Student Mall (Free)</option
                         >
                         <option
@@ -1613,7 +1613,7 @@
                 const pickupValue = pEl.value;
                 const customGroup = document.getElementById("custom_pickup_group");
                 const customInput = document.getElementById("custom_pickup_address");
-                if (pickupValue !== "office") {
+                if (pickupValue !== "Student Mall") {
                     if(customGroup) customGroup.style.display = "block";
                     if(customInput) customInput.setAttribute("required", "required");
                 } else {
@@ -1634,7 +1634,7 @@
                 const customGroup = document.getElementById("custom_dropoff_group");
                 const customInput = document.getElementById("custom_dropoff_address");
                 if(dropoffHidden) dropoffHidden.value = dropoffValue;
-                if (dropoffValue !== "office") {
+                if (dropoffValue !== "Student Mall") {
                     if(customGroup) customGroup.style.display = "block";
                     if(customInput) customInput.setAttribute("required", "required");
                 } else {
