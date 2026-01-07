@@ -177,9 +177,9 @@ class BookingController extends Controller
             return redirect()->back()->with('error', 'Return time must be after pickup time.');
         }
 
-        // 24h Lead Time Check - Relaxed as per requirement to ignore if it becomes invalid during process
-        // if (now()->diffInHours($start, false) < 24) {
-        //    return redirect()->back()->with('error', 'Bookings must be made at least 24 hours in advance.');
+        // 6h Lead Time Check
+        // if (now()->diffInHours($start, false) < 6) {
+        //    return redirect()->back()->with('error', 'Bookings must be made at least 6 hours in advance.');
         // }
         
         // Minimum 1 Hour Check

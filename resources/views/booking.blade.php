@@ -1756,9 +1756,9 @@
                 // Validation: 24h Advance Check
                 if (startH && startH.value) {
                     const s = new Date(startH.value);
-                    const limit = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+                    const limit = new Date(new Date().getTime() + 6 * 60 * 60 * 1000);
                     if (s < limit) {
-                        alert("Bookings must be made at least 24 hours in advance.");
+                        alert("Bookings must be made at least 6 hours in advance.");
                         if(startD) startD.value = ""; 
                         startH.value = ""; 
                         return;
