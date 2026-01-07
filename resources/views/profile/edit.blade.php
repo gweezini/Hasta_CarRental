@@ -297,7 +297,7 @@
                                                 @endif
                                             @endif
                                         </div>
-                                        <p class="text-lg font-bold text-gray-900">RM {{ number_format($booking->total_rental_fee, 2) }}</p>
+                                        <p class="text-lg font-bold text-gray-900">RM {{ number_format($booking->total_rental_fee + $booking->deposit_amount, 2) }}</p>
                                     </div>
                                 </div>
                             @endforeach
@@ -333,7 +333,7 @@
                                             <span class="font-bold">Reason:</span> {{ $booking->rejection_reason }}
                                         </div>
                                     @endif
-                                    <p class="text-sm font-bold text-right text-gray-800">RM {{ number_format($booking->total_rental_fee, 2) }}</p>
+                                    <p class="text-sm font-bold text-right text-gray-800">RM {{ number_format($booking->total_rental_fee + $booking->deposit_amount, 2) }}</p>
                                 </div>
                             @endforeach
                         </div>
