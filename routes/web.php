@@ -105,6 +105,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     // Staff Management
     Route::get('/staff-list', [AdminController::class, 'staffList'])->name('admin.staff.index');
+    Route::get('/staff/create', [AdminController::class, 'createStaff'])->name('admin.staff.create');
+    Route::post('/staff', [AdminController::class, 'storeStaff'])->name('admin.staff.store');
     Route::get('/staff/{id}', [AdminController::class, 'showStaff'])->name('admin.staff.show');
     
     Route::get('/my-profile', [AdminController::class, 'profile'])->name('admin.profile');
