@@ -1851,11 +1851,11 @@
                     const startTime = startT.value;
                     const endDate = endD.value;
 
-                    // Helper: Strict Overlap Check (Touching is BAD)
+                    // Helper: Strict Overlap Check (Touching is OKAY)
                     // Returns true if range A (startA, endA) strictly overlaps range B (startB, endB)
-                    // Condition for overlapping including edges: startA <= endB && endA >= startB
+                    // Condition for overlapping: startA < endB && endA > startB
                     const isStrictOverlapping = (startA, endA, startB, endB) => {
-                        return startA <= endB && endA >= startB;
+                        return startA < endB && endA > startB;
                     };
 
                     // 1. Availability (Start Time)
