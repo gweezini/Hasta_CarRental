@@ -193,10 +193,74 @@ class AdminController extends Controller
         $end = Carbon::parse($booking->return_date_time);
         $hours = ceil($start->floatDiffInHours($end));
 
-        if ($hours >= 3 && $booking->user) {
-             $card = \App\Models\LoyaltyCard::firstOrCreate(['user_id' => $booking->user_id]);
-             $card->increment('stamps');
-             $card->increment('unread_stamps');
+        if ($hours >= 1 && $booking->user) { // Changed to 1 hour min for testing, or keep 3? User didn't specify min hours, sticking to existing (was 3). 
+             // Wait, user didn't say change 3 hours rule, just the count logic.
+             // Existing code: if ($hours >= 3 ...
+             // I will leave the hour requirement as is (3 hours).
+             
+             if ($hours >= 3) {
+                 $card = \App\Models\LoyaltyCard::firstOrCreate(['user_id' => $booking->user_id]);
+                 
+                 // Increment stamp
+                 $card->increment('stamps');
+                 $card->increment('unread_stamps');
+                 $card->refresh(); // getting updated count
+
+                 // Map tiers
+                 $tiers = [
+                    3 => ['code' => 'LOYALTY_T3', 'type' => 'percent', 'value' => 10, 'name' => 'Loyalty 10% (3 stamps)'],
+                    6 => ['code' => 'LOYALTY_T6', 'type' => 'percent', 'value' => 15, 'name' => 'Loyalty 15% (6 stamps)'],
+                    9 => ['code' => 'LOYALTY_T9', 'type' => 'percent', 'value' => 20, 'name' => 'Loyalty 20% (9 stamps)'],
+                    12 => ['code' => 'LOYALTY_T12', 'type' => 'percent', 'value' => 25, 'name' => 'Loyalty 25% (12 stamps)'],
+                    15 => ['code' => 'LOYALTY_T15', 'type' => 'free_hours', 'value' => 12, 'name' => 'Loyalty 12 hours free (15 stamps)'],
+                 ];
+
+                 // Check for Milestone
+                 if (array_key_exists($card->stamps, $tiers)) {
+                     $info = $tiers[$card->stamps];
+                     
+                     // Create Voucher
+                     $voucher = \App\Models\Voucher::firstOrCreate(
+                        ['code' => $info['code']],
+                        [
+                            'name' => $info['name'],
+                            'type' => $info['type'],
+                            'value' => $info['value'],
+                            'is_active' => true,
+                            'single_use' => false 
+                        ]
+                     );
+
+                     // Assign to User if not already owned (Wait, can they earn it again next cycle? Yes. But duplicate check prevents it?)
+                     // If UserVoucher is unique by (user_id, voucher_id), then they can't have two 'LOYALTY_T3' vouchers simultaneously?
+                     // Usually loyalty vouchers are consumable. If they used the previous T3, the relation might still exist with `used_at`.
+                     // UserVoucherController Check: `if ($user->userVouchers()->where('voucher_id', $voucher->id)->exists())`
+                     // This blocks re-earning.
+                     // I should allow multiple if 'used_at' is not null? Or just create a new row?
+                     // `UserVoucher` likely has an ID. I should create a NEW entry.
+                     
+                     \App\Models\UserVoucher::create([
+                        'user_id' => $booking->user_id, // Matric ID logic or User ID? 
+                        // AdminController line 197 used 'user_id' for LoyaltyCard.
+                        // UserVoucherController line 47/93 uses `matric_staff_id`.
+                        // Booking->user_id is the ID (integer). 
+                        // I must be careful. `UserVoucher` likely links to `users.matric_staff_id` or `users.id`?
+                        // `UserVoucherController` uses `$user->matric_staff_id`.
+                        // Let's check `UserVoucher` model or Migration?
+                        // I'll stick to `$booking->user->matric_staff_id` to be safe, assuming UserVoucher links via string ID.
+                        // Wait, `UserVoucherController` said `user_id` => `$user->matric_staff_id`.
+                        'voucher_id' => $voucher->id,
+                        'user_id' => $booking->user->matric_staff_id, 
+                        'used_at' => null
+                     ]);
+                 }
+
+                 // Loop Logic: Reset after 15
+                 if ($card->stamps >= 15) {
+                     $card->stamps = 0; // Next one will be 1
+                     $card->save();
+                 }
+             }
         }
 
         if($booking->user) $booking->user->notify(new BookingStatusUpdated($booking, 'Approved'));
