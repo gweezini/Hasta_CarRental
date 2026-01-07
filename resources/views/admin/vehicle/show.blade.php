@@ -96,7 +96,10 @@
 
                         <div>
                             <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Rental Rate</span>
-                            <span class="text-xl font-bold text-[#cb5c55]">RM {{ number_format($vehicle->price_per_hour, 2) }} <span class="text-sm text-gray-500 font-normal">/ hour</span></span>
+                            @php
+                                $oneHourRate = $vehicle->pricingTier->rules->where('hour_limit', 1)->first()->price ?? $vehicle->price_per_hour;
+                            @endphp
+                            <span class="text-xl font-bold text-[#cb5c55]">RM {{ number_format($oneHourRate, 2) }} <span class="text-sm text-gray-500 font-normal">/ hour</span></span>
                         </div>
 
                         <div class="md:col-span-2">
