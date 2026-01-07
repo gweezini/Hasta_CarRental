@@ -104,37 +104,6 @@
         </div>
         @endif
 
-        <!-- Customer Feedback Display -->
-        @if($inspection->type === 'return' && $inspection->booking->feedback)
-            <div class="bg-indigo-50 rounded-xl border border-indigo-100 p-6">
-                 <h3 class="font-bold text-indigo-900 mb-4 flex items-center gap-2">
-                    <i class="ri-feedback-line"></i> Your Feedback
-                </h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-xs font-bold text-indigo-400 uppercase mb-2">Detailed Ratings</p>
-                        <ul class="space-y-2 text-sm text-gray-700">
-                             @if(is_array($inspection->booking->feedback->ratings))
-                                @foreach($inspection->booking->feedback->ratings as $key => $rating)
-                                    <li class="flex justify-between border-b border-indigo-100 pb-1">
-                                        <span class="capitalize">{{ str_replace(['rating_', '_'], ['', ' '], $key) }}</span>
-                                        <span class="font-bold text-indigo-600">{{ $rating }}</span>
-                                    </li>
-                                @endforeach
-                             @endif
-                        </ul>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-indigo-400 uppercase mb-2">Written Description</p>
-                        <div class="p-4 bg-white rounded-xl border border-indigo-100 text-gray-700 italic h-full">
-                            "{{ $inspection->booking->feedback->description ?? 'No written feedback provided.' }}"
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
 
     </div>
 </div>
-
