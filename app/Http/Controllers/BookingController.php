@@ -186,6 +186,20 @@ class BookingController extends Controller
             return redirect()->back()->with('error', 'Minimum rental time is 1 hour.');
         }
 
+        // Double Booking Check
+        $conflictingBooking = Booking::where('vehicle_id', $vehicle->id)
+            ->whereIn('status', ['Pending', 'Waiting for Verification', 'Approved'])
+            ->where(function($q) use ($start, $end) {
+                // Strict Overlap: (StartA < EndB) and (EndA > StartB)
+                $q->where('pickup_date_time', '<', $end)
+                  ->where('return_date_time', '>', $start);
+            })
+            ->exists();
+
+        if ($conflictingBooking) {
+            return redirect()->back()->with('error', 'This vehicle is already booked for the selected time slot. Please choose another time.');
+        }
+
         $pricingResult = $this->pricingService->calculatePrice($vehicle, $start, $end);
         $hours = $pricingResult['hours'];
         $subtotal = $pricingResult['subtotal'];
