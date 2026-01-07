@@ -10,6 +10,9 @@ use App\Models\UserVoucher;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewBookingNotification;
+use App\Models\User;
 
 class BookingController extends Controller
 {
@@ -31,8 +34,8 @@ class BookingController extends Controller
             
         $ranges = $bookings->map(function($b) {
             return [
-                'start' => Carbon::parse($b->pickup_date_time)->toIso8601String(),
-                'end' => Carbon::parse($b->return_date_time)->toIso8601String(),
+                'start' => Carbon::parse($b->pickup_date_time)->format('Y-m-d\TH:i:s'),
+                'end' => Carbon::parse($b->return_date_time)->format('Y-m-d\TH:i:s'),
             ];
         });
 
@@ -206,12 +209,12 @@ class BookingController extends Controller
         $subtotal = $pricingResult['subtotal'];
 
         // 计算运费
-        $prices = ['office' => 0, 'campus' => 2.50, 'taman_u' => 7.50, 'jb' => 25];
+        $prices = ['Student Mall' => 0, 'campus' => 2.50, 'taman_u' => 7.50, 'jb' => 25];
         $pickupFee = $prices[$request->pickup_location] ?? 0;
         
         $isSameLocation = $request->has('same_location_checkbox') || $request->input('same_location_checkbox') == 'on';
         $dropoffLocation = $isSameLocation ? $request->pickup_location : $request->dropoff_location;
-        $dropoffLocation = $dropoffLocation ?: 'office';
+        $dropoffLocation = $dropoffLocation ?: 'Student Mall';
 
         $dropoffFee = $prices[$dropoffLocation] ?? 0;
         $deliveryFee = $pickupFee + $dropoffFee;
@@ -286,6 +289,16 @@ class BookingController extends Controller
             $booking->status = 'Waiting for Verification'; 
             
             $booking->save();
+
+            // Send Staff Notification
+            try {
+                $admins = User::whereIn('role', ['admin', 'topmanagement'])->get();
+                if($admins->count() > 0) {
+                    Mail::to($admins)->send(new NewBookingNotification($booking));
+                }
+            } catch (\Exception $e) {
+                Log::error("Failed to send new booking email: " . $e->getMessage());
+            }
 
             // 积分 & Voucher 标记
 
