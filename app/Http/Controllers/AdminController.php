@@ -10,6 +10,9 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
+use App\Mail\NewBookingNotification;
 use App\Notifications\BookingStatusUpdated;
 use App\Models\Claim;
 
@@ -533,11 +536,42 @@ class AdminController extends Controller
         
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20',
+            'email' => [
+                'required', 
+                'string', 
+                'email', 
+                'max:255', 
+                Rule::unique('users')->ignore($user->id)
+            ],
+            'password' => 'nullable|confirmed|min:8',
+            // Finance
+            'staff_id' => 'nullable|string',
+            'salary' => 'nullable|numeric',
+            'bank_name' => 'nullable|string',
+            'account_number' => 'nullable|string',
+            'account_holder' => 'nullable|string',
         ]);
 
-        $user->update($request->only('name', 'email', 'phone'));
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+        ];
+
+        // Only update password if provided
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        // Only Admin can update finance details
+        if ($user->isAdmin()) {
+            $data['matric_staff_id'] = $request->staff_id; // Map staff_id to matric_staff_id
+            $data['salary'] = $request->salary;
+            $data['bank_name'] = $request->bank_name;
+            $data['account_number'] = $request->account_number;
+            $data['account_holder'] = $request->account_holder;
+        }
+
+        $user->update($data);
 
         return redirect()->back()->with('success', 'Profile updated successfully!');
     }
