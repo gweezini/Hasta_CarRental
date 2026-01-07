@@ -87,7 +87,7 @@ class RegisteredUserController extends Controller
             $nricPath = $request->file('nric_passport_doc')->store('nric', 'public');
         }
 
-        $fullPhoneNumber = '+6' . $request->phone_number;
+        $fullPhoneNumber = '+' . $request->phone_number;
         $nationalityToSave = $request->nationality === 'Other' ? $request->other_nationality : $request->nationality;
 
         $user = User::create([

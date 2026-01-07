@@ -97,7 +97,7 @@
                 <x-input-label for="phone_number" :value="__('Phone Number')" />
                 <div class="flex items-center mt-1">
                     <span class="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 bg-gray-100 text-gray-500 text-sm rounded-l-md">
-                        +6
+                        +
                     </span>
                     <x-text-input id="phone_number" 
                       class="block w-full rounded-l-none" 
