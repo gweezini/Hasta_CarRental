@@ -88,6 +88,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     
     // Fines Management
     Route::post('/bookings/{id}/fine', [AdminController::class, 'storeFine'])->name('admin.bookings.fine.store');
+    Route::post('/bookings/{id}/return-deposit', [AdminController::class, 'returnDeposit'])->name('admin.bookings.return_deposit');
     Route::post('/fines/{id}/pay', [AdminController::class, 'payFine'])->name('admin.fines.pay');
     Route::delete('/fines/{id}', [AdminController::class, 'deleteFine'])->name('admin.fines.destroy');
     
