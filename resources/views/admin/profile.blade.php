@@ -11,6 +11,20 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-xl shadow-sm">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="ri-error-warning-fill text-xl"></i>
+                <span class="font-bold">Please check the following errors:</span>
+            </div>
+            <ul class="list-disc list-inside text-sm ml-2">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form action="{{ route('admin.profile.update') }}" method="POST">
         @csrf
         @method('PUT')
