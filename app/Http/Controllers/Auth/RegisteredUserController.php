@@ -50,7 +50,7 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'regex:/^[a-zA-Z ]+$/', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             
@@ -123,16 +123,35 @@ class RegisteredUserController extends Controller
     }
 
     /**
-     * Check if email exists.
+     * Check if fields exist.
      */
-    public function checkEmail(Request $request)
+    public function checkUniqueness(Request $request)
     {
         $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['nullable', 'email'],
+            'matric_staff_id' => ['nullable', 'string'],
+            'nric_passport' => ['nullable', 'string'],
+            'driving_license' => ['nullable', 'string'],
         ]);
 
-        $exists = User::where('email', $request->email)->exists();
+        $errors = [];
 
-        return response()->json(['exists' => $exists]);
+        if ($request->email && User::where('email', $request->email)->exists()) {
+            $errors['email'] = 'The email has already been taken.';
+        }
+
+        if ($request->matric_staff_id && User::where('matric_staff_id', $request->matric_staff_id)->exists()) {
+            $errors['matric_staff_id'] = 'The matric/staff ID has already been taken.';
+        }
+
+        if ($request->nric_passport && User::where('nric_passport', $request->nric_passport)->exists()) {
+            $errors['nric_passport'] = 'The NRIC/Passport has already been taken.';
+        }
+
+        if ($request->driving_license && User::where('driving_license', $request->driving_license)->exists()) {
+            $errors['driving_license'] = 'The driving license serial number has already been taken.';
+        }
+
+        return response()->json(['errors' => $errors]);
     }
 }
