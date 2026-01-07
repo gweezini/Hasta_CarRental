@@ -271,6 +271,51 @@
                 </div>
             @endif
         </div>
+
+        {{-- 0.5 DEPOSIT RETURN --}}
+        <div id="deposit-section" class="scroll-mt-24 border-t border-gray-100 pt-8">
+            <h3 class="text-xl font-black text-gray-800 tracking-tight mb-6 flex items-center gap-2">
+                <i class="ri-hand-coin-line text-blue-500"></i> Deposit Status
+            </h3>
+
+            <div class="bg-white rounded-xl border border-blue-50 shadow-sm p-6">
+                @if($booking->deposit_status == 'Returned')
+                    <div class="flex items-center gap-4 bg-green-50 p-4 rounded-lg border border-green-100 text-green-700 font-bold mb-4">
+                        <i class="ri-checkbox-circle-fill text-xl"></i>
+                        <div>
+                            <p>Deposit Returned</p>
+                            <p class="text-xs font-normal text-green-600">Processed on {{ \Carbon\Carbon::parse($booking->deposit_returned_at)->format('d M Y, h:i A') }}</p>
+                        </div>
+                    </div>
+                     
+                    @if($booking->deposit_receipt_path)
+                         <p class="text-xs text-gray-400 font-black uppercase tracking-widest mb-2">Proof of Return</p>
+                         <div class="w-48 h-32 bg-gray-100 rounded-lg overflow-hidden cursor-pointer border border-gray-200" onclick="window.open('{{ asset('storage/' . $booking->deposit_receipt_path) }}', '_blank')">
+                             <img src="{{ asset('storage/' . $booking->deposit_receipt_path) }}" class="w-full h-full object-cover hover:opacity-90 transition">
+                         </div>
+                    @endif
+
+                @else
+                    <div class="flex items-start gap-6">
+                         <div class="flex-1">
+                             <p class="font-bold text-gray-800 mb-2">Current Status: <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs uppercase tracking-widest">{{ $booking->deposit_status ?? 'Held' }}</span></p>
+                             <p class="text-sm text-gray-500 mb-4">Upload the bank transfer receipt to mark the deposit as returned.</p>
+                             
+                             <form action="{{ route('admin.bookings.return_deposit', $booking->id) }}" method="POST" enctype="multipart/form-data" class="max-w-md">
+                                 @csrf
+                                 <label class="block mb-2 text-sm font-medium text-gray-700">Upload Receipt</label>
+                                 <div class="flex items-center gap-2">
+                                     <input type="file" name="deposit_receipt" required accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition">
+                                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-xs uppercase tracking-widest shadow-sm transition transform hover:scale-105">
+                                         Confirm Return
+                                     </button>
+                                 </div>
+                             </form>
+                         </div>
+                    </div>
+                @endif
+            </div>
+        </div>
         
         {{-- 1. INSPECTION REPORTS --}}
         @if($booking->inspections->count() > 0)
