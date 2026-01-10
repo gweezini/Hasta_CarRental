@@ -1,10 +1,13 @@
 @extends('layouts.admin')
 
+
+
 @section('header_title', 'Admin Dashboard')
 
 @section('content')
     {{-- Top Statistics Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
         <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-yellow-400 flex justify-between items-center hover:shadow-md transition">
             <div>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Pending</p>
@@ -329,3 +332,4 @@
         });
     </script>
 @endsection
+
