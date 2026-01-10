@@ -90,6 +90,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::post('/booking/{id}/return', [AdminController::class, 'markAsReturned'])->name('admin.booking.return');
 
     Route::get('/bookings/{id}/show', [AdminController::class, 'show'])->name('admin.bookings.show_detail');
+    Route::get('/bookings/{id}/edit', [AdminController::class, 'editBooking'])->name('admin.bookings.edit');
+    Route::put('/bookings/{id}', [AdminController::class, 'updateBooking'])->name('admin.bookings.update');
     
     // Fines Management
     Route::post('/bookings/{id}/fine', [AdminController::class, 'storeFine'])->name('admin.bookings.fine.store');
