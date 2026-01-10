@@ -156,4 +156,47 @@ class CarController extends Controller
 
         return redirect()->back()->with('success', 'Maintenance record added successfully!');
     }
+
+    public function availability(Request $request)
+    {
+        $startDate = $request->input('start_date') ? \Carbon\Carbon::parse($request->input('start_date')) : now()->startOfDay();
+        $endDate = $request->input('end_date') ? \Carbon\Carbon::parse($request->input('end_date')) : now()->addDays(6)->endOfDay();
+        $typeId = $request->input('type_id');
+
+        $query = Vehicle::query();
+
+        if ($typeId) {
+            $query->where('type_id', $typeId);
+        }
+
+        if ($request->filled('plate_number')) {
+            $query->where('plate_number', 'like', '%' . $request->input('plate_number') . '%');
+        }
+
+        // Eager load bookings that overlap with the selected range
+        $query->with(['bookings' => function($q) use ($startDate, $endDate) {
+            $q->whereIn('status', ['Approved', 'Rented', 'Waiting for Verification'])
+              ->where(function($query) use ($startDate, $endDate) {
+                  $query->whereBetween('pickup_date_time', [$startDate, $endDate])
+                        ->orWhereBetween('return_date_time', [$startDate, $endDate])
+                        ->orWhere(function($sub) use ($startDate, $endDate) {
+                            $sub->where('pickup_date_time', '<', $startDate)
+                                ->where('return_date_time', '>', $endDate);
+                        });
+              });
+        }]);
+
+        $vehicles = $query->get();
+        $types = DB::table('vehicle_types')->get();
+
+        // Generate date array for the view header
+        $dates = [];
+        $current = $startDate->copy();
+        while ($current->lte($endDate)) {
+            $dates[] = $current->copy();
+            $current->addDay();
+        }
+
+        return view('admin.vehicle.availability', compact('vehicles', 'startDate', 'endDate', 'types', 'dates'));
+    }
 }
