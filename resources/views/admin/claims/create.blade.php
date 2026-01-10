@@ -10,6 +10,20 @@
             <span class="font-bold">{{ session('success') }}</span>
         </div>
     @endif
+    
+    @if($errors->any())
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-xl shadow-sm">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="ri-error-warning-fill text-xl text-red-500"></i>
+                <span class="font-bold">Please correct the following errors:</span>
+            </div>
+            <ul class="list-disc list-inside text-sm pl-8">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
         {{-- Header Decoration --}}
         <div class="bg-[#cb5c55] p-8 text-center text-white">
@@ -17,7 +31,7 @@
             <p class="text-white/70 text-sm mt-1 font-bold">Official Staff Reimbursement Form</p>
         </div>
 
-        <form action="{{ route('admin.claims.store') }}" method="POST" class="p-8 space-y-6">
+        <form action="{{ route('admin.claims.store') }}" method="POST" class="p-8 space-y-6" enctype="multipart/form-data">
             @csrf
 
             {{-- 1. Full Name --}}
@@ -88,6 +102,16 @@
                             class="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-700 font-bold focus:ring-2 focus:ring-[#cb5c55]/20 focus:border-[#cb5c55] transition outline-none">
                     </div>
                 </div>
+            </div>
+            
+            {{-- Upload Receipt --}}
+            <div class="space-y-2">
+                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest">Proof of Payment / Receipt</label>
+                <div class="relative">
+                    <input type="file" name="receipt" accept="image/*,.pdf"
+                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-500 font-bold focus:ring-2 focus:ring-[#cb5c55]/20 focus:border-[#cb5c55] transition outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-[#cb5c55]/10 file:text-[#cb5c55] hover:file:bg-[#cb5c55]/20">
+                </div>
+                <p class="text-[10px] text-gray-400 font-medium italic">* Supported formats: JPG, PNG, PDF</p>
             </div>
 
             {{-- 6. Extra Description --}}
