@@ -73,7 +73,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/vehicle', [CarController::class, 'index'])->name('admin.vehicle.index');
     Route::get('/vehicle/availability', [CarController::class, 'availability'])->name('admin.vehicle.availability');
 
-    Route::get('/refunds', [AdminController::class, 'refunds'])->name('admin.refunds.index');
     Route::get('/vehicle/create', [CarController::class, 'create'])->name('admin.vehicle.create');
     Route::post('/vehicle', [CarController::class, 'store'])->name('admin.vehicle.store');
     Route::get('/vehicle/{id}/show', [CarController::class, 'show'])->name('admin.vehicle.show');
