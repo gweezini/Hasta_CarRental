@@ -107,9 +107,10 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/vouchers', [VoucherController::class, 'index'])->name('admin.vouchers.index');
     Route::get('/vouchers/create', [VoucherController::class, 'create'])->name('admin.vouchers.create');
     Route::post('/vouchers', [VoucherController::class, 'store'])->name('admin.vouchers.store');
+    Route::get('/vouchers/{voucher}', [VoucherController::class, 'show'])->name('admin.vouchers.show');
     Route::get('/vouchers/{voucher}/edit', [VoucherController::class, 'edit'])->name('admin.vouchers.edit');
     Route::put('/vouchers/{voucher}', [VoucherController::class, 'update'])->name('admin.vouchers.update');
-    Route::delete('/vouchers/{voucher}', [VoucherController::class, 'destroy'])->name('admin.vouchers.destroy');
+    Route::post('/vouchers/{voucher}/toggle-status', [VoucherController::class, 'toggleStatus'])->name('admin.vouchers.toggle');
 
     // Staff Management
     Route::get('/staff-list', [AdminController::class, 'staffList'])->name('admin.staff.index');
