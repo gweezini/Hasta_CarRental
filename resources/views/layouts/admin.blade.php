@@ -66,7 +66,10 @@
     <a href="{{ route('admin.vehicle.availability') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle.availability') ? 'sidebar-active' : '' }}">
         <i class="ri-calendar-2-line mr-3 text-xl"></i> Availability
     </a>
-
+    
+    <a href="{{ route('admin.refunds.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.refunds.*') ? 'sidebar-active' : '' }}">
+        <i class="ri-refund-2-line mr-3 text-xl"></i> Refunds
+    </a>
     <a href="{{ route('admin.customers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.customers*') ? 'sidebar-active' : '' }}">
         <i class="ri-user-line mr-3 text-xl"></i> Customers
     </a>
@@ -245,6 +248,32 @@
         </header>
 
         <main class="flex-1 p-8 bg-[#f3f4f6]">
+            
+            @if(session('success'))
+                <div class="mb-4 bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Success!</strong>
+                    <span class="block sm:inline">{{ session('success') }}</span>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="mb-4 bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Error!</strong>
+                    <span class="block sm:inline">{{ session('error') }}</span>
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="mb-4 bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Validation Error!</strong>
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             @yield('content')
             <div class="mt-8 text-center text-xs text-gray-400 no-print">&copy; 2026 Hasta Car Rental Admin Panel</div>
         </main>
