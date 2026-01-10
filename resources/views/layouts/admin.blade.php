@@ -60,8 +60,11 @@
         <i class="ri-list-check mr-3 text-xl"></i> Bookings
     </a>
 
-    <a href="{{ route('admin.vehicle.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle*') ? 'sidebar-active' : '' }}">
+    <a href="{{ route('admin.vehicle.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle.index') ? 'sidebar-active' : '' }}">
         <i class="ri-car-line mr-3 text-xl"></i> Fleet Management
+    </a>
+    <a href="{{ route('admin.vehicle.availability') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle.availability') ? 'sidebar-active' : '' }}">
+        <i class="ri-calendar-2-line mr-3 text-xl"></i> Availability
     </a>
 
     <a href="{{ route('admin.customers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.customers*') ? 'sidebar-active' : '' }}">
@@ -133,7 +136,7 @@
     </aside>
 
     <div class="flex-1 flex flex-col min-h-screen">
-        <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 z-10 sticky top-0">
+        <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 z-30 sticky top-0">
             <h2 class="text-2xl font-bold text-gray-800">
                 @yield('header_title', 'Admin Portal')
             </h2>
