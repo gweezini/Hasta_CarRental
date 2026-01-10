@@ -4,8 +4,82 @@
 
 @section('content')
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-        <div class="p-6 border-b border-gray-100 bg-gray-50/30">
-            <h3 class="text-lg font-bold text-gray-800 tracking-tight">Full Booking History</h3>
+        <div class="p-6 border-b border-gray-100 bg-gray-50/30 flex flex-col md:flex-row justify-between items-center gap-4">
+            <h3 class="text-lg font-bold text-gray-800 tracking-tight flex items-center gap-2">
+                <i class="ri-history-line text-gray-400"></i> Full Booking History
+            </h3>
+            
+        <div class="bg-white border-b border-gray-200 px-8 pt-6">
+            @php
+                 $pendingRefunds = \App\Models\Booking::where(function($q) { $q->whereNull('deposit_status')->orWhere('deposit_status', '!=', 'Returned'); })->where('status', '!=', 'Cancelled')->count();
+                 $pendingVerifications = \App\Models\Fine::where('status', 'Pending Verification')->count();
+            @endphp
+
+            {{-- Level 1: Main Navigation --}}
+            <nav class="flex gap-8 -mb-px">
+                <a href="{{ route('admin.bookings.index') }}" 
+                   class="pb-4 text-sm font-bold border-b-2 transition {{ !request('penalty_status') && !request('deposit_status') ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                    All Bookings
+                </a>
+
+                <a href="{{ route('admin.bookings.index', ['deposit_status' => 'Pending']) }}" 
+                   class="pb-4 text-sm font-bold border-b-2 transition flex items-center gap-2 {{ request('deposit_status') ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                   Deposit Refunds 
+                   @if($pendingRefunds > 0)
+                        <span class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[10px] font-bold">{{ $pendingRefunds }}</span>
+                   @endif
+                </a>
+
+                <a href="{{ route('admin.bookings.index', ['penalty_status' => 'Verifying']) }}" 
+                   class="pb-4 text-sm font-bold border-b-2 transition flex items-center gap-2 {{ request('penalty_status') ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                   Penalty Management
+                   @if($pendingVerifications > 0)
+                        <span class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[10px] font-bold">{{ $pendingVerifications }}</span>
+                   @endif
+                </a>
+            </nav>
+        </div>
+
+        {{-- Level 2: Contextual Filters --}}
+        @if(request('deposit_status') || request('penalty_status'))
+        <div class="bg-gray-50 border-b border-gray-200 px-8 py-3 flex items-center gap-4">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status:</span>
+
+            @if(request('deposit_status'))
+                <a href="{{ route('admin.bookings.index', ['deposit_status' => 'Pending']) }}" 
+                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('deposit_status') == 'Pending' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
+                    Not Returned
+                </a>
+                <a href="{{ route('admin.bookings.index', ['deposit_status' => 'Returned']) }}" 
+                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('deposit_status') == 'Returned' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
+                    Returned
+                </a>
+                <a href="{{ route('admin.bookings.index', ['deposit_status' => 'All']) }}" 
+                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('deposit_status') == 'All' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
+                    All
+                </a>
+            @endif
+
+            @if(request('penalty_status'))
+                <a href="{{ route('admin.bookings.index', ['penalty_status' => 'Verifying']) }}" 
+                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('penalty_status') == 'Verifying' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
+                    Verifying
+                </a>
+                <a href="{{ route('admin.bookings.index', ['penalty_status' => 'Unpaid']) }}" 
+                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('penalty_status') == 'Unpaid' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
+                    Unpaid
+                </a>
+                <a href="{{ route('admin.bookings.index', ['penalty_status' => 'Paid']) }}" 
+                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('penalty_status') == 'Paid' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
+                    Paid
+                </a>
+                <a href="{{ route('admin.bookings.index', ['penalty_status' => 'All']) }}" 
+                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('penalty_status') == 'All' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
+                    All
+                </a>
+            @endif
+        </div>
+        @endif
         </div>
         
         <div class="overflow-x-auto text-left">
@@ -25,8 +99,14 @@
                     <tr class="hover:bg-gray-50 transition cursor-pointer" onclick="window.location='{{ route('admin.bookings.show_detail', $booking->id) }}'">
                        
                         <td class="px-6 py-5 font-bold text-gray-400 text-xs">
-                            <a href="{{ route('admin.bookings.show_detail', $booking->id) }}" class="hover:text-[#cb5c55] transition underline decoration-dotted">
+                            <a href="{{ route('admin.bookings.show_detail', $booking->id) }}" class="hover:text-[#cb5c55] transition underline decoration-dotted relative">
                                 #{{ $booking->id }}
+                                @if($booking->fines->where('status', 'Pending Verification')->count() > 0)
+                                    <span class="absolute -top-1 -right-2 flex h-2 w-2">
+                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                      <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                    </span>
+                                @endif
                             </a>
                         </td>
                         
