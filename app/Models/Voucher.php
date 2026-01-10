@@ -19,6 +19,12 @@ class Voucher extends Model
         'user_id',
         'single_use',
         'uses_remaining',
+        'expires_at',
+    ];
+
+    protected $casts = [
+        'expires_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     public function user()
