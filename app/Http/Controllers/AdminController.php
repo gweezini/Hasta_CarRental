@@ -731,13 +731,15 @@ class AdminController extends Controller
             'phone' => $booking->user->phone_number ?? $booking->user->phone,
             'vehicle' => $booking->vehicle->brand . ' ' . $booking->vehicle->model,
             'plate' => $booking->vehicle->plate_number,
-            'total' => number_format($booking->total_rental_fee, 2),
+            'rental' => number_format($booking->total_rental_fee, 2),
+            'deposit' => number_format($booking->deposit_amount, 2),
+            'grand_total' => number_format($booking->total_rental_fee + $booking->deposit_amount, 2),
             'processed_by' => $booking->processedBy->name ?? 'Not Processed',
             'processed_at' => $booking->updated_at->format('d M Y, h:i A'),
             
             'payment_proof' => ($booking->payment && $booking->payment->proof_image) 
                                ? asset('storage/' . $booking->payment->proof_image) 
-                               : 'https://via.placeholder.com/400x600?text=No+Receipt+Found'
+                               : (($booking->payment_receipt) ? asset('storage/' . $booking->payment_receipt) : null)
         ]);
     }
 }
