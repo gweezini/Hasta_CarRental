@@ -37,7 +37,7 @@ class ClaimController extends Controller
             'claim_date' => 'required|date',
             'claim_time' => 'required',
             'description' => 'nullable|string',
-            'receipt' => 'nullable|image|max:2048', 
+            'receipt' => 'nullable|mimes:jpeg,png,jpg,gif,svg,pdf', 
         ]);
 
         $claim = new Claim();
@@ -52,7 +52,7 @@ class ClaimController extends Controller
 
         if ($request->hasFile('receipt')) {
             $path = $request->file('receipt')->store('claims', 'public');
-            $claim->payment_receipt = $path;
+            $claim->receipt_path = $path;
         }
 
         $claim->save();
@@ -67,12 +67,31 @@ class ClaimController extends Controller
     /**
      * List claims for Top Management review.
      */
-    public function index()
+    public function index(Request $request)
     {
         if (!Auth::user()->isTopManagement()) {
             return redirect()->route('admin.dashboard')->with('error', 'Unauthorized access.');
         }
-        $claims = Claim::with(['user'])->orderBy('created_at', 'desc')->paginate(15);
+
+        $query = Claim::with(['user']);
+
+        // Filter by Date
+        if ($request->filled('filter_date')) {
+            $query->whereDate('claim_date_time', $request->filter_date);
+        }
+
+        // Filter by Staff Name or ID
+        if ($request->filled('staff_search')) {
+            $search = $request->staff_search;
+            $query->where(function($q) use ($search) {
+                $q->where('matric_staff_id', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($sq) use ($search) {
+                      $sq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $claims = $query->orderBy('created_at', 'desc')->paginate(15);
         return view('admin.claims.index', compact('claims'));
     }
 
@@ -88,14 +107,14 @@ class ClaimController extends Controller
         $request->validate([
             'status' => 'required|in:Approved,Rejected',
             'reason' => 'nullable|string',
-            'receipt' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
+            'receipt' => 'nullable|mimes:jpeg,png,jpg,gif,svg,pdf', 
         ]);
 
         $claim = Claim::findOrFail($id);
 
         if ($request->hasFile('receipt')) {
             $path = $request->file('receipt')->store('claim_proofs', 'public');
-            $claim->receipt_path = $path;
+            $claim->payment_proof = $path;
         }
 
         $claim->update([
