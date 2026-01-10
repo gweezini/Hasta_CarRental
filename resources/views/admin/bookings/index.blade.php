@@ -143,8 +143,20 @@
                         <div><label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Customer</label><p id="m-customer" class="font-bold text-gray-800 text-lg"></p></div>
                         <div><label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Vehicle</label><p id="m-vehicle" class="font-bold text-gray-800"></p></div>
                         <div class="bg-gray-50 p-4 rounded-xl">
-                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Fee</label>
-                            <p class="text-2xl font-black text-[#cb5c55]">RM <span id="m-total">0.00</span></p>
+                            <div class="grid grid-cols-2 gap-2 mb-3 pb-3 border-b border-gray-200">
+                                <div>
+                                    <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block">Rental</label>
+                                    <span class="font-bold text-gray-800 text-sm">RM <span id="m-rental"></span></span>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block">Deposit</label>
+                                    <span class="font-bold text-gray-800 text-sm">RM <span id="m-deposit"></span></span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Total Paid</label>
+                                <p class="text-xl font-black text-[#cb5c55]">RM <span id="m-total">0.00</span></p>
+                            </div>
                         </div>
                         <div class="border-t pt-4">
                             <label class="text-[10px] font-black text-blue-500 uppercase block mb-1 tracking-widest">Audit Trail</label>
@@ -174,10 +186,18 @@
                 document.getElementById('m-id').innerText = '#' + data.id;
                 document.getElementById('m-customer').innerText = data.customer;
                 document.getElementById('m-vehicle').innerText = data.vehicle;
-                document.getElementById('m-total').innerText = data.total;
+                document.getElementById('m-rental').innerText = data.rental;
+                document.getElementById('m-deposit').innerText = data.deposit;
+                document.getElementById('m-total').innerText = data.grand_total;
                 document.getElementById('m-processed-by').innerText = data.processed_by;
                 document.getElementById('m-processed-at').innerText = data.processed_at;
-                document.getElementById('m-img').src = data.payment_proof;
+                
+                if(data.payment_proof) {
+                    document.getElementById('m-img').src = data.payment_proof;
+                    document.getElementById('m-img').classList.remove('hidden');
+                } else {
+                    document.getElementById('m-img').src = 'https://via.placeholder.com/400x600?text=No+Receipt';
+                }
                 
                 const st = document.getElementById('m-status');
                 st.innerText = data.status;
