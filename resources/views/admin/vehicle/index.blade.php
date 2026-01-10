@@ -148,6 +148,51 @@
         </div>
     </div>
 
+    <!-- Schedule Modal -->
+    <div id="scheduleModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50 hidden transition-opacity duration-300">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all scale-95 flex flex-col max-h-[90vh]">
+            <div class="bg-purple-50 px-6 py-4 border-b border-purple-100 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900" id="scheduleVehicleTitle">Vehicle Schedule</h3>
+                    <p class="text-xs text-purple-600">Upcoming Bookings</p>
+                </div>
+                <button onclick="closeScheduleModal()" class="text-gray-400 hover:text-gray-600 transition p-1 hover:bg-purple-200 rounded-full">
+                    <i class="ri-close-line text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-0 overflow-y-auto flex-1 relative min-h-[300px]">
+                <!-- Loading State -->
+                <div id="scheduleLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-10">
+                    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600 mb-3"></div>
+                    <p class="text-sm text-gray-500 font-medium">Fetching schedule...</p>
+                </div>
+
+                <!-- Content -->
+                <div id="scheduleContent" class="hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm">
+                            <tr class="text-xs uppercase text-gray-500 font-bold">
+                                <th class="px-4 py-3 border-b">Time Range</th>
+                                <th class="px-4 py-3 border-b">Customer</th>
+                                <th class="px-4 py-3 border-b text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleTableBody" class="divide-y divide-gray-100 text-sm">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end">
+                <button onclick="closeScheduleModal()" class="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition shadow-sm">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function openRateModal(vehicleId, tierName, vehicleName, rates, editUrl, assignUrl) {
             document.getElementById('modalVehicleName').textContent = vehicleName + ' Rates';
@@ -207,6 +252,88 @@
 
         function closeRateModal() {
             const modal = document.getElementById('rateModal');
+            modal.firstElementChild.classList.remove('scale-100');
+            modal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // Schedule Modal Functions
+        function openScheduleModal(vehicleId) {
+            const modal = document.getElementById('scheduleModal');
+            const loading = document.getElementById('scheduleLoading');
+            const content = document.getElementById('scheduleContent');
+            const tbody = document.getElementById('scheduleTableBody');
+            const vehicleTitle = document.getElementById('scheduleVehicleTitle');
+
+            // Reset state
+            tbody.innerHTML = '';
+            loading.classList.remove('hidden');
+            content.classList.add('hidden');
+            vehicleTitle.textContent = 'Loading...';
+
+            // Show modal
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.firstElementChild.classList.remove('scale-95');
+                modal.firstElementChild.classList.add('scale-100');
+            }, 10);
+
+            // Fetch data
+            fetch(`/admin/vehicle/${vehicleId}/schedule`)
+                .then(response => response.json())
+                .then(data => {
+                    vehicleTitle.textContent = data.vehicle_name;
+                    loading.classList.add('hidden');
+                    content.classList.remove('hidden');
+
+                    if (data.bookings.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                                    <div class="flex flex-col items-center">
+                                        <i class="ri-calendar-check-line text-4xl text-gray-300 mb-2"></i>
+                                        <p>No upcoming bookings found.</p>
+                                        <p class="text-xs text-gray-400 mt-1">This vehicle is free for now!</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        data.bookings.forEach(booking => {
+                            const startDate = new Date(booking.pickup_date_time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+                            const endDate = new Date(booking.return_date_time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+                            
+                            let statusColor = 'bg-gray-100 text-gray-700';
+                            if(booking.status === 'Approved') statusColor = 'bg-green-100 text-green-700';
+                            if(booking.status === 'Rented') statusColor = 'bg-blue-100 text-blue-700';
+                            if(booking.status === 'Waiting for Verification') statusColor = 'bg-orange-100 text-orange-700';
+
+                            const tr = document.createElement('tr');
+                            tr.className = 'border-b hover:bg-gray-50';
+                            tr.innerHTML = `
+                                <td class="px-4 py-3 text-sm text-gray-900 font-medium">
+                                    ${startDate}
+                                    <div class="text-xs text-gray-400">to ${endDate}</div>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-600">${booking.customer_name}</td>
+                                <td class="px-4 py-3 text-center">
+                                    <span class="px-2 py-1 text-xs font-bold rounded-full ${statusColor}">${booking.status}</span>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loading.innerHTML = '<p class="text-red-500 text-center">Failed to load schedule.</p>';
+                });
+        }
+
+        function closeScheduleModal() {
+            const modal = document.getElementById('scheduleModal');
             modal.firstElementChild.classList.remove('scale-100');
             modal.firstElementChild.classList.add('scale-95');
             setTimeout(() => {
