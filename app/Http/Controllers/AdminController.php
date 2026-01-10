@@ -16,6 +16,9 @@ use App\Mail\NewBookingNotification;
 use App\Notifications\BookingStatusUpdated;
 use App\Notifications\BookingModified;
 use App\Models\Claim;
+use App\Models\Voucher;
+use App\Models\UserVoucher;
+use App\Models\LoyaltyCard;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
@@ -67,11 +70,25 @@ class AdminController extends Controller
                             ->take(10) 
                             ->get();
 
+        // Pending Refunds Count: Completed/Cancelled bookings where payment was verified but deposit/refund not yet returned
+        $pendingRefundsCount = \App\Models\Booking::where(function($q) {
+                $q->where('status', 'Completed')
+                  ->orWhere(function($sq) {
+                      $sq->where('status', 'Cancelled')
+                         ->where('payment_verified', true);
+                  });
+            })
+            ->where(function($q) {
+                $q->whereNull('deposit_status')
+                  ->orWhere('deposit_status', '!=', 'Returned');
+            })->count();
+
         return view('admin.dashboard', compact(
             'totalRevenue', 'todayRevenue', 'pendingCount', 
             'totalCars', 'availableCars', 'totalCustomers', 'bookings',
             'roadTaxAlerts', 'insuranceAlerts',
-            'facultyLabels', 'facultyCounts', 'collegeLabels', 'collegeCounts'
+            'facultyLabels', 'facultyCounts', 'collegeLabels', 'collegeCounts',
+            'pendingRefundsCount'
         ));
     }
 
@@ -177,6 +194,24 @@ class AdminController extends Controller
     {
         $query = Booking::with(['user', 'vehicle', 'inspections', 'fines']);
 
+        // Date Filter
+        if ($request->filled('filter_date')) {
+            $date = Carbon::parse($request->filter_date)->toDateString();
+            $query->where(function($q) use ($date) {
+                // Check if the filtered date falls within the booking period
+                $q->whereDate('pickup_date_time', '<=', $date)
+                  ->whereDate('return_date_time', '>=', $date);
+            });
+        }
+
+        // Vehicle Plate Filter (Search)
+        if ($request->filled('vehicle_plate')) {
+            $plate = $request->vehicle_plate;
+            $query->whereHas('vehicle', function($q) use ($plate) {
+                $q->where('plate_number', 'LIKE', "%{$plate}%");
+            });
+        }
+
         // Penalty Status Filter
         if ($request->filled('penalty_status')) {
             $status = $request->penalty_status;
@@ -204,13 +239,27 @@ class AdminController extends Controller
                 $query->where('deposit_status', 'Returned');
             } elseif ($status === 'Pending') {
                 $query->where(function($q) {
-                          $q->whereNull('deposit_status')
-                            ->orWhere('deposit_status', '!=', 'Returned');
-                      })
-                      ->where('status', '!=', 'Cancelled'); // Exclude cancelled
+                    // Include Approved (Active rental -> Not Returned yet)
+                    $q->where('status', 'Approved')
+                      // Include Completed/Cancelled where deposit is NOT returned
+                      ->orWhere(function($sq) {
+                          $sq->whereIn('status', ['Completed', 'Cancelled'])
+                             ->where(function($dq) {
+                                 $dq->whereNull('deposit_status')
+                                    ->orWhere('deposit_status', '!=', 'Returned');
+                             });
+                      });
+                });
+                // Double check to ensure we absolutely exclude 'Returned' ones even if logic above leaks
+                $query->where(function($q) {
+                    $q->whereNull('deposit_status')
+                      ->orWhere('deposit_status', '!=', 'Returned');
+                });
             } elseif ($status === 'All') {
-                // Show all relevant to deposits (excluding cancelled maybe?)
-                 $query->where('status', '!=', 'Cancelled');
+                // Show all relevant to deposits
+            } elseif ($status === 'All') {
+                // Show all relevant to deposits
+                // $query->where('status', '!=', 'Cancelled'); // Do not exclude cancelled
             }
         }
 
@@ -393,6 +442,27 @@ class AdminController extends Controller
             'processed_by' => Auth::id()
         ]);
         if($booking->payment) $booking->payment->update(['status' => 'Rejected']);
+
+        // Voucher Recovery on Rejection
+        if ($booking->voucher_id) {
+            $voucher = Voucher::find($booking->voucher_id);
+            if ($voucher) {
+                if ($voucher->uses_remaining !== null) {
+                    $voucher->increment('uses_remaining');
+                }
+                
+                // Find the record for this user
+                $uv = UserVoucher::where('user_id', $booking->user->matric_staff_id)
+                    ->where('voucher_id', $voucher->id)
+                    ->whereNotNull('used_at')
+                    ->orderBy('used_at', 'desc')
+                    ->first();
+                if ($uv) {
+                    $uv->update(['used_at' => null]);
+                }
+            }
+        }
+
         if($booking->user) $booking->user->notify(new BookingStatusUpdated($booking, 'Rejected'));
         return redirect()->route('admin.dashboard')->with('error', 'Booking rejected.');
     }
@@ -479,30 +549,6 @@ class AdminController extends Controller
         }
     }
 
-    public function refunds(Request $request)
-    {
-        $status = $request->input('status', 'Pending'); // Default to Pending (Unpaid)
-
-        $query = Booking::with(['user', 'vehicle', 'processedBy'])
-                        ->orderBy('updated_at', 'desc');
-
-        if ($status === 'Pending') {
-            // For pending refunds, we strictly only look at COMPLETED bookings
-            // where the deposit hasn't been marked as Returned yet.
-            $query->where('status', 'Completed')
-                  ->where(function($q) {
-                      $q->whereNull('deposit_status')
-                        ->orWhere('deposit_status', '!=', 'Returned');
-                  });
-        } elseif ($status === 'Returned') {
-            // For history, we just show anything where deposit was returned
-            $query->where('deposit_status', 'Returned');
-        }
-
-        $refunds = $query->paginate(15);
-
-        return view('admin.refunds.index', compact('refunds', 'status'));
-    }
 
     public function payFine($id)
     {
