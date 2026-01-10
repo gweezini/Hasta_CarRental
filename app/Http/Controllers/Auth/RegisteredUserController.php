@@ -67,9 +67,9 @@ class RegisteredUserController extends Controller
             'college_id'      => ['required'], 
             'faculty_id'      => ['required'], 
         
-            'matric_card_doc' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
-            'driving_license_doc' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
-            'nric_passport_doc' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
+            'matric_card_doc' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf'],
+            'driving_license_doc' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf'],
+            'nric_passport_doc' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf'],
         ]);
         
         $matricPath = null;
