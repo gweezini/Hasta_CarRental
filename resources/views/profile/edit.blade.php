@@ -236,7 +236,7 @@
                                     {{-- Vehicle Image --}}
                                     <div class="w-full md:w-48 h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden relative">
                                         @if($booking->vehicle && $booking->vehicle->vehicle_image)
-                                            <img src="{{ asset('images/' . $booking->vehicle->vehicle_image) }}" alt="{{ $booking->vehicle->model }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                            <img src="{{ asset('images/' . $booking->vehicle->vehicle_image) }}" alt="{{ $booking->vehicle->model }}" class="w-full h-full object-contain bg-white group-hover:scale-105 transition duration-500">
                                         @else
                                             <div class="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
                                                 <i class="ri-car-line text-4xl"></i>
@@ -406,7 +406,7 @@
                                     {{-- Vehicle Image --}}
                                     <div class="w-full md:w-48 h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden transition duration-500 relative">
                                         @if($booking->vehicle && $booking->vehicle->vehicle_image)
-                                            <img src="{{ asset('images/' . $booking->vehicle->vehicle_image) }}" alt="{{ $booking->vehicle->model }}" class="w-full h-full object-cover">
+                                            <img src="{{ asset('images/' . $booking->vehicle->vehicle_image) }}" alt="{{ $booking->vehicle->model }}" class="w-full h-full object-contain bg-white">
                                         @else
                                             <div class="w-full h-full flex items-center justify-center text-gray-300">
                                                 <i class="ri-car-line text-4xl"></i>
