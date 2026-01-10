@@ -105,12 +105,16 @@
 
                     <div class="max-h-64 overflow-y-auto">
                         @forelse(Auth::user()->notifications->take(3) as $notification)
-                            <div class="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition flex items-start gap-3">
+                            <a href="{{ route('profile.edit', ['tab' => 'booking']) }}#booking-{{ $notification->data['booking_id'] ?? '' }}" 
+                               class="block px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition flex items-start gap-3"
+                               onclick="jumpToBooking(event, 'booking-{{ $notification->data['booking_id'] ?? '' }}')">
                                 <div class="mt-1">
                                     @if(isset($notification->data['status']) && $notification->data['status'] == 'Approved')
                                         <div class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="ri-check-line text-xs"></i></div>
                                     @elseif(isset($notification->data['status']) && $notification->data['status'] == 'Rejected')
                                         <div class="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center"><i class="ri-close-line text-xs"></i></div>
+                                    @elseif(isset($notification->data['type']) && $notification->data['type'] == 'success')
+                                        <div class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="ri-refund-2-line text-xs"></i></div>
                                     @else
                                         <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i class="ri-notification-line text-xs"></i></div>
                                     @endif
@@ -119,7 +123,7 @@
                                     <p class="text-sm font-medium text-gray-800 leading-tight">{{ $notification->data['message'] ?? 'New Notification' }}</p>
                                     <p class="text-[10px] text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
                                 </div>
-                            </div>
+                            </a>
                         @empty
                             <div class="px-4 py-6 text-center text-xs text-gray-400">No notifications</div>
                         @endforelse
@@ -228,76 +232,117 @@
                     @if($ongoingBookings->count() > 0)
                         <div class="space-y-4 mb-10">
                             @foreach($ongoingBookings as $booking)
-                                <div class="border border-blue-100 bg-blue-50/50 rounded-xl p-5 hover:shadow-md transition">
-                                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2">
-                                        <div>
-                                            <h3 class="font-bold text-gray-900 text-lg">Booking #{{ $booking->id }}</h3>
-                                            <p class="text-sm text-gray-600">{{ $booking->vehicle?->brand }} {{ $booking->vehicle?->model }} ({{ $booking->vehicle?->plate_number }})</p>
-                                        </div>
-                                        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                                            {{ $booking->status == 'Waiting for Verification' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700' }}">
-                                            {{ $booking->status }}
-                                        </span>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-6 text-sm">
-                                        <div>
-                                            <p class="text-xs text-gray-400 uppercase font-bold">Pickup</p>
-                                            <p class="font-medium text-gray-800">{{ $booking->pickup_date_time ? \Carbon\Carbon::parse($booking->pickup_date_time)->format('M d, Y h:i A') : '-' }}</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs text-gray-400 uppercase font-bold">Return</p>
-                                            <p class="font-medium text-gray-800">{{ $booking->return_date_time ? \Carbon\Carbon::parse($booking->return_date_time)->format('M d, Y h:i A') : '-' }}</p>
+                                <div id="booking-{{ $booking->id }}" class="border border-blue-100 bg-white rounded-xl p-5 hover:shadow-md transition scroll-mt-24 flex flex-col md:flex-row gap-5 group">
+                                    {{-- Vehicle Image --}}
+                                    <div class="w-full md:w-48 h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden relative">
+                                        @if($booking->vehicle && $booking->vehicle->vehicle_image)
+                                            <img src="{{ asset('images/' . $booking->vehicle->vehicle_image) }}" alt="{{ $booking->vehicle->model }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                        @else
+                                            <div class="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
+                                                <i class="ri-car-line text-4xl"></i>
+                                            </div>
+                                        @endif
+                                        <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-gray-800 shadow-sm">
+                                            {{ $booking->vehicle->plate_number ?? 'N/A' }}
                                         </div>
                                     </div>
-                                    <div class="mt-4 pt-4 border-t border-blue-100 flex justify-between items-center">
-                                        <div class="flex gap-2">
-                                            @if($booking->status == 'Approved')
-                                                @php
-                                                    $now = \Carbon\Carbon::now();
-                                                    $pickup = \Carbon\Carbon::parse($booking->pickup_date_time);
-                                                    $hasPickup = $booking->inspections->where('type', 'pickup')->count() > 0;
-                                                    $canModify = !$hasPickup && $now->lt($pickup);
-                                                    $canCancel = !$hasPickup && $now->diffInHours($pickup, false) > 24;
-                                                @endphp
-                                                
-                                                @if($canModify)
-                                                    <a href="{{ route('booking.edit', $booking->id) }}" class="text-xs md:text-sm text-white bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded-lg transition font-medium flex items-center">
-                                                        <i class="ri-edit-line mr-1"></i> Modify
-                                                    </a>
-                                                @endif
 
-                                                @if($canCancel)
-                                                    <form action="{{ route('booking.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking? If you have made a payment, please contact us for a refund.');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="text-xs md:text-sm text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-2 rounded-lg transition font-medium flex items-center">
-                                                            <i class="ri-delete-bin-line mr-1"></i> Cancel
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                                
-                                                @if($booking->inspections->where('type', 'pickup')->count() > 0)
-                                                    <a href="{{ route('inspections.show', $booking->inspections->where('type', 'pickup')->first()) }}" class="text-xs md:text-sm text-white bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-lg transition font-medium flex items-center">
-                                                        <i class="ri-eye-line mr-1"></i> View Pickup
-                                                    </a>
+                                    <div class="flex-1 flex flex-col justify-between">
+                                        {{-- Header --}}
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <div class="flex items-center gap-2">
+                                                    <h3 class="font-black text-gray-900 text-lg">Booking #{{ $booking->id }}</h3>
+                                                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide
+                                                        {{ $booking->status == 'Waiting for Verification' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700' }}">
+                                                        {{ $booking->status }}
+                                                    </span>
+                                                </div>
+                                                <p class="text-sm font-bold text-gray-600 mt-0.5">{{ $booking->vehicle?->brand }} {{ $booking->vehicle?->model }}</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-xs text-gray-400 uppercase font-extrabold tracking-wider">Total</p>
+                                                <p class="text-xl font-black text-gray-900">RM {{ number_format($booking->total_rental_fee + $booking->deposit_amount, 2) }}</p>
+                                            </div>
+                                        </div>
 
-                                                    @if($booking->inspections->where('type', 'return')->count() > 0)
-                                                        <a href="{{ route('inspections.show', $booking->inspections->where('type', 'return')->first()) }}" class="text-xs md:text-sm text-white bg-purple-600 hover:bg-purple-500 px-3 py-2 rounded-lg transition font-medium flex items-center">
-                                                            <i class="ri-eye-line mr-1"></i> View Return
-                                                        </a>
-                                                    @else
-                                                        <a href="{{ route('inspections.create', ['booking' => $booking->id, 'type' => 'return']) }}" class="text-xs md:text-sm text-white bg-orange-600 hover:bg-orange-500 px-3 py-2 rounded-lg transition font-medium flex items-center">
-                                                            <i class="ri-edit-circle-line mr-1"></i> Return Car
+                                        {{-- Dates --}}
+                                        <div class="grid grid-cols-2 gap-4 my-3 text-sm border-t border-b border-gray-50 py-3">
+                                            <div>
+                                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-0.5">Pickup</p>
+                                                <p class="font-bold text-gray-700">{{ $booking->pickup_date_time ? \Carbon\Carbon::parse($booking->pickup_date_time)->format('d M Y, h:i A') : '-' }}</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-0.5">Return</p>
+                                                <p class="font-bold text-gray-700">{{ $booking->return_date_time ? \Carbon\Carbon::parse($booking->return_date_time)->format('d M Y, h:i A') : '-' }}</p>
+                                            </div>
+                                        </div>
+
+                                        {{-- Actions --}}
+                                        <div class="flex justify-between items-end">
+                                            <div class="flex flex-wrap gap-2">
+                                                @if($booking->status == 'Approved')
+                                                    @php
+                                                        $now = \Carbon\Carbon::now();
+                                                        $pickup = \Carbon\Carbon::parse($booking->pickup_date_time);
+                                                        $hasPickup = $booking->inspections->where('type', 'pickup')->count() > 0;
+                                                        $canModify = !$hasPickup && $now->lt($pickup);
+                                                        $canCancel = !$hasPickup && $now->diffInHours($pickup, false) > 24;
+                                                    @endphp
+                                                    
+                                                    @if($canModify)
+                                                        <a href="{{ route('booking.edit', $booking->id) }}" class="text-xs text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg transition font-bold flex items-center">
+                                                            <i class="ri-edit-line mr-1"></i> Modify
                                                         </a>
                                                     @endif
-                                                @else
-                                                    <a href="{{ route('inspections.create', $booking) }}" class="text-xs md:text-sm text-white bg-green-600 hover:bg-green-500 px-3 py-2 rounded-lg transition font-medium flex items-center">
-                                                        <i class="ri-car-fill mr-1"></i> Pick up
-                                                    </a>
+
+                                                    @if($canCancel)
+                                                        <form action="{{ route('booking.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                                            @csrf @method('DELETE')
+                                                            <button type="submit" class="text-xs text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-lg transition font-bold flex items-center">
+                                                                <i class="ri-delete-bin-line mr-1"></i> Cancel
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                    
+                                                    @if($booking->inspections->where('type', 'pickup')->count() > 0)
+                                                        <a href="{{ route('inspections.show', $booking->inspections->where('type', 'pickup')->first()) }}" class="text-xs text-white bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg transition font-bold flex items-center">
+                                                            <i class="ri-eye-line mr-1"></i> Pickup Check
+                                                        </a>
+
+                                                        @if($booking->inspections->where('type', 'return')->count() > 0)
+                                                            <a href="{{ route('inspections.show', $booking->inspections->where('type', 'return')->first()) }}" class="text-xs text-white bg-purple-600 hover:bg-purple-500 px-3 py-1.5 rounded-lg transition font-bold flex items-center">
+                                                                <i class="ri-eye-line mr-1"></i> Return Check
+                                                            </a>
+                                                        @else
+                                                            <a href="{{ route('inspections.create', ['booking' => $booking->id, 'type' => 'return']) }}" class="text-xs text-white bg-orange-600 hover:bg-orange-500 px-3 py-1.5 rounded-lg transition font-bold flex items-center">
+                                                                <i class="ri-edit-circle-line mr-1"></i> Return Car
+                                                            </a>
+                                                        @endif
+                                                    @else
+                                                        <a href="{{ route('inspections.create', $booking) }}" class="text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 px-3 py-1.5 rounded-lg transition font-bold flex items-center">
+                                                            <i class="ri-car-fill mr-1"></i> Start Pickup
+                                                        </a>
+                                                    @endif
                                                 @endif
+                                            </div>
+
+                                            {{-- Deposit Status for Ongoing --}}
+                                            @if($booking->deposit_status === 'Returned')
+                                                <div class="bg-green-50 border border-green-100 rounded-lg p-2.5 flex items-center gap-3">
+                                                    <div class="text-green-700 flex items-center gap-1.5">
+                                                        <i class="ri-checkbox-circle-fill text-lg"></i> 
+                                                        <span class="text-xs font-bold uppercase tracking-wide">Deposit Returned</span>
+                                                    </div>
+                                                    @if($booking->deposit_receipt_path)
+                                                        <a href="{{ Storage::url($booking->deposit_receipt_path) }}" target="_blank" 
+                                                           class="text-sm bg-white border border-green-200 text-green-700 px-4 py-2 rounded-lg font-bold hover:bg-green-50 transition shadow-sm flex items-center gap-2">
+                                                            <i class="ri-receipt-line text-lg"></i> View Receipt
+                                                        </a>
+                                                    @endif
+                                                </div>
                                             @endif
                                         </div>
-                                        <p class="text-lg font-bold text-gray-900">RM {{ number_format($booking->total_rental_fee + $booking->deposit_amount, 2) }}</p>
                                     </div>
                                 </div>
                             @endforeach
@@ -315,25 +360,83 @@
                     @if($pastBookings->count() > 0)
                         <div class="space-y-4">
                             @foreach($pastBookings as $booking)
-                                <div class="border border-gray-100 rounded-xl p-5 hover:bg-gray-50 transition">
-                                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 gap-2">
-                                        <div>
-                                            <h3 class="font-bold text-gray-800">Booking #{{ $booking->id }}</h3>
-                                            <p class="text-xs text-gray-500">{{ $booking->vehicle?->model }}</p>
+                                <div id="booking-{{ $booking->id }}" class="border border-gray-100 bg-white rounded-xl p-5 hover:bg-gray-50 transition scroll-mt-24 flex flex-col md:flex-row gap-5 group">
+                                    {{-- Vehicle Image --}}
+                                    <div class="w-full md:w-48 h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden transition duration-500 relative">
+                                        @if($booking->vehicle && $booking->vehicle->vehicle_image)
+                                            <img src="{{ asset('images/' . $booking->vehicle->vehicle_image) }}" alt="{{ $booking->vehicle->model }}" class="w-full h-full object-cover">
+                                        @else
+                                            <div class="w-full h-full flex items-center justify-center text-gray-300">
+                                                <i class="ri-car-line text-4xl"></i>
+                                            </div>
+                                        @endif
+                                         <div class="absolute top-2 left-2 bg-black/50 text-white px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-white/20">
+                                            {{ $booking->vehicle->plate_number ?? 'N/A' }}
                                         </div>
-                                        <span class="px-2 py-1 rounded text-xs font-bold border 
-                                            @if($booking->status == 'Completed') bg-green-50 text-green-600 border-green-100
-                                            @elseif($booking->status == 'Rejected') bg-red-50 text-red-600 border-red-100
-                                            @else bg-gray-100 text-gray-600 @endif">
-                                            {{ $booking->status }}
-                                        </span>
                                     </div>
-                                    @if($booking->status == 'Rejected' && $booking->rejection_reason)
-                                        <div class="bg-red-50 border border-red-100 rounded-lg p-3 mb-2 text-xs text-red-700">
-                                            <span class="font-bold">Reason:</span> {{ $booking->rejection_reason }}
+
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div>
+                                                <div class="flex items-center gap-2">
+                                                    <h3 class="font-bold text-gray-800 text-lg">Booking #{{ $booking->id }}</h3>
+                                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider
+                                                        @if($booking->status == 'Completed') bg-green-50 text-green-600 border-green-100
+                                                        @elseif($booking->status == 'Rejected') bg-red-50 text-red-600 border-red-100
+                                                        @else bg-gray-100 text-gray-600 @endif">
+                                                        {{ $booking->status }}
+                                                    </span>
+                                                </div>
+                                                <p class="text-xs font-bold text-gray-500 mt-1">{{ $booking->vehicle?->brand }} {{ $booking->vehicle?->model }}</p>
+                                                <div class="mt-2 text-xs grid grid-cols-2 gap-x-4 gap-y-1">
+                                                    <div>
+                                                        <span class="text-gray-400 font-medium uppercase text-[10px]">Pickup</span>
+                                                        <p class="font-bold text-gray-700">{{ \Carbon\Carbon::parse($booking->pickup_date_time)->format('d M Y, h:i A') }}</p>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text-gray-400 font-medium uppercase text-[10px]">Return</span>
+                                                        <p class="font-bold text-gray-700">{{ \Carbon\Carbon::parse($booking->return_date_time)->format('d M Y, h:i A') }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="text-right">
+                                                 <p class="text-sm font-bold text-gray-800">RM {{ number_format($booking->total_rental_fee + $booking->deposit_amount, 2) }}</p>
+                                            </div>
                                         </div>
-                                    @endif
-                                    <p class="text-sm font-bold text-right text-gray-800">RM {{ number_format($booking->total_rental_fee + $booking->deposit_amount, 2) }}</p>
+
+                                        @if($booking->status == 'Rejected' && $booking->rejection_reason)
+                                            <div class="bg-red-50 border border-red-100 rounded-lg p-3 my-2 text-xs text-red-700">
+                                                <span class="font-bold">Reason:</span> {{ $booking->rejection_reason }}
+                                            </div>
+                                        @endif
+
+                                        <div class="mt-3 flex justify-end">
+                                            @if($booking->deposit_status === 'Returned')
+                                                <div class="bg-green-50 border border-green-100 rounded-lg p-2.5 inline-flex items-center gap-3">
+                                                    <div class="flex items-center gap-1.5 text-green-700 border-r border-green-200 pr-3">
+                                                        <i class="ri-checkbox-circle-fill text-lg"></i> 
+                                                        <span class="text-xs font-bold uppercase tracking-wide">Deposit Returned</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-3">
+                                                        <p class="text-[10px] text-green-600 font-medium">
+                                                            {{ \Carbon\Carbon::parse($booking->deposit_returned_at)->format('d M Y') }}
+                                                        </p>
+                                                        @if($booking->deposit_receipt_path)
+                                                            <a href="{{ Storage::url($booking->deposit_receipt_path) }}" target="_blank" 
+                                                               class="inline-flex items-center gap-2 bg-white text-green-700 text-sm font-bold px-4 py-2 rounded-lg border border-green-200 shadow-sm hover:bg-green-100 transition">
+                                                                <i class="ri-receipt-line text-lg"></i> View Receipt
+                                                            </a>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            @elseif($booking->status == 'Completed' && $booking->deposit_status != 'Returned')
+                                                <div class="inline-flex items-center gap-1 text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg">
+                                                    <i class="ri-time-line"></i> Deposit Processing
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
                             @endforeach
                         </div>
@@ -559,12 +662,17 @@
                     </div>
                     <div class="divide-y divide-gray-50">
                         @forelse(Auth::user()->notifications as $notification)
-                            <div class="p-5 flex gap-4 hover:bg-gray-50 transition {{ !$notification->read_at ? 'bg-blue-50/30' : '' }}">
+                            <a href="{{ route('profile.edit', ['tab' => 'booking']) }}#booking-{{ $notification->data['booking_id'] ?? '' }}" 
+                               class="block p-5 flex gap-4 hover:bg-gray-50 transition {{ !$notification->read_at ? 'bg-blue-50/30' : '' }}"
+                               onclick="jumpToBooking(event, 'booking-{{ $notification->data['booking_id'] ?? '' }}')">
+                                
                                 <div class="mt-1 flex-shrink-0">
                                     @if(isset($notification->data['status']) && $notification->data['status'] == 'Approved')
                                         <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="ri-check-line text-lg"></i></div>
                                     @elseif(isset($notification->data['status']) && $notification->data['status'] == 'Rejected')
                                         <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center"><i class="ri-close-line text-lg"></i></div>
+                                    @elseif(isset($notification->data['type']) && $notification->data['type'] == 'success')
+                                        <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="ri-refund-2-line text-lg"></i></div>
                                     @else
                                         <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i class="ri-notification-line text-lg"></i></div>
                                     @endif
@@ -577,7 +685,7 @@
                                     <div class="w-2 h-2 bg-[#ec5a29] rounded-full mt-2"></div>
                                     {{ $notification->markAsRead() }}
                                 @endif
-                            </div>
+                            </a>
                         @empty
                             <div class="p-12 text-center text-gray-400">
                                 <i class="ri-notification-off-line text-4xl mb-3 block opacity-50"></i>
@@ -665,6 +773,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             const tabParam = urlParams.get('tab');
+            const hash = window.location.hash;
 
             if (tabParam === 'notifications') {
                 openTab('notifications');
@@ -672,10 +781,57 @@
                 openTab('rewards');
             } else if ("{{ session('status') }}" === 'profile-updated' || "{{ $errors->any() }}") {
                 openTab('personal');
+            } else if (tabParam === 'booking' || hash.startsWith('#booking-')) {
+                openTab('booking');
+                // Manually scroll if hash exists, because element was hidden during page load
+                if (hash) {
+                    setTimeout(() => {
+                        const el = document.querySelector(hash);
+                        if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            // Highlight effect
+                            el.classList.add('ring-2', 'ring-[#ec5a29]', 'ring-offset-2');
+                            setTimeout(() => el.classList.remove('ring-2', 'ring-[#ec5a29]', 'ring-offset-2'), 2000);
+                        }
+                    }, 100);
+                }
             } else {
                 openTab('booking');
             }
         });
+
+        // Listen for hash changes to handle same-page navigation (e.g. clicking notification while already on profile)
+        window.addEventListener('hashchange', function() {
+            const hash = window.location.hash;
+            if (hash.startsWith('#booking-')) {
+                openTab('booking');
+                setTimeout(() => {
+                    const el = document.querySelector(hash);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.classList.add('ring-2', 'ring-[#ec5a29]', 'ring-offset-2');
+                        setTimeout(() => el.classList.remove('ring-2', 'ring-[#ec5a29]', 'ring-offset-2'), 2000);
+                    }
+                }, 100);
+            }
+        });
+
+        function jumpToBooking(event, elementId) {
+            event.preventDefault();
+            openTab('booking');
+            
+            // Update URL without reload
+            history.pushState(null, null, '#' + elementId);
+
+            setTimeout(() => {
+                const el = document.getElementById(elementId);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.classList.add('ring-2', 'ring-[#ec5a29]', 'ring-offset-2');
+                    setTimeout(() => el.classList.remove('ring-2', 'ring-[#ec5a29]', 'ring-offset-2'), 2000);
+                }
+            }, 100);
+        }
     </script>
 </body>
 </html>
