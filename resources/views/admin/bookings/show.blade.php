@@ -213,8 +213,32 @@
     {{-- FULL WIDTH SECTION FOR INSPECTIONS & FEEDBACK --}}
     <div class="lg:col-span-3 space-y-8 mt-6 border-t border-gray-100 pt-8">
         
+        {{-- 1. INSPECTION REPORTS --}}
+        @if($booking->inspections->count() > 0)
+            <div id="inspection-section" class="scroll-mt-24">
+                <h3 class="text-xl font-black text-gray-800 tracking-tight mb-6 flex items-center gap-2">
+                    <i class="ri-search-eye-line text-[#cb5c55]"></i> Inspection Reports
+                </h3>
+                
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    @foreach($booking->inspections as $inspection)
+                        <div class="relative">
+                            {{-- Badge for Type --}}
+                            <div class="absolute -top-3 -right-3 z-10">
+                                <span class="px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest shadow-sm border
+                                    {{ $inspection->type == 'pickup' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' : 'bg-green-100 text-green-700 border-green-200' }}">
+                                    {{ ucfirst($inspection->type) }} Verification
+                                </span>
+                            </div>
+                            @include('inspections.partials.report_card', ['inspection' => $inspection])
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         {{-- 0. FINES & PENALTIES --}}
-        <div id="fines-section" class="scroll-mt-24">
+        <div id="fines-section" class="scroll-mt-24 border-t border-gray-100 pt-8">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-black text-gray-800 tracking-tight flex items-center gap-2">
                     <i class="ri-alert-fill text-red-500"></i> Fines & Penalties
@@ -343,30 +367,6 @@
                 @endif
             </div>
         </div>
-        
-        {{-- 1. INSPECTION REPORTS --}}
-        @if($booking->inspections->count() > 0)
-            <div id="inspection-section" class="scroll-mt-24">
-                <h3 class="text-xl font-black text-gray-800 tracking-tight mb-6 flex items-center gap-2">
-                    <i class="ri-search-eye-line text-[#cb5c55]"></i> Inspection Reports
-                </h3>
-                
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                    @foreach($booking->inspections as $inspection)
-                        <div class="relative">
-                            {{-- Badge for Type --}}
-                            <div class="absolute -top-3 -right-3 z-10">
-                                <span class="px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest shadow-sm border
-                                    {{ $inspection->type == 'pickup' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' : 'bg-green-100 text-green-700 border-green-200' }}">
-                                    {{ ucfirst($inspection->type) }} Verification
-                                </span>
-                            </div>
-                            @include('inspections.partials.report_card', ['inspection' => $inspection])
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        @endif
 
         {{-- 2. CUSTOMER FEEDBACK --}}
         @if($booking->feedback)
