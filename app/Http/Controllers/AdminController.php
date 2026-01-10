@@ -332,7 +332,7 @@ class AdminController extends Controller
     public function returnDeposit(Request $request, $id)
     {
         $request->validate([
-            'deposit_receipt' => 'required|image|max:2048', // Max 2MB
+            'deposit_receipt' => 'required|image', // Removed max size limit
         ]);
 
         $booking = Booking::findOrFail($id);
@@ -360,6 +360,31 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to return deposit: ' . $e->getMessage());
         }
+    }
+
+    public function refunds(Request $request)
+    {
+        $status = $request->input('status', 'Pending'); // Default to Pending (Unpaid)
+
+        $query = Booking::with(['user', 'vehicle', 'processedBy'])
+                        ->orderBy('updated_at', 'desc');
+
+        if ($status === 'Pending') {
+            // For pending refunds, we strictly only look at COMPLETED bookings
+            // where the deposit hasn't been marked as Returned yet.
+            $query->where('status', 'Completed')
+                  ->where(function($q) {
+                      $q->whereNull('deposit_status')
+                        ->orWhere('deposit_status', '!=', 'Returned');
+                  });
+        } elseif ($status === 'Returned') {
+            // For history, we just show anything where deposit was returned
+            $query->where('deposit_status', 'Returned');
+        }
+
+        $refunds = $query->paginate(15);
+
+        return view('admin.refunds.index', compact('refunds', 'status'));
     }
 
     public function payFine($id)
