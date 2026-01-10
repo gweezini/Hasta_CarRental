@@ -29,6 +29,11 @@ class UserVoucherController extends Controller
             return redirect()->back()->with('error', 'Invalid or inactive code.');
         }
 
+        // Check expiry date
+        if ($voucher->expires_at && $voucher->expires_at->isPast()) {
+            return redirect()->back()->with('error', 'This voucher has expired.');
+        }
+
         // 3. User & Duplicate Check
         $user = Auth::user();
 
@@ -50,7 +55,7 @@ class UserVoucherController extends Controller
         ]);
 
         // 5. Deduct Global Usage if applicable
-        if ($voucher->single_use && $voucher->uses_remaining !== null) {
+        if ($voucher->uses_remaining !== null) {
              $voucher->decrement('uses_remaining');
         }
 
