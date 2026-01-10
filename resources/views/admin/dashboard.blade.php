@@ -29,19 +29,42 @@
             </div>
             <div class="p-3 bg-purple-50 rounded-lg text-purple-500 text-2xl"><i class="ri-group-line"></i></div>
         </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-[#cd5c5c] flex justify-between items-center hover:shadow-md transition">
-            <div>
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Today's Revenue</p>
-                <p class="text-3xl font-extrabold text-gray-800 mt-1">RM {{ number_format($todayRevenue, 2) }}</p>
-                
-                @if(Auth::user()->isTopManagement())
-                    <p class="text-[10px] font-bold text-green-600 mt-1 bg-green-50 px-2 py-0.5 rounded w-fit">
-                        Total: RM {{ number_format($totalRevenue, 2) }}
-                    </p>
-                @endif
-            </div>
-            <div class="p-3 bg-red-50 rounded-lg text-[#cd5c5c] text-2xl"><i class="ri-money-dollar-circle-line"></i></div>
-        </div>
+        @if(Auth::user()->isTopManagement())
+            <a href="{{ route('admin.vehicle.availability') }}" class="block">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-[#cd5c5c] flex justify-between items-center hover:shadow-md transition group">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider group-hover:text-[#cd5c5c] transition">Today's Revenue</p>
+                        <p class="text-3xl font-extrabold text-gray-800 mt-1">RM {{ number_format($todayRevenue, 2) }}</p>
+                        
+                        <p class="text-[10px] font-bold text-green-600 mt-1 bg-green-50 px-2 py-0.5 rounded w-fit flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                            Live Updates
+                        </p>
+                    </div>
+                    <div class="flex flex-col items-end gap-2 text-right">
+                        <div class="p-3 bg-red-50 rounded-lg text-[#cd5c5c] text-2xl group-hover:bg-red-100 transition"><i class="ri-money-dollar-circle-line"></i></div>
+                        <span class="text-[9px] font-black text-gray-400 uppercase opacity-0 group-hover:opacity-100 transition tracking-tighter">View Timeline <i class="ri-arrow-right-s-line"></i></span>
+                    </div>
+                </div>
+            </a>
+        @else
+            <a href="{{ route('admin.vehicle.availability') }}" class="block">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-green-500 flex justify-between items-center hover:shadow-md transition group">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider group-hover:text-green-600 transition">Available Cars</p>
+                        <p class="text-3xl font-extrabold text-gray-800 mt-1">{{ $availableCars }}</p>
+                        <p class="text-[10px] text-green-600 font-bold mt-1 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                            Ready for rental
+                        </p>
+                    </div>
+                    <div class="flex flex-col items-end gap-2 text-right">
+                        <div class="p-3 bg-green-50 rounded-lg text-green-500 text-2xl group-hover:bg-green-100 transition"><i class="ri-car-line"></i></div>
+                        <span class="text-[9px] font-black text-gray-400 uppercase opacity-0 group-hover:opacity-100 transition tracking-tight">View Fleet Availability <i class="ri-arrow-right-s-line"></i></span>
+                    </div>
+                </div>
+            </a>
+        @endif
     </div>
 
     {{-- Charts Section --}}
