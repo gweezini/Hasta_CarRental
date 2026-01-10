@@ -717,6 +717,8 @@
                                     <i class="ri-close-line"></i>
                                 @elseif(isset($notification->data['type']) && $notification->data['type'] == 'success')
                                     <i class="ri-refund-2-line"></i>
+                                @elseif(isset($notification->data['type']) && $notification->data['type'] == 'fine')
+                                    <i class="ri-money-dollar-circle-line"></i>
                                 @else
                                     <i class="ri-notification-line"></i>
                                 @endif
