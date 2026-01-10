@@ -56,8 +56,17 @@
         <i class="ri-dashboard-line mr-3 text-xl"></i> Dashboard
     </a>
 
-    <a href="{{ route('admin.bookings.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.bookings*') ? 'sidebar-active' : '' }}">
-        <i class="ri-list-check mr-3 text-xl"></i> Bookings
+    @php
+        $pendingFineCount = \App\Models\Fine::where('status', 'Pending Verification')->count();
+    @endphp
+
+    <a href="{{ route('admin.bookings.index') }}" class="flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.bookings*') ? 'sidebar-active' : '' }}">
+        <div class="flex items-center">
+            <i class="ri-list-check mr-3 text-xl"></i> Bookings
+        </div>
+        @if($pendingFineCount > 0)
+            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">{{ $pendingFineCount }}</span>
+        @endif
     </a>
 
     <a href="{{ route('admin.vehicle.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle.index') ? 'sidebar-active' : '' }}">
@@ -67,9 +76,6 @@
         <i class="ri-calendar-2-line mr-3 text-xl"></i> Availability
     </a>
     
-    <a href="{{ route('admin.refunds.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.refunds.*') ? 'sidebar-active' : '' }}">
-        <i class="ri-refund-2-line mr-3 text-xl"></i> Refunds
-    </a>
     <a href="{{ route('admin.customers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.customers*') ? 'sidebar-active' : '' }}">
         <i class="ri-user-line mr-3 text-xl"></i> Customers
     </a>
