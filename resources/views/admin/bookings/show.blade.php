@@ -166,9 +166,22 @@
                 @endif
             </div>
 
-            <div class="text-center mb-6">
-                <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Total Rental Fee</p>
-                <p class="text-4xl font-black text-[#cb5c55]">RM {{ number_format($booking->total_rental_fee, 2) }}</p>
+            <div class="text-center mb-6 space-y-6">
+                <div class="grid grid-cols-2 gap-4 border-b border-gray-100 pb-6">
+                    <div>
+                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Rental Fee</p>
+                        <p class="text-lg font-bold text-gray-700">RM {{ number_format($booking->total_rental_fee, 2) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Security Deposit</p>
+                        <p class="text-lg font-bold text-gray-700">RM {{ number_format($booking->deposit_amount, 2) }}</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Total Amount Paid</p>
+                    <p class="text-4xl font-black text-[#cb5c55]">RM {{ number_format($booking->total_rental_fee + $booking->deposit_amount, 2) }}</p>
+                </div>
             </div>
 
             <div class="mt-auto space-y-4">
