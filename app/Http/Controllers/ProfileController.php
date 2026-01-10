@@ -24,7 +24,7 @@ class ProfileController extends Controller
 
 
         $bookings = Booking::where('user_id', $user->id)
-            ->with(['vehicle', 'inspections'])
+            ->with(['vehicle', 'inspections', 'fines'])
             ->orderBy('created_at', 'desc') // 最新下的单排在最前面
             ->get();
 
