@@ -50,6 +50,13 @@ class BookingController extends Controller
         
         $myVouchers = Auth::user()->userVouchers()
             ->whereNull('used_at') 
+            ->whereHas('voucher', function($q) {
+                $q->where('is_active', true)
+                  ->where(function($q2) {
+                      $q2->whereNull('expires_at')
+                         ->orWhere('expires_at', '>', now());
+                  });
+            })
             ->with('voucher') 
             ->get();
 
@@ -223,22 +230,44 @@ class BookingController extends Controller
         $discount = 0;
         $voucherId = null;
         $userVoucher = null;
+        $manualVoucher = null;
 
         if ($request->filled('selected_voucher_id')) {
             $userVoucher = UserVoucher::with('voucher')->find($request->selected_voucher_id);
             // Fix: Check against matric_staff_id
             if ($userVoucher && $userVoucher->voucher && $userVoucher->user_id == Auth::user()->matric_staff_id && $userVoucher->voucher->is_active) {
-                $v_master = $userVoucher->voucher;
-                if ($v_master->type === 'percent') $discount = ($subtotal * $v_master->value) / 100;
-                elseif ($v_master->type === 'fixed') $discount = $v_master->value;
-                elseif ($v_master->type === 'free_hours') {
-                    $applicable = min($hours, (int)$v_master->value);
-                    $discount = $applicable * $vehicle->price_per_hour;
+                // Check if expired
+                if ($userVoucher->voucher->expires_at && $userVoucher->voucher->expires_at->isPast()) {
+                    // Voucher expired, ignore
+                } else {
+                    $v_master = $userVoucher->voucher;
+                    if ($v_master->type === 'percent') $discount = ($subtotal * $v_master->value) / 100;
+                    elseif ($v_master->type === 'fixed') $discount = $v_master->value;
+                    elseif ($v_master->type === 'free_hours') {
+                        $applicable = min($hours, (int)$v_master->value);
+                        $discount = $applicable * $vehicle->price_per_hour;
+                    }
+                    $voucherId = $userVoucher->voucher_id;
                 }
-                $voucherId = $userVoucher->voucher_id;
             }
         } elseif ($request->filled('manual_code')) {
-             if (strtoupper($request->manual_code) === 'WELCOME10') $discount = 10;
+             $code = strtoupper($request->manual_code);
+             $v_master = \App\Models\Voucher::where('code', $code)->where('is_active', true)->first();
+             if ($v_master && (!$v_master->expires_at || $v_master->expires_at->isFuture())) {
+                 // Check uses_remaining for manual code
+                 if ($v_master->uses_remaining !== null && $v_master->uses_remaining <= 0) {
+                     // No uses left, don't apply
+                 } else {
+                     if ($v_master->type === 'percent') $discount = ($subtotal * $v_master->value) / 100;
+                     elseif ($v_master->type === 'fixed') $discount = $v_master->value;
+                     elseif ($v_master->type === 'free_hours') {
+                        $applicable = min($hours, (int)$v_master->value);
+                        $discount = $applicable * $vehicle->price_per_hour;
+                     }
+                     $manualVoucher = $v_master; // Save for decrementing later
+                     $voucherId = $v_master->id; // SAVE THIS SO BOOKING HAS IT
+                 }
+             }
         }
 
         $final_total = max(0, $subtotal + $deliveryFee - $discount);
@@ -306,6 +335,21 @@ class BookingController extends Controller
             if ($userVoucher) {
                 $userVoucher->used_at = now();
                 $userVoucher->save();
+            } elseif ($manualVoucher) {
+                // Record manual use in history
+                \App\Models\UserVoucher::updateOrCreate(
+                    [
+                        'user_id' => Auth::user()->matric_staff_id,
+                        'voucher_id' => $manualVoucher->id,
+                        'used_at' => null // Find unused one first or create new
+                    ],
+                    ['used_at' => now()]
+                );
+                
+                if ($manualVoucher->uses_remaining !== null) {
+                    $manualVoucher->decrement('uses_remaining');
+                    \Log::info('Manual voucher decremented', ['code' => $manualVoucher->code, 'remaining' => $manualVoucher->uses_remaining]);
+                }
             }
 
             // 跳转
@@ -417,7 +461,7 @@ class BookingController extends Controller
         $discount = 0;
         if ($booking->voucher_id) {
             $userVoucher = \App\Models\UserVoucher::with('voucher')->find($booking->voucher_id); 
-            if ($userVoucher && $userVoucher->voucher) {
+            if ($userVoucher && $userVoucher->voucher && (!$userVoucher->voucher->expires_at || $userVoucher->voucher->expires_at->isFuture())) {
                  $v_master = $userVoucher->voucher;
                  if ($v_master->type === 'percent') $discount = ($subtotal * $v_master->value) / 100;
                  elseif ($v_master->type === 'fixed') $discount = $v_master->value;
@@ -426,8 +470,6 @@ class BookingController extends Controller
                     $discount = $applicable * $vehicle->price_per_hour;
                  }
             }
-        } elseif ($booking->promo_code === 'WELCOME10') {
-            $discount = 10;
         }
 
         $final_total = max(0, $subtotal + $deliveryFee - $discount);
@@ -546,8 +588,25 @@ class BookingController extends Controller
                         $discount = $applicable * $vehicle->price_per_hour;
                      }
                 }
-            } elseif ($request->filled('manual_code') && strtoupper($request->manual_code) === 'WELCOME10') {
-                 $discount = 10;
+            } elseif ($request->filled('manual_code')) {
+                $code = strtoupper($request->manual_code);
+                $v_master = \App\Models\Voucher::where('code', $code)->where('is_active', true)->first();
+                if (!$v_master) {
+                    return response()->json(['error' => 'Invalid or inactive promo code.'], 400);
+                }
+                if ($v_master->expires_at && $v_master->expires_at->isPast()) {
+                    return response()->json(['error' => 'This promo code has expired.'], 400);
+                }
+                if ($v_master->uses_remaining !== null && $v_master->uses_remaining <= 0) {
+                    return response()->json(['error' => 'This promo code has reached its usage limit.'], 400);
+                }
+                
+                if ($v_master->type === 'percent') $discount = ($subtotal * $v_master->value) / 100;
+                elseif ($v_master->type === 'fixed') $discount = $v_master->value;
+                elseif ($v_master->type === 'free_hours') {
+                   $applicable = min($hours, (int)$v_master->value);
+                   $discount = $applicable * $vehicle->price_per_hour;
+                }
             }
 
             $total = max(0, $subtotal + $deliveryFee - $discount);
@@ -569,7 +628,8 @@ class BookingController extends Controller
                 'grand_total' => number_format($grandTotal, 2),
                 'stamps' => $stamps,
                 'tier_name' => $tierName,
-                'rate_applied' => $rateApplied
+                'rate_applied' => $rateApplied,
+                'voucher_label' => ($voucherId || $request->filled('manual_code')) ? ($v_master->label ?? null) : null
             ]);
 
         } catch (\Exception $e) {
