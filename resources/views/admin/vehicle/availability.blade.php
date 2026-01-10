@@ -34,8 +34,11 @@
                     <input type="text" name="plate_number" value="{{ request('plate_number') }}" placeholder="e.g. ABC 1234" class="px-3 py-2 border border-gray-200 rounded-lg text-sm w-40 focus:ring-2 focus:ring-[#cb5c55] focus:border-[#cb5c55] outline-none">
                 </div>
 
-                <div class="flex-1 text-right">
-                    <button type="submit" class="px-5 py-2 bg-[#cb5c55] text-white font-bold rounded-lg shadow-sm hover:opacity-90 transition flex items-center gap-2 ml-auto">
+                <div class="flex-1 flex items-end justify-end gap-2">
+                    <a href="{{ route('admin.vehicle.availability') }}" class="px-5 py-2 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition">
+                        Reset
+                    </a>
+                    <button type="submit" class="px-5 py-2 bg-[#cb5c55] text-white font-bold rounded-lg shadow-sm hover:opacity-90 transition flex items-center gap-2">
                         <i class="ri-filter-3-line"></i> Apply Filters
                     </button>
                 </div>
@@ -47,6 +50,7 @@
             <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-green-500"></div> Approved</div>
             <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-blue-500"></div> Rented</div>
             <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-orange-400"></div> Pending Verification</div>
+            <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-purple-500"></div> Past (Completed)</div>
         </div>
 
         <!-- Timeline Gantt Chart -->
@@ -100,36 +104,42 @@
                                 $pickup = \Carbon\Carbon::parse($booking->pickup_date_time);
                                 $return = \Carbon\Carbon::parse($booking->return_date_time);
                                 
-                                $totalDaysView = $startDate->diffInDays($endDate) + 1;
-                                
-                                $visibleStart = $pickup->lt($startDate) ? $startDate : $pickup;
-                                $visibleEnd = $return->gt($endDate) ? $endDate->copy()->endOfDay() : $return;
+                                // View Boundaries
+                                $viewStart = $startDate->copy()->startOfDay();
+                                $viewEnd = $endDate->copy()->endOfDay();
 
-                                if ($visibleEnd->lt($visibleStart)) continue; 
+                                // Clamp booking to view range
+                                $barStart = $pickup->lt($viewStart) ? $viewStart->copy() : $pickup->copy();
+                                $barEnd = $return->gt($viewEnd) ? $viewEnd->copy() : $return->copy();
 
-                                $dayPercentage = 100 / $totalDaysView;
+                                if ($barEnd->lte($barStart)) continue; 
 
-                                $startOffsetDays = $startDate->floatDiffInDays($visibleStart);
-                                $durationDays = $visibleStart->floatDiffInDays($visibleEnd);
+                                // Calculation
+                                $totalMins = max(1, $viewStart->diffInMinutes($viewEnd));
+                                $offsetMins = $viewStart->diffInMinutes($barStart); // Uses absolute diff
+                                $durationMins = $barStart->diffInMinutes($barEnd);
 
-                                $left = $startOffsetDays * $dayPercentage;
-                                $width = $durationDays * $dayPercentage;
+                                $leftPercent = ($offsetMins / $totalMins) * 100;
+                                $widthPercent = ($durationMins / $totalMins) * 100;
 
                                 $color = 'bg-gray-500'; 
-                                if($booking->status == 'Approved') $color = 'bg-green-500/90 hover:bg-green-500';
-                                if($booking->status == 'Rented') $color = 'bg-blue-500/90 hover:bg-blue-500';
-                                if($booking->status == 'Waiting for Verification') $color = 'bg-orange-400/90 hover:bg-orange-400';
+                                $status = strtolower($booking->status);
+                                if($status == 'approved') $color = 'bg-green-500/90 hover:bg-green-600';
+                                if($status == 'rented') $color = 'bg-blue-500/90 hover:bg-blue-600';
+                                if(in_array($status, ['waiting for verification', 'verify receipt', 'pending'])) $color = 'bg-orange-400/90 hover:bg-orange-500';
+                                if($status == 'completed') $color = 'bg-purple-500/90 hover:bg-purple-600';
                             @endphp
 
                             <!-- Bar -->
-                            <div class="absolute top-1/2 -translate-y-1/2 h-12 rounded-lg shadow-md {{ $color }} z-0 text-white text-[10px] flex items-center px-3 overflow-hidden whitespace-nowrap transition cursor-pointer border border-white/20 transform hover:scale-[1.01] hover:z-20 group/bar"
-                                 style="left: {{ $left }}%; width: {{ max($width, 0.5) }}%; min-width: 8px;"
-                                 title="{{ $booking->customer_name }} ({{ $pickup->format('d M H:i') }} - {{ $return->format('d M H:i') }})">
+                            <a href="{{ route('admin.bookings.show_detail', $booking->id) }}" 
+                               class="absolute top-1/2 -translate-y-1/2 h-12 rounded-lg shadow-lg {{ $color }} z-[5] text-white text-[10px] flex items-center px-3 overflow-hidden whitespace-nowrap transition cursor-pointer border border-white/40 transform hover:scale-[1.02] hover:z-[20] group/bar"
+                               style="left: {{ number_format($leftPercent, 4, '.', '') }}%; width: {{ number_format(max($widthPercent, 0.5), 4, '.', '') }}%; min-width: 8px;"
+                               title="{{ $booking->customer_name }} ({{ $pickup->format('d M H:i') }} - {{ $return->format('d M H:i') }})">
                                 <div class="flex flex-col leading-tight">
-                                    <span class="font-black uppercase tracking-wide truncate drop-shadow-md text-xs">{{ $booking->customer_name }}</span>
+                                    <span class="font-black uppercase tracking-wide truncate drop-shadow-md text-xs">{{ $booking->customer_name ?? 'Guest' }}</span>
                                     <span class="text-[9px] opacity-90 truncate">{{ $pickup->format('H:i') }} - {{ $return->format('H:i') }}</span>
                                 </div>
-                            </div>
+                            </a>
                         @endforeach
                     </div>
                 </div>
