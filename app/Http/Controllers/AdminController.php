@@ -29,6 +29,15 @@ class AdminController extends Controller
 
         $pendingCount = Booking::where('status', 'Waiting for Verification')->count();
         $totalCars = Vehicle::count();
+        
+        // Dynamic Available Cars: Status is 'Available' AND no active 'Approved'/'Rented' booking right now
+        $availableCars = Vehicle::where('status', 'Available')
+            ->whereDoesntHave('bookings', function($q) {
+                $q->whereIn('status', ['Approved', 'Rented'])
+                  ->where('pickup_date_time', '<=', now())
+                  ->where('return_date_time', '>=', now());
+            })->count();
+
         $totalCustomers = User::where('role', 'customer')->count();
 
         $roadTaxAlerts = Vehicle::where('road_tax_expiry', '<=', Carbon::now()->addDays(30))
@@ -59,7 +68,7 @@ class AdminController extends Controller
 
         return view('admin.dashboard', compact(
             'totalRevenue', 'todayRevenue', 'pendingCount', 
-            'totalCars', 'totalCustomers', 'bookings',
+            'totalCars', 'availableCars', 'totalCustomers', 'bookings',
             'roadTaxAlerts', 'insuranceAlerts',
             'facultyLabels', 'facultyCounts', 'collegeLabels', 'collegeCounts'
         ));
@@ -229,6 +238,7 @@ class AdminController extends Controller
             'payment_verified' => true,
             'processed_by' => Auth::id()
         ]);
+
         if($booking->payment) $booking->payment->update(['status' => 'Verified']);
 
         // Award Stamp Logic
@@ -344,6 +354,11 @@ class AdminController extends Controller
             $booking->status = 'Completed';
             $booking->processed_by = Auth::id(); 
             $booking->save();
+
+            // Update Vehicle Status to Available again
+            if ($booking->vehicle) {
+                $booking->vehicle->update(['status' => 'Available']);
+            }
             
             return redirect()->back()->with('success', 'Vehicle marked as returned!');
         } catch (\Exception $e) {
