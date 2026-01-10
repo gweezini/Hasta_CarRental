@@ -339,7 +339,14 @@
                                                     @endif
 
                                                     @if($canCancel)
-                                                        <form action="{{ route('booking.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                                        @php
+                                                            $duration = ceil(\Carbon\Carbon::parse($booking->pickup_date_time)->floatDiffInHours(\Carbon\Carbon::parse($booking->return_date_time)));
+                                                            $isStampBooking = ($booking->status === 'Approved' && $duration >= 3);
+                                                            $confirmMsg = $isStampBooking 
+                                                                ? "Are you sure you want to cancel? This booking has earned stamps, and cancelling it will REVOKE those stamps and any auto-claimed rewards."
+                                                                : "Are you sure you want to cancel this booking?";
+                                                        @endphp
+                                                        <form action="{{ route('booking.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('{{ $confirmMsg }}');">
                                                             @csrf @method('DELETE')
                                                             <button type="submit" class="text-xs text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-lg transition font-bold flex items-center">
                                                                 <i class="ri-delete-bin-line mr-1"></i> Cancel
