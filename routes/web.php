@@ -11,6 +11,7 @@ use App\Http\Controllers\CustomerController;
 use Illuminate\Support\Facades\Auth; 
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\UserVoucherController;
+use App\Http\Controllers\FineController;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,7 +94,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Fines Management
     Route::post('/bookings/{id}/fine', [AdminController::class, 'storeFine'])->name('admin.bookings.fine.store');
     Route::post('/bookings/{id}/return-deposit', [AdminController::class, 'returnDeposit'])->name('admin.bookings.return_deposit');
-    Route::post('/fines/{id}/pay', [AdminController::class, 'payFine'])->name('admin.fines.pay');
+    Route::post('/fines/{id}/verify', [FineController::class, 'verify'])->name('admin.fines.verify');
+    Route::post('/fines/{id}/pay', [FineController::class, 'pay'])->name('admin.fines.pay');
     Route::delete('/fines/{id}', [AdminController::class, 'deleteFine'])->name('admin.fines.destroy');
     
     // Notification Center
@@ -142,6 +144,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-vouchers', [UserVoucherController::class, 'index'])->name('vouchers.index');
     Route::post('/voucher/redeem-code', [UserVoucherController::class, 'redeemCode'])->name('vouchers.redeem.code');
     Route::post('/voucher/redeem-loyalty', [UserVoucherController::class, 'redeemLoyalty'])->name('vouchers.redeem.loyalty');
+    
+    Route::post('/fines/{id}/receipt', [FineController::class, 'uploadReceipt'])->name('fines.upload');
 
     Route::get('/booking/{booking}/inspect', [App\Http\Controllers\InspectionController::class, 'create'])->name('inspections.create');
     Route::post('/booking/{booking}/inspect', [App\Http\Controllers\InspectionController::class, 'store'])->name('inspections.store');
