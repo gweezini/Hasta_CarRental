@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NewBookingNotification;
 use App\Models\User;
+use App\Models\Voucher;
+use App\Mail\BookingCancelledNotification;
 
 class BookingController extends Controller
 {
@@ -540,11 +542,89 @@ class BookingController extends Controller
              return redirect()->back()->with('error', 'Bookings can only be cancelled 24 hours in advance.');
         }
 
+        // 1. Voucher Recovery
+        if ($booking->voucher_id) {
+            $voucher = Voucher::find($booking->voucher_id);
+            if ($voucher) {
+                if ($voucher->uses_remaining !== null) {
+                    $voucher->increment('uses_remaining');
+                }
+                
+                // Find the used record for this user
+                $uv = UserVoucher::where('user_id', $booking->user->matric_staff_id)
+                    ->where('voucher_id', $voucher->id)
+                    ->whereNotNull('used_at')
+                    ->orderBy('used_at', 'desc')
+                    ->first();
+                if ($uv) {
+                    $uv->update(['used_at' => null]);
+                }
+            }
+        }
+
+        // 2. Stamp/Reward Revocation
+        if ($booking->status === 'Approved') {
+            $start = Carbon::parse($booking->pickup_date_time);
+            $end = Carbon::parse($booking->return_date_time);
+            $hours = ceil($start->floatDiffInHours($end));
+
+            if ($hours >= 3 && $booking->user) {
+                $card = LoyaltyCard::where('user_id', $booking->user_id)->first();
+                if ($card) {
+                    $oldStamps = $card->stamps;
+                    
+                    // Decrement stamps and unread_stamps
+                    $card->decrement('stamps');
+                    $card->decrement('unread_stamps');
+                    
+                    // Cap at 0
+                    if ($card->stamps < 0) $card->stamps = 0;
+                    if ($card->unread_stamps < 0) $card->unread_stamps = 0;
+                    $card->save();
+
+                    // Milestones revocation
+                    $tiers = [
+                        3 => 'LOYALTY_T3',
+                        6 => 'LOYALTY_T6',
+                        9 => 'LOYALTY_T9',
+                        12 => 'LOYALTY_T12',
+                        15 => 'LOYALTY_T15',
+                    ];
+
+                    if (isset($tiers[$oldStamps])) {
+                        $code = $tiers[$oldStamps];
+                        $v_milestone = Voucher::where('code', $code)->first();
+                        if ($v_milestone) {
+                            // Find the voucher that was just awarded (unused)
+                            $uv_milestone = UserVoucher::where('user_id', $booking->user->matric_staff_id)
+                                ->where('voucher_id', $v_milestone->id)
+                                ->whereNull('used_at')
+                                ->orderBy('created_at', 'desc')
+                                ->first();
+                            if ($uv_milestone) {
+                                $uv_milestone->delete();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // Update status to Cancelled instead of deleting record
         $booking->status = 'Cancelled';
         $booking->save();
 
-        return redirect()->route('profile.edit')->with('success', 'Booking cancelled successfully. If you have made a payment, please contact admin for refund.');
+        // Notify Admins
+        try {
+            $admins = User::whereIn('role', ['admin', 'topmanagement'])->get();
+            if($admins->count() > 0) {
+                Mail::to($admins)->send(new BookingCancelledNotification($booking));
+            }
+        } catch (\Exception $e) {
+            Log::error("Failed to send cancellation notification: " . $e->getMessage());
+        }
+
+        return redirect()->route('profile.edit')->with('success', 'Booking cancelled successfully. Used vouchers have been returned and stamps adjusted.');
     }
 
     // 6. AJAX Price Calculation
