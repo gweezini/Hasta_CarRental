@@ -50,7 +50,7 @@ class SearchController extends Controller
             foreach ($allVehicles as $vehicle) {
                 // Check conflicts
                 $hasConflict = $vehicle->bookings()
-                    ->whereIn('status', ['Pending', 'Waiting for Verification', 'Approved'])
+                    ->whereIn('status', ['Pending', 'Waiting for Verification', 'Verify Receipt', 'Approved', 'Rented'])
                     ->where(function ($q) use ($start, $end) {
                         // Overlap logic: (StartA < EndB) and (EndA > StartB)
                         $q->where('pickup_date_time', '<', $end)
