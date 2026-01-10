@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('account_number')->nullable();
             $table->decimal('salary', 10, 2)->default(0); 
             $table->string('staff_id')->nullable(); 
+            $table->string('account_holder')->nullable()->after('account_number');
         });
     }
 
