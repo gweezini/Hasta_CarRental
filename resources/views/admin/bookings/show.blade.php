@@ -36,9 +36,14 @@
                         default => 'bg-blue-100 text-blue-700 border-blue-200'
                     };
                 @endphp
-                <span class="px-4 py-2 rounded-full text-xs font-black border {{ $style }} uppercase tracking-widest shadow-sm">
-                    {{ $booking->status }}
-                </span>
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('admin.bookings.edit', $booking->id) }}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-full text-xs font-black uppercase tracking-widest border border-gray-200 transition flex items-center gap-2">
+                        <i class="ri-edit-line"></i> Modify
+                    </a>
+                    <span class="px-4 py-2 rounded-full text-xs font-black border {{ $style }} uppercase tracking-widest shadow-sm">
+                        {{ $booking->status }}
+                    </span>
+                </div>
             </div>
 
             <div class="bg-gray-50 p-6 rounded-2xl flex gap-6 items-center border border-gray-200 mb-8">
