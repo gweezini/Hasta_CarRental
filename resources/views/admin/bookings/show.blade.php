@@ -243,34 +243,48 @@
                                     <td class="px-6 py-4 font-mono text-gray-600">RM {{ number_format($fine->amount, 2) }}</td>
                                     <td class="px-6 py-4">
                                         @if($fine->status == 'Paid')
-                                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-200">
-                                                Paid
+                                            <span class="inline-flex items-center gap-2 bg-green-100 text-green-700 px-5 py-2 rounded-xl text-sm font-black uppercase tracking-widest border border-green-200 shadow-sm">
+                                                <i class="ri-checkbox-circle-fill text-lg"></i> PAID
                                             </span>
-                                            <div class="text-[10px] text-gray-400 mt-1">
-                                                {{ $fine->paid_at ? \Carbon\Carbon::parse($fine->paid_at)->format('d M Y') : '' }}
+                                            <div class="text-xs text-green-600 mt-2 font-bold pl-1">
+                                                Verified: {{ $fine->paid_at ? \Carbon\Carbon::parse($fine->paid_at)->format('d M Y, h:i A') : '' }}
                                             </div>
+                                        @elseif($fine->status == 'Pending Verification')
+                                            <span class="inline-flex items-center gap-1.5 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-yellow-200 animate-pulse">
+                                                <i class="ri-loader-4-line animate-spin"></i> Verifying
+                                            </span>
                                         @else
-                                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-200">
-                                                Unpaid
+                                            <span class="inline-flex items-center gap-1.5 bg-red-100 text-red-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-200">
+                                                <i class="ri-close-circle-fill"></i> Unpaid
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 text-center flex items-center justify-center gap-2">
-                                        @if($fine->status == 'Unpaid')
-                                            <form action="{{ route('admin.fines.pay', $fine->id) }}" method="POST" onsubmit="return confirm('Confirm fine collection?')">
-                                                @csrf
-                                                <button type="submit" class="bg-green-500 text-white text-[10px] font-black px-4 py-2 rounded-lg shadow hover:bg-green-600 transition uppercase tracking-widest transform hover:scale-105">
-                                                    Mark Paid
+                                    <td class="px-6 py-4 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            @if($fine->receipt_path)
+                                                <button onclick="openFullImage('{{ asset('storage/' . $fine->receipt_path) }}')" 
+                                                        class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 p-2 rounded-lg transition" 
+                                                        title="View Payment Receipt">
+                                                    <i class="ri-receipt-line text-lg"></i>
                                                 </button>
-                                            </form>
-                                        @endif
-                                        <form action="{{ route('admin.fines.destroy', $fine->id) }}" method="POST" onsubmit="return confirm('Delete this fine record?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="bg-white text-gray-400 border border-gray-200 hover:text-red-500 hover:border-red-200 hover:bg-red-50 font-bold text-[10px] px-3 py-2 rounded-lg transition uppercase shadow-sm flex items-center justify-center" title="Delete record">
-                                                <i class="ri-delete-bin-line text-sm"></i>
-                                            </button>
-                                        </form>
+                                            @endif
+    
+                                            @if($fine->status == 'Pending Verification')
+                                                <form action="{{ route('admin.fines.verify', $fine->id) }}" method="POST" onsubmit="return confirm('Confirm payment verification?')">
+                                                    @csrf
+                                                    <button type="submit" class="bg-green-500 text-white text-[10px] font-black px-4 py-2.5 rounded-lg shadow hover:bg-green-600 transition uppercase tracking-widest flex items-center gap-2 transform hover:scale-105">
+                                                        <i class="ri-check-line text-sm"></i> Verify
+                                                    </button>
+                                                </form>
+                                            @elseif($fine->status == 'Unpaid')
+                                                <form action="{{ route('admin.fines.verify', $fine->id) }}" method="POST" onsubmit="return confirm('Mark as Paid manually?')">
+                                                    @csrf
+                                                    <button type="submit" class="bg-gray-100 text-gray-600 text-[10px] font-bold px-3 py-2 rounded-lg hover:bg-green-500 hover:text-white transition uppercase tracking-widest border border-gray-200">
+                                                        Mark Paid
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -423,12 +437,18 @@
 </div>
 
 <script>
-function openFullImage() {
-    const receiptImg = document.getElementById('receiptImg');
-    if (!receiptImg) return;
+function openFullImage(src = null) {
     const overlay = document.getElementById('imageOverlay');
     const fullImg = document.getElementById('fullImage');
-    fullImg.src = receiptImg.src;
+    
+    if (src) {
+        fullImg.src = src;
+    } else {
+        const receiptImg = document.getElementById('receiptImg');
+        if (!receiptImg) return;
+        fullImg.src = receiptImg.src;
+    }
+
     overlay.classList.remove('hidden');
     setTimeout(() => {
         fullImg.classList.remove('scale-95');
