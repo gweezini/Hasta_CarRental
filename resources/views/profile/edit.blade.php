@@ -282,19 +282,20 @@
                                         @if($booking->fines->count() > 0)
                                             <div class="mb-3 space-y-2 border-t border-dashed border-red-200 pt-3">
                                                 @foreach($booking->fines as $fine)
-                                                     <div class="flex items-center justify-between bg-red-50 p-4 rounded-xl border border-red-100 shadow-sm">
-                                                         <div>
-                                                             <p class="font-bold text-red-900 text-sm flex items-center gap-2 mb-1">
-                                                                 <i class="ri-alarm-warning-fill text-red-600 text-lg"></i> {{ $fine->reason }}
-                                                             </p>
-                                                             <p class="text-red-700 font-black text-xl tracking-tight">
+                                                     <div class="flex items-center justify-between bg-red-50 p-2.5 rounded-lg border border-red-100 shadow-sm">
+                                                         <div class="flex items-center gap-3">
+                                                             <div class="flex items-center gap-1.5 text-red-700 border-r border-red-200 pr-3">
+                                                                 <i class="ri-alarm-warning-fill text-lg"></i>
+                                                                 <span class="text-xs font-bold uppercase tracking-wide">{{ $fine->reason }}</span>
+                                                             </div>
+                                                             <p class="text-red-700 font-black text-sm">
                                                                  RM {{ number_format($fine->amount, 2) }}
                                                              </p>
                                                          </div>
                                                          
                                                          @if($fine->status == 'Unpaid')
                                                              <button onclick="openFineModal('{{ route('fines.upload', $fine->id) }}', '{{ addslashes($fine->reason) }}', '{{ number_format($fine->amount, 2) }}')" 
-                                                                     class="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow hover:bg-red-700 transition flex items-center gap-2 transform hover:scale-105">
+                                                                     class="bg-red-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow hover:bg-red-700 transition flex items-center gap-1 transform hover:scale-105">
                                                                  <i class="ri-secure-payment-line"></i> PAY NOW
                                                              </button>
                                                          @elseif($fine->status == 'Pending Verification')
@@ -302,9 +303,17 @@
                                                                  Verifying
                                                              </span>
                                                          @else
-                                                             <span class="bg-green-100 text-green-700 text-[10px] font-bold px-3 py-1 rounded border border-green-200 uppercase tracking-widest">
-                                                                 Paid
-                                                             </span>
+                                                             <div class="flex items-center gap-2">
+                                                                 <span class="bg-green-100 text-green-700 text-[10px] font-bold px-3 py-1 rounded border border-green-200 uppercase tracking-widest">
+                                                                     Paid
+                                                                 </span>
+                                                                 @if($fine->receipt_path)
+                                                                     <a href="{{ Storage::url($fine->receipt_path) }}" target="_blank" 
+                                                                        class="inline-flex items-center gap-2 bg-white text-green-700 text-sm font-bold px-4 py-2 rounded-lg border border-green-200 shadow-sm hover:bg-green-100 transition">
+                                                                         <i class="ri-receipt-line text-lg"></i> View Receipt
+                                                                     </a>
+                                                                 @endif
+                                                             </div>
                                                          @endif
                                                      </div>
                                                 @endforeach
@@ -444,39 +453,45 @@
                                             </div>
                                         @endif
 
-                                        <div class="mt-3 flex justify-end flex-wrap gap-2">
+                                        <div class="mt-3 flex flex-col items-end gap-2">
                                             
                                             {{-- Fines Display for Past --}}
-                                            @if($booking->fines->count() > 0)
-                                                <div class="w-full mb-3 space-y-3 border-t border-dashed border-red-200 pt-3">
-                                                    @foreach($booking->fines as $fine)
-                                                         <div class="flex items-center justify-between bg-red-50 p-4 rounded-xl border border-red-100 shadow-sm">
-                                                             <div>
-                                                                 <p class="font-bold text-red-900 text-sm flex items-center gap-2 mb-1">
-                                                                     <i class="ri-alarm-warning-fill text-red-600 text-lg"></i> {{ $fine->reason }}
-                                                                 </p>
-                                                                 <p class="text-red-700 font-black text-xl tracking-tight">
-                                                                     RM {{ number_format($fine->amount, 2) }}
-                                                                 </p>
-                                                             </div>
-                                                             
-                                                             @if($fine->status == 'Unpaid')
-                                                                 <button onclick="openFineModal('{{ route('fines.upload', $fine->id) }}', '{{ addslashes($fine->reason) }}', '{{ number_format($fine->amount, 2) }}')" 
-                                                                         class="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow hover:bg-red-700 transition flex items-center gap-2 transform hover:scale-105">
-                                                                     <i class="ri-secure-payment-line"></i> PAY NOW
-                                                                 </button>
-                                                             @elseif($fine->status == 'Pending Verification')
-                                                                 <span class="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-3 py-1 rounded border border-yellow-200 uppercase tracking-widest">
-                                                                     Verifying
-                                                                 </span>
-                                                             @else
+                                             @if($booking->fines->count() > 0)
+                                                @foreach($booking->fines as $fine)
+                                                     <div class="bg-red-50 border border-red-100 rounded-lg p-2.5 inline-flex items-center gap-3 shadow-sm">
+                                                         <div class="flex items-center gap-1.5 text-red-700 border-r border-red-200 pr-3">
+                                                             <i class="ri-alarm-warning-fill text-lg"></i>
+                                                             <span class="text-xs font-bold uppercase tracking-wide">{{ $fine->reason }}</span>
+                                                         </div>
+                                                         
+                                                         <p class="text-red-700 font-black text-sm">
+                                                             RM {{ number_format($fine->amount, 2) }}
+                                                         </p>
+                                                         
+                                                         @if($fine->status == 'Unpaid')
+                                                             <button onclick="openFineModal('{{ route('fines.upload', $fine->id) }}', '{{ addslashes($fine->reason) }}', '{{ number_format($fine->amount, 2) }}')" 
+                                                                     class="bg-red-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow hover:bg-red-700 transition flex items-center gap-1 transform hover:scale-105 ml-2">
+                                                                 <i class="ri-secure-payment-line"></i> PAY NOW
+                                                             </button>
+                                                         @elseif($fine->status == 'Pending Verification')
+                                                             <span class="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-3 py-1 rounded border border-yellow-200 uppercase tracking-widest ml-2">
+                                                                 Verifying
+                                                             </span>
+                                                         @else
+                                                             <div class="flex items-center gap-2 ml-2">
                                                                  <span class="bg-green-100 text-green-700 text-[10px] font-bold px-3 py-1 rounded border border-green-200 uppercase tracking-widest">
                                                                      Paid
                                                                  </span>
-                                                             @endif
-                                                         </div>
-                                                    @endforeach
-                                                </div>
+                                                                 @if($fine->receipt_path)
+                                                                     <a href="{{ Storage::url($fine->receipt_path) }}" target="_blank" 
+                                                                        class="inline-flex items-center gap-2 bg-white text-green-700 text-sm font-bold px-4 py-2 rounded-lg border border-green-200 shadow-sm hover:bg-green-100 transition">
+                                                                         <i class="ri-receipt-line text-lg"></i> View Receipt
+                                                                     </a>
+                                                                 @endif
+                                                             </div>
+                                                         @endif
+                                                     </div>
+                                                @endforeach
                                             @endif
                                             @if($booking->deposit_status === 'Returned')
                                                 <div class="bg-green-50 border border-green-100 rounded-lg p-2.5 inline-flex items-center gap-3">
