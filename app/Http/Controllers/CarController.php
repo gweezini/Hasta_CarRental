@@ -159,8 +159,8 @@ class CarController extends Controller
 
     public function availability(Request $request)
     {
-        $startDate = $request->input('start_date') ? \Carbon\Carbon::parse($request->input('start_date')) : now()->startOfDay();
-        $endDate = $request->input('end_date') ? \Carbon\Carbon::parse($request->input('end_date')) : now()->addDays(6)->endOfDay();
+        $startDate = $request->filled('start_date') ? \Carbon\Carbon::parse($request->input('start_date'))->startOfDay() : now()->subDays(3)->startOfDay();
+        $endDate = $request->filled('end_date') ? \Carbon\Carbon::parse($request->input('end_date'))->endOfDay() : now()->addDays(6)->endOfDay();
         $typeId = $request->input('type_id');
 
         $query = Vehicle::query();
@@ -175,15 +175,9 @@ class CarController extends Controller
 
         // Eager load bookings that overlap with the selected range
         $query->with(['bookings' => function($q) use ($startDate, $endDate) {
-            $q->whereIn('status', ['Approved', 'Rented', 'Waiting for Verification'])
-              ->where(function($query) use ($startDate, $endDate) {
-                  $query->whereBetween('pickup_date_time', [$startDate, $endDate])
-                        ->orWhereBetween('return_date_time', [$startDate, $endDate])
-                        ->orWhere(function($sub) use ($startDate, $endDate) {
-                            $sub->where('pickup_date_time', '<', $startDate)
-                                ->where('return_date_time', '>', $endDate);
-                        });
-              });
+            $q->whereIn('status', ['Approved', 'Rented', 'Waiting for Verification', 'Completed'])
+              ->where('pickup_date_time', '<=', $endDate)
+              ->where('return_date_time', '>=', $startDate);
         }]);
 
         $vehicles = $query->get();
