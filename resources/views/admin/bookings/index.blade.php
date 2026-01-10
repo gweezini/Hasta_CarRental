@@ -9,9 +9,23 @@
                 <i class="ri-history-line text-gray-400"></i> Full Booking History
             </h3>
             
+            <a href="{{ route('admin.vehicle.availability') }}" class="text-xs font-bold text-blue-600 bg-white hover:bg-blue-50 border border-blue-200 px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm">
+                <i class="ri-calendar-check-line text-lg"></i> Check Availability
+            </a>
+        </div>
+            
         <div class="bg-white border-b border-gray-200 px-8 pt-6">
             @php
-                 $pendingRefunds = \App\Models\Booking::where(function($q) { $q->whereNull('deposit_status')->orWhere('deposit_status', '!=', 'Returned'); })->where('status', '!=', 'Cancelled')->count();
+                 $pendingRefunds = \App\Models\Booking::where(function($q) {
+                     $q->where('status', 'Completed')
+                       ->orWhere(function($sq) {
+                           $sq->where('status', 'Cancelled')
+                              ->where('payment_verified', true);
+                       });
+                 })->where(function($q) {
+                     $q->whereNull('deposit_status')
+                       ->orWhere('deposit_status', '!=', 'Returned');
+                 })->count();
                  $pendingVerifications = \App\Models\Fine::where('status', 'Pending Verification')->count();
             @endphp
 
@@ -40,46 +54,90 @@
             </nav>
         </div>
 
-        {{-- Level 2: Contextual Filters --}}
-        @if(request('deposit_status') || request('penalty_status'))
-        <div class="bg-gray-50 border-b border-gray-200 px-8 py-3 flex items-center gap-4">
-            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status:</span>
+        {{-- Level 2: Smart Filter Toolbar --}}
+        <div class="bg-white border-b border-gray-100 px-8 py-4 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
+            
+            {{-- Left: Status Tabs (Pills) --}}
+            <div class="flex flex-wrap items-center gap-2">
+                @if(request('deposit_status') || request('penalty_status'))
+                    {{-- Deposit Filters --}}
+                    @if(request('deposit_status'))
+                        <div class="flex items-center bg-gray-100 rounded-lg p-1">
+                            <a href="{{ route('admin.bookings.index', ['deposit_status' => 'Pending']) }}" 
+                               class="text-[11px] uppercase font-bold px-3 py-1.5 rounded-md transition {{ request('deposit_status') == 'Pending' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
+                                Pending
+                            </a>
+                            <a href="{{ route('admin.bookings.index', ['deposit_status' => 'Returned']) }}" 
+                               class="text-[11px] uppercase font-bold px-3 py-1.5 rounded-md transition {{ request('deposit_status') == 'Returned' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
+                                Returned
+                            </a>
+                            <a href="{{ route('admin.bookings.index', ['deposit_status' => 'All']) }}" 
+                               class="text-[11px] uppercase font-bold px-3 py-1.5 rounded-md transition {{ request('deposit_status') == 'All' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
+                                All
+                            </a>
+                        </div>
+                    @endif
 
-            @if(request('deposit_status'))
-                <a href="{{ route('admin.bookings.index', ['deposit_status' => 'Pending']) }}" 
-                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('deposit_status') == 'Pending' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
-                    Not Returned
-                </a>
-                <a href="{{ route('admin.bookings.index', ['deposit_status' => 'Returned']) }}" 
-                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('deposit_status') == 'Returned' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
-                    Returned
-                </a>
-                <a href="{{ route('admin.bookings.index', ['deposit_status' => 'All']) }}" 
-                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('deposit_status') == 'All' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
-                    All
-                </a>
-            @endif
+                    {{-- Penalty Filters --}}
+                    @if(request('penalty_status'))
+                        <div class="flex items-center bg-gray-100 rounded-lg p-1">
+                            <a href="{{ route('admin.bookings.index', ['penalty_status' => 'Verifying']) }}" 
+                               class="text-[11px] uppercase font-bold px-3 py-1.5 rounded-md transition {{ request('penalty_status') == 'Verifying' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
+                                Verifying
+                            </a>
+                            <a href="{{ route('admin.bookings.index', ['penalty_status' => 'Unpaid']) }}" 
+                               class="text-[11px] uppercase font-bold px-3 py-1.5 rounded-md transition {{ request('penalty_status') == 'Unpaid' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
+                                Unpaid
+                            </a>
+                             <a href="{{ route('admin.bookings.index', ['penalty_status' => 'Paid']) }}" 
+                               class="text-[11px] uppercase font-bold px-3 py-1.5 rounded-md transition {{ request('penalty_status') == 'Paid' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700' }}">
+                                Paid
+                            </a>
+                        </div>
+                    @endif
+                @else
+                    {{-- Default View: Show Date/Plate Search is active --}}
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Search Filters</span>
+                @endif
+            </div>
 
-            @if(request('penalty_status'))
-                <a href="{{ route('admin.bookings.index', ['penalty_status' => 'Verifying']) }}" 
-                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('penalty_status') == 'Verifying' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
-                    Verifying
-                </a>
-                <a href="{{ route('admin.bookings.index', ['penalty_status' => 'Unpaid']) }}" 
-                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('penalty_status') == 'Unpaid' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
-                    Unpaid
-                </a>
-                <a href="{{ route('admin.bookings.index', ['penalty_status' => 'Paid']) }}" 
-                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('penalty_status') == 'Paid' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
-                    Paid
-                </a>
-                <a href="{{ route('admin.bookings.index', ['penalty_status' => 'All']) }}" 
-                   class="text-xs font-bold px-3 py-1 rounded-md transition {{ request('penalty_status') == 'All' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200' }}">
-                    All
-                </a>
-            @endif
-        </div>
-        @endif
+            {{-- Right: Search Inputs --}}
+            <form action="{{ route('admin.bookings.index') }}" method="GET" class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                {{-- Preserve params --}}
+                @if(request('deposit_status')) <input type="hidden" name="deposit_status" value="{{ request('deposit_status') }}"> @endif
+                @if(request('penalty_status')) <input type="hidden" name="penalty_status" value="{{ request('penalty_status') }}"> @endif
+
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    {{-- Date Input --}}
+                    <div class="relative flex-1 sm:flex-none">
+                        <i class="ri-calendar-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="date" name="filter_date" value="{{ request('filter_date') }}" 
+                               class="pl-9 pr-3 py-2 text-xs font-bold border border-gray-200 rounded-lg focus:outline-none focus:border-black transition w-full sm:w-36 bg-gray-50 focus:bg-white"
+                               placeholder="Filter Date">
+                    </div>
+
+                    {{-- Plate Input --}}
+                    <div class="relative flex-1 sm:flex-none">
+                        <i class="ri-car-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" name="vehicle_plate" value="{{ request('vehicle_plate') }}" 
+                               class="pl-9 pr-3 py-2 text-xs font-bold border border-gray-200 rounded-lg focus:outline-none focus:border-black transition w-full sm:w-36 uppercase bg-gray-50 focus:bg-white"
+                               placeholder="PLATE NO.">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition shadow-sm flex items-center gap-2">
+                        <i class="ri-filter-3-line"></i> Filter
+                    </button>
+                    
+                    @if(request('filter_date') || request('vehicle_plate'))
+                        <a href="{{ route('admin.bookings.index', array_filter(['deposit_status' => request('deposit_status'), 'penalty_status' => request('penalty_status')])) }}" 
+                           class="text-gray-400 hover:text-red-500 transition px-2" title="Clear Filters">
+                            <i class="ri-close-circle-fill text-xl"></i>
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
         
         <div class="overflow-x-auto text-left">
@@ -190,10 +248,19 @@
                                     @endif
                                 </div>
                             
-                            @elseif($booking->status == 'Completed')
-                                <div class="flex items-center justify-center text-purple-400 gap-1 font-black text-[11px] uppercase tracking-widest">
-                                    <i class="ri-checkbox-circle-fill text-xl text-purple-500"></i> Done
-                                </div>
+                            @elseif($booking->status == 'Completed' || $booking->status == 'Cancelled')
+                                @if($booking->deposit_status === 'Returned')
+                                    <div class="flex items-center justify-center text-green-600 gap-1 font-black text-[11px] uppercase tracking-widest bg-green-50 px-3 py-1.5 rounded-full w-fit mx-auto border border-green-100">
+                                        <i class="ri-checkbox-circle-fill text-lg"></i> 
+                                        {{ $booking->status == 'Cancelled' ? 'Refunded' : 'Returned' }}
+                                    </div>
+                                @elseif($booking->status == 'Completed')
+                                    <div class="flex items-center justify-center text-purple-400 gap-1 font-black text-[11px] uppercase tracking-widest">
+                                        <i class="ri-checkbox-circle-fill text-xl text-purple-500"></i> Done
+                                    </div>
+                                @else
+                                    <span class="text-gray-300 text-xs">—</span>
+                                @endif
                             
                             @else
                                 <span class="text-gray-300 text-xs">—</span>
