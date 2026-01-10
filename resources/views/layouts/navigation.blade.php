@@ -64,8 +64,9 @@
 
                             <div class="max-h-64 overflow-y-auto">
                                 @forelse(Auth::user()->notifications->take(3) as $notification)
-                                    <div class="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition">
-                                        <div class="flex items-start">
+                            <a href="{{ route('profile.edit', ['tab' => 'booking']) }}#booking-{{ $notification->data['booking_id'] ?? '' }}" 
+                               class="block px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition flex items-start gap-3">
+
                                             <div class="flex-shrink-0 mt-0.5">
                                                 @if(isset($notification->data['status']) && $notification->data['status'] == 'Approved')
                                                     <div class="h-6 w-6 rounded-full bg-green-100 text-green-500 flex items-center justify-center">
@@ -89,8 +90,7 @@
                                                     {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
                                                 </p>
                                             </div>
-                                        </div>
-                                    </div>
+                            </a>
                                 @empty
                                     <div class="px-4 py-6 text-center text-gray-400 text-xs">
                                         No notifications yet.
