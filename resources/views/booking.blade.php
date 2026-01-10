@@ -9,6 +9,31 @@
     />
     <script src="//unpkg.com/alpinejs" defer></script>
     <style>
+      #floating-alert {
+          position: fixed;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 9999;
+          padding: 0.8rem 1.5rem;
+          border-radius: 10px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          transition: all 0.3s ease;
+          opacity: 0;
+          visibility: hidden;
+      }
+      #floating-alert.show {
+          opacity: 1;
+          visibility: visible;
+          top: 100px;
+      }
+      #floating-alert.error { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+      #floating-alert.success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+
       @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Syncopate:wght@400;700&display=swap");
 
       :root {
@@ -857,6 +882,12 @@
   </head>
 
   <body>
+    <!-- Floating Alert Element -->
+    <div id="floating-alert">
+        <i id="alert-icon"></i>
+        <span id="alert-message"></span>
+    </div>
+
     <header>
       <nav id="navbar">
         <div class="nav__header">
@@ -1202,11 +1233,14 @@
               </div>
               <div class="form__section">
                 <h3><i class="ri-ticket-line"></i> Vouchers</h3>
-                <p
-                  style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem;"
-                >
-                  Select a claimed voucher OR enter a code.
-                </p>
+                <div style="margin-bottom: 1.5rem;">
+                    <small style="color: #dc2626; display: flex; align-items: center; gap: 5px; font-weight: 700; font-size: 0.8rem; margin-bottom: 0.5rem; background: #fef2f2; padding: 6px 12px; border-radius: 6px; width: fit-content; border: 1px solid #fee2e2;">
+                        <i class="ri-information-fill"></i> Apply voucher BEFORE uploading receipt/license.
+                    </small>
+                    <p style="font-size: 0.85rem; color: var(--text-light);">
+                      Select a claimed voucher OR enter a code.
+                    </p>
+                </div>
 
                 <div
                   style="display: grid; grid-template-columns: 1fr; gap: 1rem;"
@@ -1215,6 +1249,7 @@
                     <label>My Rewards</label>
                     <select
                       name="selected_voucher_id"
+                      onchange="calculatePrice()"
                       style="width: 100%; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px;"
                     >
                       <option value="">-- Select a Reward --</option>
@@ -1231,20 +1266,27 @@
 
                   <div class="input__group">
                     <label>Or Enter Promo Code</label>
-                    <input
-                      type="text"
-                      name="manual_code"
-                      value="{{ request('manual_code') }}"
-                      placeholder="e.g. HASTA2024"
-                      style="text-transform: uppercase;"
-                    />
+                    <div style="display: flex; gap: 8px;">
+                        <input
+                          type="text"
+                          name="manual_code"
+                          id="manual_code_input"
+                          value="{{ request('manual_code') }}"
+                          placeholder="e.g. HASTA2024"
+                          style="text-transform: uppercase; flex: 1;"
+                        />
+                        <button type="button" onclick="calculatePrice()" class="btn btn-primary" style="padding: 0 15px; font-size: 0.85rem; height: 42px;">
+                            Redeem
+                        </button>
+                    </div>
+                  </div>
+                  <div id="voucher-success-label" style="display: none; margin-top: 10px;">
+                      <span style="background: #f0fdf4; color: #16a34a; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; border: 1px solid #dcfce7; display: inline-flex; align-items: center; gap: 5px;">
+                          <i class="ri-checkbox-circle-fill"></i> Applied: <span id="applied-voucher-name"></span>
+                      </span>
                   </div>
                 </div>
 
-
-                <small style="color: red; display: block; margin-top: 5px;"
-                  >* Apply voucher BEFORE uploading receipt/license.</small
-                >
               </div>
 
               <div class="form__section">
@@ -1724,7 +1766,36 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if(data.error) return;
+                    const alertBox = document.getElementById('floating-alert');
+                    const alertMsg = document.getElementById('alert-message');
+                    const alertIcon = document.getElementById('alert-icon');
+                    const successLabel = document.getElementById('voucher-success-label');
+                    const appliedName = document.getElementById('applied-voucher-name');
+
+                    if(data.error) {
+                        alertMsg.innerText = data.error;
+                        alertIcon.className = "ri-error-warning-line";
+                        alertBox.className = "show error";
+                        if(successLabel) successLabel.style.display = 'none';
+                        setTimeout(() => alertBox.className = "error", 3000); // Wait then fade out
+                        setTimeout(() => alertBox.className = "", 3300);
+                        return;
+                    }
+
+                    if(data.voucher_label) {
+                        alertMsg.innerText = "Voucher Applied!";
+                        alertIcon.className = "ri-checkbox-circle-line";
+                        alertBox.className = "show success";
+                        if(successLabel) {
+                            successLabel.style.display = 'block';
+                            appliedName.innerText = data.voucher_label;
+                        }
+                        setTimeout(() => alertBox.className = "success", 3000);
+                        setTimeout(() => alertBox.className = "", 3300);
+                    } else {
+                        if(successLabel) successLabel.style.display = 'none';
+                    }
+
                     const update = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
                     update('summary-hours', data.hours + " Hours");
                     update('summary-subtotal', "RM " + data.subtotal);
