@@ -76,6 +76,10 @@
                                                     <div class="h-6 w-6 rounded-full bg-red-100 text-red-500 flex items-center justify-center">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                     </div>
+                                                @elseif(isset($notification->data['type']) && $notification->data['type'] == 'fine')
+                                                    <div class="h-6 w-6 rounded-full bg-red-100 text-red-500 flex items-center justify-center">
+                                                        <i class="ri-money-dollar-circle-line bg-red-100 text-red-500 rounded-full p-1"></i>
+                                                    </div>
                                                 @else
                                                     <div class="h-6 w-6 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
