@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use App\Mail\NewBookingNotification;
 use App\Notifications\BookingStatusUpdated;
+use App\Notifications\BookingModified;
 use App\Models\Claim;
 use Illuminate\Support\Facades\Hash;
 
@@ -221,6 +222,63 @@ class AdminController extends Controller
     {
         $booking = Booking::with(['user', 'vehicle', 'payment', 'processedBy', 'inspections', 'feedback', 'fines'])->findOrFail($id);
         return view('admin.bookings.show', compact('booking'));
+    }
+
+    public function editBooking($id)
+    {
+        $booking = Booking::with(['user', 'vehicle'])->findOrFail($id);
+        $vehicles = Vehicle::with(['pricingTier.rules'])
+                           ->where('status', 'Available')
+                           ->orWhere('id', $booking->vehicle_id) // Include current vehicle
+                           ->get();
+                           
+        return view('admin.bookings.edit', compact('booking', 'vehicles'));
+    }
+
+    public function updateBooking(Request $request, $id)
+    {
+        $booking = Booking::findOrFail($id);
+        
+        $request->validate([
+            'vehicle_id' => 'required|exists:vehicles,id',
+            'pickup_date_time' => 'required|date',
+            'return_date_time' => 'required|date|after:pickup_date_time',
+            'change_reason' => 'required|string|max:500',
+        ]);
+
+        $oldVehicleId = $booking->vehicle_id;
+        $newVehicleId = $request->vehicle_id;
+        $start = Carbon::parse($request->pickup_date_time);
+        $end = Carbon::parse($request->return_date_time);
+
+        // Conflict check for NEW vehicle (if changed)
+        if ($newVehicleId != $oldVehicleId) {
+            $hasConflict = Booking::where('vehicle_id', $newVehicleId)
+                ->where('id', '!=', $booking->id)
+                ->whereIn('status', ['Pending', 'Waiting for Verification', 'Approved', 'Rented'])
+                ->where(function($q) use ($start, $end) {
+                    $q->where('pickup_date_time', '<', $end)
+                      ->where('return_date_time', '>', $start);
+                })
+                ->exists();
+
+            if ($hasConflict) {
+                return redirect()->back()->with('error', 'The selected vehicle has a conflicting booking in this time slot.')->withInput();
+            }
+        }
+
+        $booking->update([
+            'vehicle_id' => $newVehicleId,
+            'pickup_date_time' => $start,
+            'return_date_time' => $end,
+        ]);
+
+        // Send Notification
+        if ($booking->user) {
+            $booking->user->notify(new BookingModified($booking, $request->change_reason));
+        }
+
+        return redirect()->route('admin.bookings.show_detail', $booking->id)->with('success', 'Booking updated and customer notified.');
     }
 
     public function verifyPayment($id)
