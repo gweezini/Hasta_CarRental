@@ -58,24 +58,40 @@
 
     @php
         $pendingFineCount = \App\Models\Fine::where('status', 'Pending Verification')->count();
+        $newBookingCount = \App\Models\Booking::where('status', 'Waiting for Verification')->count();
+        // Calculation moved below pendingRefundsCount definition
+        
+        $pendingRefundsCount = \App\Models\Booking::where(function($q) {
+                $q->where('status', 'Completed')
+                  ->orWhere(function($sq) {
+                      $sq->where('status', 'Cancelled')
+                         ->where('payment_verified', true);
+                  });
+            })
+            ->where(function($q) {
+                $q->whereNull('deposit_status')
+                  ->orWhere('deposit_status', '!=', 'Returned');
+            })->count();
+
+        $totalBookingAction = $pendingFineCount + $newBookingCount + $pendingRefundsCount;
+
+        $pendingClaimsCount = \App\Models\Claim::where('status', 'Pending')->count();
     @endphp
 
     <a href="{{ route('admin.bookings.index') }}" class="flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.bookings*') ? 'sidebar-active' : '' }}">
         <div class="flex items-center">
             <i class="ri-list-check mr-3 text-xl"></i> Bookings
         </div>
-        @if($pendingFineCount > 0)
-            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">{{ $pendingFineCount }}</span>
+        @if($totalBookingAction > 0)
+            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">{{ $totalBookingAction }}</span>
         @endif
     </a>
 
     <a href="{{ route('admin.vehicle.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle.index') ? 'sidebar-active' : '' }}">
         <i class="ri-car-line mr-3 text-xl"></i> Fleet Management
     </a>
-    <a href="{{ route('admin.vehicle.availability') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle.availability') ? 'sidebar-active' : '' }}">
-        <i class="ri-calendar-2-line mr-3 text-xl"></i> Availability
-    </a>
     
+
     <a href="{{ route('admin.customers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.customers*') ? 'sidebar-active' : '' }}">
         <i class="ri-user-line mr-3 text-xl"></i> Customers
     </a>
@@ -99,6 +115,9 @@
         <button @click="open = !open" class="w-full flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition focus:outline-none" :class="{'bg-white/10': open}">
             <div class="flex items-center">
                 <i class="ri-money-dollar-circle-line mr-3 text-xl"></i> Claims
+                @if($pendingClaimsCount > 0)
+                    <span class="ml-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm blink-animation">{{ $pendingClaimsCount }}</span>
+                @endif
             </div>
             <i class="ri-arrow-down-s-line transition-transform duration-200" :class="{'rotate-180': open}"></i>
         </button>
@@ -106,8 +125,11 @@
             <a href="{{ route('admin.claims.create') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.claims.create') ? 'text-white font-bold' : 'text-white/70' }}">
                 My Claims
             </a>
-            <a href="{{ route('admin.claims.index') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.claims.index') ? 'text-white font-bold' : 'text-white/70' }}">
-                Review Claims
+            <a href="{{ route('admin.claims.index') }}" class="flex justify-between items-center pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.claims.index') ? 'text-white font-bold' : 'text-white/70' }}">
+                <span>Review Claims</span>
+                @if($pendingClaimsCount > 0)
+                    <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm blink-animation">{{ $pendingClaimsCount }}</span>
+                @endif
             </a>
         </div>
     </div>
@@ -116,6 +138,7 @@
         <i class="ri-money-dollar-circle-line mr-3 text-xl"></i> My Claims
     </a>
     @endif
+
 
     @if(Auth::user()->isTopManagement())
     <div x-data="{ open: {{ request()->routeIs('admin.reports') || request()->routeIs('admin.staff.*') ? 'true' : 'false' }} }">
