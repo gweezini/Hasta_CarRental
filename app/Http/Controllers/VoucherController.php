@@ -27,6 +27,7 @@ class VoucherController extends Controller
             'value' => 'required|numeric',
             'single_use' => 'sometimes|boolean',
             'uses_remaining' => 'nullable|integer|min:1',
+            'expires_at' => 'nullable|date',
         ]);
 
         $data['single_use'] = $request->has('single_use') ? (bool)$request->single_use : true;
@@ -37,6 +38,17 @@ class VoucherController extends Controller
         Voucher::create(array_merge($data, ['is_active' => true]));
 
         return redirect()->route('admin.vouchers.index')->with('success', 'Voucher created');
+    }
+
+    public function show(Voucher $voucher)
+    {
+        $redeemers = \App\Models\UserVoucher::with('user')
+            ->where('voucher_id', $voucher->id)
+            ->whereNotNull('used_at')
+            ->orderBy('used_at', 'desc')
+            ->get();
+            
+        return view('admin.vouchers.show', compact('voucher', 'redeemers'));
     }
 
     public function edit(Voucher $voucher)
@@ -53,7 +65,8 @@ class VoucherController extends Controller
             'value' => 'required|numeric',
             'single_use' => 'sometimes|boolean',
             'uses_remaining' => 'nullable|integer|min:0',
-            'is_active' => 'sometimes|boolean'
+            'is_active' => 'sometimes|boolean',
+            'expires_at' => 'nullable|date',
         ]);
 
         $data['single_use'] = $request->has('single_use') ? (bool)$request->single_use : $voucher->single_use;
@@ -63,9 +76,12 @@ class VoucherController extends Controller
         return redirect()->route('admin.vouchers.index')->with('success', 'Voucher updated');
     }
 
-    public function destroy(Voucher $voucher)
+    public function toggleStatus(Voucher $voucher)
     {
-        $voucher->delete();
-        return redirect()->route('admin.vouchers.index')->with('success', 'Voucher removed');
+        $voucher->is_active = !$voucher->is_active;
+        $voucher->save();
+
+        $status = $voucher->is_active ? 'activated' : 'invalidated';
+        return redirect()->back()->with('success', "Voucher was successfully {$status}.");
     }
 }
