@@ -278,6 +278,39 @@
                                             </div>
                                         </div>
 
+                                        {{-- Fines Section --}}
+                                        @if($booking->fines->count() > 0)
+                                            <div class="mb-3 space-y-2 border-t border-dashed border-red-200 pt-3">
+                                                @foreach($booking->fines as $fine)
+                                                     <div class="flex items-center justify-between bg-red-50 p-4 rounded-xl border border-red-100 shadow-sm">
+                                                         <div>
+                                                             <p class="font-bold text-red-900 text-sm flex items-center gap-2 mb-1">
+                                                                 <i class="ri-alarm-warning-fill text-red-600 text-lg"></i> {{ $fine->reason }}
+                                                             </p>
+                                                             <p class="text-red-700 font-black text-xl tracking-tight">
+                                                                 RM {{ number_format($fine->amount, 2) }}
+                                                             </p>
+                                                         </div>
+                                                         
+                                                         @if($fine->status == 'Unpaid')
+                                                             <button onclick="openFineModal('{{ route('fines.upload', $fine->id) }}', '{{ addslashes($fine->reason) }}', '{{ number_format($fine->amount, 2) }}')" 
+                                                                     class="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow hover:bg-red-700 transition flex items-center gap-2 transform hover:scale-105">
+                                                                 <i class="ri-secure-payment-line"></i> PAY NOW
+                                                             </button>
+                                                         @elseif($fine->status == 'Pending Verification')
+                                                             <span class="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-3 py-1 rounded border border-yellow-200 uppercase tracking-widest">
+                                                                 Verifying
+                                                             </span>
+                                                         @else
+                                                             <span class="bg-green-100 text-green-700 text-[10px] font-bold px-3 py-1 rounded border border-green-200 uppercase tracking-widest">
+                                                                 Paid
+                                                             </span>
+                                                         @endif
+                                                     </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
                                         {{-- Actions --}}
                                         <div class="flex justify-between items-end">
                                             <div class="flex flex-wrap gap-2">
@@ -411,7 +444,40 @@
                                             </div>
                                         @endif
 
-                                        <div class="mt-3 flex justify-end">
+                                        <div class="mt-3 flex justify-end flex-wrap gap-2">
+                                            
+                                            {{-- Fines Display for Past --}}
+                                            @if($booking->fines->count() > 0)
+                                                <div class="w-full mb-3 space-y-3 border-t border-dashed border-red-200 pt-3">
+                                                    @foreach($booking->fines as $fine)
+                                                         <div class="flex items-center justify-between bg-red-50 p-4 rounded-xl border border-red-100 shadow-sm">
+                                                             <div>
+                                                                 <p class="font-bold text-red-900 text-sm flex items-center gap-2 mb-1">
+                                                                     <i class="ri-alarm-warning-fill text-red-600 text-lg"></i> {{ $fine->reason }}
+                                                                 </p>
+                                                                 <p class="text-red-700 font-black text-xl tracking-tight">
+                                                                     RM {{ number_format($fine->amount, 2) }}
+                                                                 </p>
+                                                             </div>
+                                                             
+                                                             @if($fine->status == 'Unpaid')
+                                                                 <button onclick="openFineModal('{{ route('fines.upload', $fine->id) }}', '{{ addslashes($fine->reason) }}', '{{ number_format($fine->amount, 2) }}')" 
+                                                                         class="bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow hover:bg-red-700 transition flex items-center gap-2 transform hover:scale-105">
+                                                                     <i class="ri-secure-payment-line"></i> PAY NOW
+                                                                 </button>
+                                                             @elseif($fine->status == 'Pending Verification')
+                                                                 <span class="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-3 py-1 rounded border border-yellow-200 uppercase tracking-widest">
+                                                                     Verifying
+                                                                 </span>
+                                                             @else
+                                                                 <span class="bg-green-100 text-green-700 text-[10px] font-bold px-3 py-1 rounded border border-green-200 uppercase tracking-widest">
+                                                                     Paid
+                                                                 </span>
+                                                             @endif
+                                                         </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
                                             @if($booking->deposit_status === 'Returned')
                                                 <div class="bg-green-50 border border-green-100 rounded-lg p-2.5 inline-flex items-center gap-3">
                                                     <div class="flex items-center gap-1.5 text-green-700 border-r border-green-200 pr-3">
@@ -673,6 +739,8 @@
                                         <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center"><i class="ri-close-line text-lg"></i></div>
                                     @elseif(isset($notification->data['type']) && $notification->data['type'] == 'success')
                                         <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="ri-refund-2-line text-lg"></i></div>
+                                    @elseif(isset($notification->data['type']) && $notification->data['type'] == 'fine')
+                                        <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center"><i class="ri-money-dollar-circle-line text-lg"></i></div>
                                     @else
                                         <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><i class="ri-notification-line text-lg"></i></div>
                                     @endif
@@ -744,6 +812,64 @@
             © 2026 Hasta Car Rental. All rights reserved.
         </div>
     </footer>
+
+    {{-- Fine Payment Modal --}}
+    <div id="finePaymentModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeFineModal()"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <form id="finePaymentForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <i class="ri-wallet-3-line text-red-600"></i>
+                            </div>
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-bold text-gray-900 flex items-center gap-2" id="modal-title">
+                                    Pay Fine / Penalty
+                                </h3>
+                                <div class="mt-4 text-sm text-gray-500 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                    <div class="flex justify-between mb-2">
+                                        <span>Reason:</span>
+                                        <span id="fineReason" class="font-bold text-gray-800 text-right w-2/3"></span>
+                                    </div>
+                                    <div class="flex justify-between mb-4 border-b border-gray-200 pb-2">
+                                        <span>Amount:</span>
+                                        <span id="fineAmount" class="font-black text-red-600 text-lg"></span>
+                                    </div>
+                                    
+                                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Upload Payment Receipt</label>
+                                    <input type="file" name="receipt" required accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 transition border border-gray-300 rounded-lg">
+                                    <p class="text-[10px] text-gray-400 mt-1">Accepted formats: JPG, PNG. Max size: 5MB.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-bold text-white hover:bg-red-700 focus:outline-none sm:w-auto sm:text-sm uppercase tracking-wider">
+                            Submit Payment
+                        </button>
+                        <button type="button" onclick="closeFineModal()" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-bold text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm uppercase tracking-wider">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function openFineModal(url, reason, amount) {
+            document.getElementById('finePaymentForm').action = url;
+            document.getElementById('fineReason').textContent = reason;
+            document.getElementById('fineAmount').textContent = 'RM ' + amount;
+            document.getElementById('finePaymentModal').classList.remove('hidden');
+        }
+        function closeFineModal() {
+            document.getElementById('finePaymentModal').classList.add('hidden');
+        }
+    </script>
 
     <script>
         function openTab(tabName) {
