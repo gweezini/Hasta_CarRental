@@ -709,12 +709,14 @@
 
                 <div style="max-height: 300px; overflow-y: auto;">
                     @forelse(Auth::user()->notifications->take(3) as $notification)
-                        <div class="notif-item">
-                            <div class="notif-icon {{ isset($notification->data['status']) && $notification->data['status'] == 'Approved' ? 'success' : (isset($notification->data['status']) && $notification->data['status'] == 'Rejected' ? 'error' : 'info') }}">
+                        <a href="{{ route('profile.edit', ['tab' => 'booking']) }}#booking-{{ $notification->data['booking_id'] ?? '' }}" class="notif-item">
+                            <div class="notif-icon {{ isset($notification->data['type']) && $notification->data['type'] == 'success' ? 'success' : (isset($notification->data['status']) && $notification->data['status'] == 'Approved' ? 'success' : (isset($notification->data['status']) && $notification->data['status'] == 'Rejected' ? 'error' : 'info')) }}">
                                 @if(isset($notification->data['status']) && $notification->data['status'] == 'Approved')
                                     <i class="ri-check-line"></i>
                                 @elseif(isset($notification->data['status']) && $notification->data['status'] == 'Rejected')
                                     <i class="ri-close-line"></i>
+                                @elseif(isset($notification->data['type']) && $notification->data['type'] == 'success')
+                                    <i class="ri-refund-2-line"></i>
                                 @else
                                     <i class="ri-notification-line"></i>
                                 @endif
@@ -723,7 +725,7 @@
                                 <p>{{ $notification->data['message'] ?? 'New Notification' }}</p>
                                 <span>{{ $notification->created_at->diffForHumans() }}</span>
                             </div>
-                        </div>
+                        </a>
                     @empty
                         <div style="padding: 20px; text-align: center; color: #999; font-size: 0.85rem;">
                             No notifications
