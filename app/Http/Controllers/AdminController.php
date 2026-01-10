@@ -163,9 +163,48 @@ class AdminController extends Controller
         }
     }
 
-    public function allBookings()
+    public function allBookings(Request $request)
     {
-        $bookings = Booking::with(['user', 'vehicle', 'inspections'])->orderBy('created_at', 'desc')->paginate(10);
+        $query = Booking::with(['user', 'vehicle', 'inspections', 'fines']);
+
+        // Penalty Status Filter
+        if ($request->filled('penalty_status')) {
+            $status = $request->penalty_status;
+            if ($status === 'Paid') {
+                $query->whereHas('fines', function($q) {
+                    $q->where('status', 'Paid');
+                });
+            } elseif ($status === 'Unpaid') {
+                $query->whereHas('fines', function($q) {
+                    $q->where('status', 'Unpaid');
+                });
+            } elseif ($status === 'Verifying') {
+                $query->whereHas('fines', function($q) {
+                    $q->where('status', 'Pending Verification');
+                });
+            } elseif ($status === 'All') {
+                $query->has('fines');
+            }
+        }
+
+        // Deposit Status Filter
+        if ($request->filled('deposit_status')) {
+            $status = $request->deposit_status;
+            if ($status === 'Returned') {
+                $query->where('deposit_status', 'Returned');
+            } elseif ($status === 'Pending') {
+                $query->where(function($q) {
+                          $q->whereNull('deposit_status')
+                            ->orWhere('deposit_status', '!=', 'Returned');
+                      })
+                      ->where('status', '!=', 'Cancelled'); // Exclude cancelled
+            } elseif ($status === 'All') {
+                // Show all relevant to deposits (excluding cancelled maybe?)
+                 $query->where('status', '!=', 'Cancelled');
+            }
+        }
+
+        $bookings = $query->orderBy('created_at', 'desc')->paginate(10);
         return view('admin.bookings.index', compact('bookings'));
     }
 
@@ -319,12 +358,17 @@ class AdminController extends Controller
             'amount' => 'required|numeric|min:0',
         ]);
 
-        \App\Models\Fine::create([
+        $fine = \App\Models\Fine::create([
             'booking_id' => $id,
             'reason' => $request->reason,
             'amount' => $request->amount,
             'status' => 'Unpaid',
         ]);
+
+        $booking = \App\Models\Booking::find($id);
+        if ($booking && $booking->user) {
+            $booking->user->notify(new \App\Notifications\FineIssued($fine));
+        }
 
         return redirect()->back()->with('success', 'Fine issued successfully.');
     }
