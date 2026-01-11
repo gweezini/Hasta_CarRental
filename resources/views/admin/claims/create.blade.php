@@ -4,12 +4,7 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto">
-    @if(session('success'))
-        <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-xl shadow-sm flex items-center gap-3">
-            <i class="ri-checkbox-circle-fill text-xl"></i>
-            <span class="font-bold">{{ session('success') }}</span>
-        </div>
-    @endif
+
     
     @if($errors->any())
         <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-xl shadow-sm">
