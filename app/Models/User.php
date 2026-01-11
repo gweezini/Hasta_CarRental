@@ -34,7 +34,7 @@ class User extends Authenticatable
         'blacklist_reason',
 
         // --- Student Specific (Nullable for Staff) ---
-        'driving_license',  // Renamed from 'license_number' to match ERD 'DrivingLicense'
+        'expired_date',
         'nationality',
         'address',          // From ERD 'CustomerAddress'
         'college_id',
@@ -64,6 +64,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_blacklisted' => 'boolean', // Ensures this is treated as true/false
+            'expired_date' => 'date',
         ];
     }
 
