@@ -3,7 +3,7 @@
 @section('header_title', 'Customer Management')
 
 @section('content')
-    <div class="mb-8">
+    <div class="mb-6">
         <h2 class="text-3xl font-bold text-gray-800">Customer List</h2>
         <p class="text-gray-500 text-sm">Manage all registered students and staff</p>
     </div>
