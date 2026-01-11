@@ -244,10 +244,17 @@
 
         {{-- 0. FINES & PENALTIES --}}
         <div id="fines-section" class="scroll-mt-24 border-t border-gray-100 pt-8">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-black text-gray-800 tracking-tight flex items-center gap-2">
-                    <i class="ri-alert-fill text-red-500"></i> Fines & Penalties
-                </h3>
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h3 class="text-xl font-black text-gray-800 tracking-tight flex items-center gap-2">
+                        <i class="ri-alert-fill text-red-500"></i> Fines & Penalties
+                    </h3>
+                    @if($booking->total_fines > 0)
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+                            Total Fines: <span class="text-red-600">RM {{ number_format($booking->total_fines, 2) }}</span>
+                        </p>
+                    @endif
+                </div>
                 <button onclick="document.getElementById('fineModal').classList.remove('hidden')" 
                         class="bg-red-50 text-red-600 hover:bg-red-100 font-bold px-4 py-2 rounded-lg transition text-sm flex items-center gap-2 border border-red-200 shadow-sm">
                     <i class="ri-add-line"></i> Issue Fine
@@ -334,40 +341,120 @@
                 <i class="ri-hand-coin-line text-blue-500"></i> Deposit Status
             </h3>
 
-            <div class="bg-white rounded-xl border border-blue-50 shadow-sm p-6">
+            <div class="bg-white rounded-xl border border-blue-50 shadow-sm p-8">
                 @if($booking->deposit_status == 'Returned')
-                    <div class="flex items-center gap-4 bg-green-50 p-4 rounded-lg border border-green-100 text-green-700 font-bold mb-4">
-                        <i class="ri-checkbox-circle-fill text-xl"></i>
+                    <div class="flex items-center gap-4 bg-green-50 p-6 rounded-2xl border border-green-100 text-green-700 font-bold mb-6">
+                        <i class="ri-checkbox-circle-fill text-2xl"></i>
                         <div>
-                            <p>Deposit Returned</p>
-                            <p class="text-xs font-normal text-green-600">Processed on {{ \Carbon\Carbon::parse($booking->deposit_returned_at)->format('d M Y, h:i A') }}</p>
+                            <p class="text-lg">Deposit Processed & Returned</p>
+                            <p class="text-xs font-normal text-green-600">Transaction completed on {{ \Carbon\Carbon::parse($booking->deposit_returned_at)->format('d M Y, h:i A') }}</p>
                         </div>
                     </div>
                      
                     @if($booking->deposit_receipt_path)
-                         <p class="text-xs text-gray-400 font-black uppercase tracking-widest mb-2">Proof of Return</p>
-                         <div class="w-48 h-32 bg-gray-100 rounded-lg overflow-hidden cursor-pointer border border-gray-200" onclick="window.open('{{ asset('storage/' . $booking->deposit_receipt_path) }}', '_blank')">
-                             <img src="{{ asset('storage/' . $booking->deposit_receipt_path) }}" class="w-full h-full object-cover hover:opacity-90 transition">
+                         <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-3">Proof of Return</p>
+                         <div class="w-64 h-40 bg-gray-100 rounded-2xl overflow-hidden cursor-pointer border border-gray-200 shadow-sm group" onclick="window.open('{{ asset('storage/' . $booking->deposit_receipt_path) }}', '_blank')">
+                             <img src="{{ asset('storage/' . $booking->deposit_receipt_path) }}" class="w-full h-full object-cover group-hover:opacity-90 transition transform group-hover:scale-105 duration-500">
                          </div>
                     @endif
 
                 @else
-                    <div class="flex items-start gap-6">
-                         <div class="flex-1">
-                             <p class="font-bold text-gray-800 mb-2">Current Status: <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs uppercase tracking-widest">{{ $booking->deposit_status ?? 'Held' }}</span></p>
-                             <p class="text-sm text-gray-500 mb-4">Upload the bank transfer receipt to mark the deposit as returned.</p>
-                             
-                             <form action="{{ route('admin.bookings.return_deposit', $booking->id) }}" method="POST" enctype="multipart/form-data" class="max-w-md">
-                                 @csrf
-                                 <label class="block mb-2 text-sm font-medium text-gray-700">Upload Receipt</label>
-                                 <div class="flex items-center gap-2">
-                                     <input type="file" name="deposit_receipt" required accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition">
-                                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-xs uppercase tracking-widest shadow-sm transition transform hover:scale-105">
-                                         Confirm Return
-                                     </button>
-                                 </div>
-                             </form>
-                         </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {{-- Calculation Summary --}}
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                                <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-4">Settlement Summary</p>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-gray-500 font-medium">Original Security Deposit</span>
+                                        <span class="font-bold text-gray-800">RM {{ number_format($booking->deposit_amount, 2) }}</span>
+                                    </div>
+                                    
+                                    @if($booking->fines->count() > 0)
+                                        <div class="pt-2 pb-1">
+                                            <p class="text-[9px] text-gray-400 font-black uppercase tracking-wider mb-2">Detailed Deductions</p>
+                                            <div class="space-y-2">
+                                                @foreach($booking->fines as $fine)
+                                                    <div class="flex justify-between items-center text-[11px]">
+                                                        <span class="text-gray-400 truncate pr-4">{{ $fine->reason }}</span>
+                                                        <span class="font-bold text-red-500 shrink-0">- RM {{ number_format($fine->amount, 2) }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    <div class="flex justify-between items-center text-sm text-red-600 border-t border-gray-100 pt-2">
+                                        <span class="font-black uppercase text-[10px]">Total Penalties</span>
+                                        <span class="font-black">- RM {{ number_format($booking->total_fines, 2) }}</span>
+                                    </div>
+                                    <div class="pt-3 border-t-2 border-dashed border-gray-200 flex justify-between items-center">
+                                        @if($booking->net_refund > 0)
+                                            <span class="text-sm font-black text-gray-800 uppercase tracking-tight">Net Refund Amount</span>
+                                            <span class="text-xl font-black text-blue-600">RM {{ number_format($booking->net_refund, 2) }}</span>
+                                        @else
+                                            <span class="text-sm font-black text-gray-800 uppercase tracking-tight">Deposit Fully Consumed</span>
+                                            <span class="text-xl font-black text-gray-400">RM 0.00</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if($booking->outstanding_balance > 0)
+                                <div class="bg-red-50 border border-red-100 rounded-2xl p-6 flex items-start gap-4">
+                                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600 shrink-0">
+                                        <i class="ri-error-warning-fill text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-red-800 font-black uppercase text-[10px] tracking-widest mb-1">Action Required</p>
+                                        <p class="text-sm text-red-700 font-bold mb-1">Customer owes an additional balance!</p>
+                                        <p class="text-xl font-black text-red-600">RM {{ number_format($booking->outstanding_balance, 2) }}</p>
+                                        <p class="text-xs text-red-500/80 mt-2 italic">Deposit was fully used to cover penalties. Customer must pay the remaining amount manually.</p>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Return Action --}}
+                        <div class="flex flex-col justify-center">
+                            @if($booking->net_refund > 0)
+                                <div class="bg-gray-50/50 border border-gray-100 rounded-2xl p-6">
+                                    <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-3">Process Refund</p>
+                                    <p class="text-xs text-gray-600 mb-6 leading-relaxed">Please return the <b>RM {{ number_format($booking->net_refund, 2) }}</b> and upload the receipt (JPG, PNG, or PDF).</p>
+                                    
+                                    <form action="{{ route('admin.bookings.return_deposit', $booking->id) }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="space-y-4">
+                                            <div>
+                                                <input type="file" name="deposit_receipt" required accept="image/*,.pdf" 
+                                                       class="block w-full text-sm text-gray-500 border border-gray-200 rounded-lg bg-white file:mr-4 file:py-3 file:px-4 file:rounded-l-lg file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-gray-100 file:text-gray-600 hover:file:bg-gray-200 transition cursor-pointer shadow-sm">
+                                            </div>
+                                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-blue-100 transition transform hover:-translate-y-0.5">
+                                                Complete Refund
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            @else
+                                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-8 text-center">
+                                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+                                        <i class="ri-forbid-line text-3xl"></i>
+                                    </div>
+                                    <h4 class="font-black text-gray-800 uppercase text-xs tracking-widest mb-2">No Refund Applicable</h4>
+                                    <p class="text-sm text-gray-500 leading-relaxed">The security deposit has been fully consumed to cover issued penalties. No funds remain to be returned.</p>
+                                    
+                                    @if($booking->deposit_status != 'Forfeited')
+                                        <form action="{{ route('admin.bookings.forfeit_deposit', $booking->id) }}" method="POST" class="mt-6">
+                                            @csrf
+                                            <button type="submit" class="text-[10px] font-black text-gray-400 hover:text-red-500 uppercase tracking-widest underline decoration-dotted transition">
+                                                Mark Deposit as Fully Deducted
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 @endif
             </div>
@@ -376,22 +463,43 @@
         {{-- 2. CUSTOMER FEEDBACK --}}
         @if($booking->feedback)
             <div id="feedback-section" class="bg-indigo-50/50 rounded-3xl p-8 border border-indigo-100 scroll-mt-24">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                        <i class="ri-feedback-fill text-xl"></i>
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                            <i class="ri-feedback-fill text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-black text-indigo-900 tracking-tight">Customer Feedback</h3>
+                            <p class="text-xs text-indigo-500 font-bold uppercase tracking-widest">Submitted on {{ $booking->feedback->created_at->format('d M Y') }}</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-xl font-black text-indigo-900 tracking-tight">Customer Feedback</h3>
-                        <p class="text-xs text-indigo-500 font-bold uppercase tracking-widest">Submitted on {{ $booking->feedback->created_at->format('d M Y') }}</p>
-                    </div>
+                    @php
+                        $ratings = $booking->feedback->ratings ?? [];
+                        $isNewStyle = false;
+                        foreach($ratings as $k => $v) { if(strpos($k, 'issue_') === 0) { $isNewStyle = true; break; } }
+                        $issueCount = $isNewStyle ? count(array_filter($ratings, fn($v) => $v === true)) : 0;
+                    @endphp
+                    @if($issueCount > 0)
+                        <div class="animate-bounce inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg border-2 border-white">
+                            <i class="ri-alert-fill text-lg"></i> Maintenance Needed
+                        </div>
+                    @endif
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {{-- Ratings --}}
-                    <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {{-- Ratings / Issues --}}
+                    <div class="lg:col-span-2">
                         @php
-                            $ratings = $booking->feedback->ratings ?? [];
-                            $categories = [
+                            $newCategories = [
+                                'issue_interior' => ['label' => 'Cleanliness/Trash', 'icon' => 'ri-brush-2-line'],
+                                'issue_smell' => ['label' => 'Bad Smell', 'icon' => 'ri-windy-line'],
+                                'issue_mechanical' => ['label' => 'Mechanical/Noise', 'icon' => 'ri-settings-4-line'],
+                                'issue_ac' => ['label' => 'A/C Problem', 'icon' => 'ri-temp-cold-line'],
+                                'issue_exterior' => ['label' => 'Dirty Exterior', 'icon' => 'ri-car-washing-line'],
+                                'issue_safety' => ['label' => 'Safety Concern', 'icon' => 'ri-shield-cross-line'],
+                            ];
+                            
+                            $oldCategories = [
                                 'cleanliness_interior' => 'Interior Cleanliness',
                                 'smell' => 'Smell / Freshness',
                                 'cleanliness_exterior' => 'Exterior Appearance',
@@ -405,30 +513,58 @@
                             ];
                         @endphp
 
-                        @foreach($categories as $key => $label)
-                            @if(isset($ratings[$key]))
-                                <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-indigo-100 shadow-sm">
-                                    <span class="text-sm font-bold text-gray-600">{{ $label }}</span>
-                                    @if($key === 'smell')
-                                        <span class="text-sm font-bold text-indigo-700">{{ $ratings[$key] }}</span>
-                                    @else
-                                        <div class="flex gap-1">
-                                            @for($i=1; $i<=5; $i++)
-                                                <i class="ri-star-fill text-xs {{ $i <= $ratings[$key] ? 'text-yellow-400' : 'text-gray-200' }}"></i>
-                                            @endfor
+                        @if($isNewStyle)
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach($newCategories as $key => $data)
+                                    @php $hasIssue = $ratings[$key] ?? false; @endphp
+                                    <div class="flex items-center justify-between p-4 {{ $hasIssue ? 'bg-orange-50 border-orange-200' : 'bg-white border-indigo-50' }} rounded-xl border shadow-sm transition">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-lg {{ $hasIssue ? 'bg-orange-100 text-orange-600' : 'bg-gray-50 text-gray-400' }} flex items-center justify-center">
+                                                <i class="{{ $data['icon'] }} text-lg"></i>
+                                            </div>
+                                            <span class="text-sm font-bold {{ $hasIssue ? 'text-orange-800' : 'text-gray-500' }}">{{ $data['label'] }}</span>
+                                        </div>
+                                        @if($hasIssue)
+                                            <span class="px-2 py-1 bg-orange-600 text-white text-[10px] font-black rounded uppercase">Issue Reported</span>
+                                        @else
+                                            <i class="ri-checkbox-circle-fill text-green-500 text-xl"></i>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach($oldCategories as $key => $label)
+                                    @if(isset($ratings[$key]))
+                                        <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-indigo-100 shadow-sm">
+                                            <span class="text-sm font-bold text-gray-600">{{ $label }}</span>
+                                            @if($key === 'smell')
+                                                <span class="text-sm font-bold text-indigo-700">{{ $ratings[$key] }}</span>
+                                            @else
+                                                <div class="flex gap-1">
+                                                    @for($i=1; $i<=5; $i++)
+                                                        <i class="ri-star-fill text-xs {{ $i <= $ratings[$key] ? 'text-yellow-400' : 'text-gray-200' }}"></i>
+                                                    @endfor
+                                                </div>
+                                            @endif
                                         </div>
                                     @endif
-                                </div>
-                            @endif
-                        @endforeach
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
 
                     {{-- Comment --}}
-                    <div class="bg-white p-6 rounded-2xl border border-indigo-100 shadow-sm min-h-[200px]">
-                         <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Written Review</p>
-                         <p class="text-gray-700 italic leading-relaxed">
-                            "{{ $booking->feedback->description ?: 'No written comment provided.' }}"
-                         </p>
+                    <div class="bg-white p-6 rounded-2xl border border-indigo-100 shadow-sm flex flex-col">
+                         <div class="flex items-center gap-2 mb-4 text-indigo-600">
+                             <i class="ri-chat-4-line text-lg"></i>
+                             <p class="text-xs font-black uppercase tracking-widest">Customer Comments</p>
+                         </div>
+                         <div class="flex-grow p-4 bg-gray-50 rounded-xl border border-gray-100">
+                             <p class="text-gray-700 italic leading-relaxed text-sm">
+                                "{{ $booking->feedback->description ?: 'No written comment provided.' }}"
+                             </p>
+                         </div>
                     </div>
                 </div>
             </div>
