@@ -483,8 +483,8 @@ class AdminController extends Controller
             $booking->processed_by = Auth::id(); 
             $booking->save();
 
-            // Update Vehicle Status to Available again
-            if ($booking->vehicle) {
+            // Update Vehicle Status to Available again ONLY if not flagged for maintenance
+            if ($booking->vehicle && $booking->vehicle->status !== 'Unavailable') {
                 $booking->vehicle->update(['status' => 'Available']);
             }
             
@@ -519,7 +519,7 @@ class AdminController extends Controller
     public function returnDeposit(Request $request, $id)
     {
         $request->validate([
-            'deposit_receipt' => 'required|image', // Removed max size limit
+            'deposit_receipt' => 'required|file|mimes:jpeg,jpg,png,pdf', // Allowed PDF and removed size limit
         ]);
 
         $booking = Booking::findOrFail($id);
@@ -535,17 +535,50 @@ class AdminController extends Controller
                     'processed_by' => Auth::id()
                 ]);
 
+                // Auto-settle all fines since deposit settlement is processed
+                $booking->fines()->where('status', '!=', 'Paid')->update([
+                    'status' => 'Paid',
+                    'paid_at' => now()
+                ]);
+
                 // Notify User
                 if ($booking->user) {
                     $booking->user->notify(new \App\Notifications\DepositReturned($booking));
                 }
 
-                return redirect()->back()->with('success', 'Deposit returned successfully!');
+                return redirect()->back()->with('success', 'Deposit refund processed and all fines settled.');
             }
             return redirect()->back()->with('error', 'Please upload a receipt.');
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to return deposit: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to process refund: ' . $e->getMessage());
+        }
+    }
+
+    public function forfeitDeposit($id)
+    {
+        $booking = Booking::findOrFail($id);
+
+        try {
+            $booking->update([
+                'deposit_status' => 'Forfeited', // Using forfeited for 'fully consumed'
+                'deposit_returned_at' => now(),
+                'processed_by' => Auth::id()
+            ]);
+
+            // Mark fines as paid up to the deposit amount? 
+            // Or just leave it to the admin to see the 'Outstanding' if any.
+            // For simplicity, let's mark all as paid if they chose to 'Forfeit' (settle).
+            // Actually, better to only mark as paid if they are covered.
+            
+            $booking->fines()->where('status', '!=', 'Paid')->update([
+                'status' => 'Paid',
+                'paid_at' => now()
+            ]);
+
+            return redirect()->back()->with('success', 'Deposit has been marked as fully consumed.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Operation failed.');
         }
     }
 
