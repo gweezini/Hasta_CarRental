@@ -134,6 +134,61 @@
                         </div>
                     </div>
 
+                    {{-- Ownership & Documents --}}
+                    <div class="md:col-span-2 space-y-4 pt-4 border-t border-gray-100">
+                        <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                             <i class="ri-folder-user-line text-[#cb5c55]"></i> Ownership & Documents
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Owner Name (Nama)</label>
+                                <input type="text" name="owner_name" value="{{ old('owner_name', $vehicle->owner_name) }}" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-[#cb5c55] focus:ring-[#cb5c55] py-2.5 px-4 font-medium" placeholder="Full Name of Owner">
+                                <p class="text-xs text-gray-400 mt-1">Required if vehicle is leased from external owner.</p>
+                            </div>
+                            
+                            <!-- File Uploads Group -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">Owner IC</label>
+                                    @if($vehicle->owner_ic_path)
+                                        <div class="flex items-center justify-between mb-1">
+                                            <a href="{{ asset('storage/' . $vehicle->owner_ic_path) }}" target="_blank" class="text-[10px] text-[#cb5c55] font-bold hover:underline bg-red-50 px-2 py-0.5 rounded border border-red-100"><i class="ri-eye-line"></i> View Current</a>
+                                        </div>
+                                    @endif
+                                    <input type="file" name="owner_ic_path" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-600 hover:file:bg-gray-200 cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">License Owner</label>
+                                    @if($vehicle->owner_license_path)
+                                        <div class="flex items-center justify-between mb-1">
+                                            <a href="{{ asset('storage/' . $vehicle->owner_license_path) }}" target="_blank" class="text-[10px] text-[#cb5c55] font-bold hover:underline bg-red-50 px-2 py-0.5 rounded border border-red-100"><i class="ri-eye-line"></i> View Current</a>
+                                        </div>
+                                    @endif
+                                    <input type="file" name="owner_license_path" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-600 hover:file:bg-gray-200 cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">Grant (Geran)</label>
+                                    @if($vehicle->geran_path)
+                                        <div class="flex items-center justify-between mb-1">
+                                            <a href="{{ asset('storage/' . $vehicle->geran_path) }}" target="_blank" class="text-[10px] text-[#cb5c55] font-bold hover:underline bg-red-50 px-2 py-0.5 rounded border border-red-100"><i class="ri-eye-line"></i> View Current</a>
+                                        </div>
+                                    @endif
+                                    <input type="file" name="geran_path" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-600 hover:file:bg-gray-200 cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">Insurance Cover</label>
+                                    @if($vehicle->insurance_cover_path)
+                                        <div class="flex items-center justify-between mb-1">
+                                            <a href="{{ asset('storage/' . $vehicle->insurance_cover_path) }}" target="_blank" class="text-[10px] text-[#cb5c55] font-bold hover:underline bg-red-50 px-2 py-0.5 rounded border border-red-100"><i class="ri-eye-line"></i> View Current</a>
+                                        </div>
+                                    @endif
+                                    <input type="file" name="insurance_cover_path" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-600 hover:file:bg-gray-200 cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- 4. Pricing Configuration (Full Width - With Boundary!) --}}
                     @if($vehicle->pricingTier)
                     <div class="md:col-span-2 pt-4">
