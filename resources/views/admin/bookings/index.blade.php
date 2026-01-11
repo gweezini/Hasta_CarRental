@@ -252,7 +252,12 @@
                                 </div>
                             
                             @elseif($booking->status == 'Completed' || $booking->status == 'Cancelled')
-                                @if(in_array($booking->deposit_status, ['Returned', 'Forfeited']))
+                                @php
+                                    $allFinesPaid = $booking->fines->where('status', '!=', 'Paid')->count() == 0;
+                                    $depositSettled = in_array($booking->deposit_status, ['Returned', 'Forfeited']);
+                                @endphp
+
+                                @if($depositSettled && $allFinesPaid)
                                     <div class="flex items-center justify-center text-green-600 gap-1 font-black text-[11px] uppercase tracking-widest bg-green-50 px-3 py-1.5 rounded-full w-fit mx-auto border border-green-100" title="All settlements completed">
                                         <i class="ri-checkbox-circle-fill text-lg"></i> 
                                         DONE
@@ -308,6 +313,7 @@
                                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Total Paid</label>
                                 <p class="text-xl font-black text-[#cb5c55]">RM <span id="m-total">0.00</span></p>
                             </div>
+                        </div>
                         </div>
                         <div class="border-t pt-4">
                             <label class="text-[10px] font-black text-blue-500 uppercase block mb-1 tracking-widest">Audit Trail</label>
