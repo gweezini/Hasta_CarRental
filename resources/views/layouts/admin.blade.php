@@ -78,15 +78,18 @@
         $pendingClaimsCount = \App\Models\Claim::where('status', 'Pending')->count();
 
 
-        // Feedback alert: New feedbacks in last 48 hours with flagged issues
-        $feedbackAlertCount = \App\Models\Feedback::where('created_at', '>=', now()->subDays(2))
+        // Feedback alert: New feedbacks in last 48 hours with flagged issues, ONLY for vehicles that are not yet Available
+        $feedbackAlertCount = \App\Models\Feedback::where('feedback.created_at', '>=', now()->subDays(2))
+            ->join('bookings', 'feedback.booking_id', '=', 'bookings.id')
+            ->join('vehicles', 'bookings.vehicle_id', '=', 'vehicles.id')
+            ->where('vehicles.status', '!=', 'Available')
             ->where(function($q) {
-                $q->where('ratings->issue_interior', true)
-                  ->orWhere('ratings->issue_smell', true)
-                  ->orWhere('ratings->issue_mechanical', true)
-                  ->orWhere('ratings->issue_ac', true)
-                  ->orWhere('ratings->issue_exterior', true)
-                  ->orWhere('ratings->issue_safety', true);
+                $q->where('feedback.ratings->issue_interior', true)
+                  ->orWhere('feedback.ratings->issue_smell', true)
+                  ->orWhere('feedback.ratings->issue_mechanical', true)
+                  ->orWhere('feedback.ratings->issue_ac', true)
+                  ->orWhere('feedback.ratings->issue_exterior', true)
+                  ->orWhere('feedback.ratings->issue_safety', true);
             })->count();
     @endphp
 
