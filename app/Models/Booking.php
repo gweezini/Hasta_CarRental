@@ -62,13 +62,24 @@ class Booking extends Model
         return $this->fines->sum('amount');
     }
 
+    /**
+     * Fines that still need to be covered by the deposit or paid manually.
+     */
+    public function getUnsettledFinesAmountAttribute()
+    {
+        return $this->fines->where('status', '!=', 'Paid')->sum('amount');
+    }
+
     public function getNetRefundAttribute()
     {
-        return max(0, $this->deposit_amount - $this->total_fines);
+        // For display after return, we show RM 0 if fully consumed, or the net amount.
+        // If already returned, we should technically show what was returned, but for now 
+        // we use unsettled fines for the calculation phase.
+        return max(0, $this->deposit_amount - $this->unsettled_fines_amount);
     }
 
     public function getOutstandingBalanceAttribute()
     {
-        return max(0, $this->total_fines - $this->deposit_amount);
+        return max(0, $this->unsettled_fines_amount - $this->deposit_amount);
     }
 }
