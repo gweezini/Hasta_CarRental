@@ -39,7 +39,15 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-sm">
                     @foreach($vehicle as $index => $v)
-                    <tr class="hover:bg-gray-50 transition group">
+                    @php
+                        $expired = ($v->road_tax_expiry && \Carbon\Carbon::parse($v->road_tax_expiry)->isPast()) || ($v->insurance_expiry && \Carbon\Carbon::parse($v->insurance_expiry)->isPast());
+                        $unset = is_null($v->road_tax_expiry) || is_null($v->insurance_expiry);
+                        $expiring = !$expired && !$unset && (
+                            (\Carbon\Carbon::parse($v->road_tax_expiry)->lte(now()->addDays(30))) || 
+                            (\Carbon\Carbon::parse($v->insurance_expiry)->lte(now()->addDays(30)))
+                        );
+                    @endphp
+                    <tr class="transition group {{ $expired ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50' }}">
                         <td class="p-4 text-gray-500">{{ $index + 1 }}</td>
                         <td class="p-4 font-medium text-[#cb5c55]">{{ $v->vehicle_id_custom }}</td>
                         <td class="p-4">
@@ -50,6 +58,20 @@
                         <td class="p-4">
                             <div class="font-bold text-gray-800">{{ $v->brand }} {{ $v->model }}</div>
                             <div class="text-xs text-gray-500">{{ $v->year }}</div>
+                            
+                            @if($expired)
+                               <span class="inline-flex items-center gap-1 mt-1 text-[10px] text-red-600 font-black uppercase tracking-wider bg-red-100 px-2 py-0.5 rounded">
+                                   <i class="ri-alarm-warning-fill"></i> Docs Expired
+                               </span>
+                            @elseif($unset)
+                               <span class="inline-flex items-center gap-1 mt-1 text-[10px] text-orange-600 font-black uppercase tracking-wider bg-orange-100 px-2 py-0.5 rounded">
+                                   <i class="ri-error-warning-fill"></i> Docs Missing
+                               </span>
+                            @elseif($expiring)
+                               <span class="inline-flex items-center gap-1 mt-1 text-[10px] text-yellow-700 font-black uppercase tracking-wider bg-yellow-100 px-2 py-0.5 rounded">
+                                   <i class="ri-time-line"></i> Expiring Soon
+                               </span>
+                            @endif
                         </td>
                         <td class="p-4 font-mono text-gray-600">{{ $v->plate_number }}</td>
                         <td class="p-4">
