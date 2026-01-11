@@ -3,25 +3,13 @@
 @section('header_title', 'Fleet Management')
 
 @section('content')
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h2 class="text-3xl font-bold text-gray-800">Car List</h2>
-            <p class="text-gray-500 text-sm">Manage your vehicle fleet</p>
-        </div>
-        
-        <a href="{{ route('admin.vehicle.create') }}" class="flex items-center gap-2 px-5 py-3 bg-[#cb5c55] text-white rounded-lg shadow hover:opacity-90 transition font-medium">
-            <i class="ri-add-circle-line text-xl"></i> Add New Vehicle
-        </a>
+    {{-- Unified Page Header --}}
+    <div class="mb-6">
+        <h2 class="text-3xl font-bold text-gray-800">Fleet Management</h2>
+        <p class="text-gray-500 text-sm">Monitor and maintain your vehicle inventory and pricing tiers</p>
     </div>
 
-    @if(session('success'))
-        <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded shadow-sm flex items-center">
-            <i class="ri-checkbox-circle-line mr-2 text-xl"></i>
-            {{ session('success') }}
-        </div>
-    @endif
-
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -314,7 +302,7 @@
                         tbody.innerHTML = `
                             <tr>
                                 <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                                    <div class="flex flex-col items-center">
+                                    <div class="flex flex-col items-center w-full">
                                         <i class="ri-calendar-check-line text-4xl text-gray-300 mb-2"></i>
                                         <p>No upcoming bookings found.</p>
                                         <p class="text-xs text-gray-400 mt-1">This vehicle is free for now!</p>
