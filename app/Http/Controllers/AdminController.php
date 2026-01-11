@@ -20,6 +20,7 @@ use App\Models\Voucher;
 use App\Models\UserVoucher;
 use App\Models\LoyaltyCard;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Fine;
 
 class AdminController extends Controller
 {
@@ -631,8 +632,9 @@ class AdminController extends Controller
         // I will follow the existing pattern: Calculate GLOBAL claims for the Net Profit card (which seems to be global context).
         
         $totalClaims = Claim::where('status', 'Approved')->sum('amount');
+        $totalFineAmount = Fine::where('status', 'Paid')->sum('amount');
 
-        $netProfit = $totalRevenueAmount - $totalSalaries - $totalClaims;
+        $netProfit = $totalRevenueAmount + $totalFineAmount - $totalSalaries - $totalClaims;
 
         $query = Booking::where('payment_verified', true)->with('processedBy'); 
         $summaryQuery = Booking::where('payment_verified', true); 
@@ -763,7 +765,8 @@ class AdminController extends Controller
             'revenueList',
             'chartLabels',
             'chartValues',
-            'comparisonData'
+            'comparisonData',
+            'totalFineAmount'
         ));
     }
 
