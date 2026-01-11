@@ -18,6 +18,7 @@ class Inspection extends Model
         'photo_left',
         'photo_right',
         'photo_dashboard',
+        'photo_keys',
         'damage_photos',
         'damage_description',
         'created_by',
