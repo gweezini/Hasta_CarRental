@@ -77,14 +77,6 @@
 
         $pendingClaimsCount = \App\Models\Claim::where('status', 'Pending')->count();
 
-        // Fleet Alert: Unset OR Expiring within 30 days OR Unavailable
-        $fleetAlertCount = \App\Models\Vehicle::where(function($q) {
-            $q->whereNull('road_tax_expiry')
-              ->orWhereNull('insurance_expiry')
-              ->orWhere('road_tax_expiry', '<=', now()->addDays(30))
-              ->orWhere('insurance_expiry', '<=', now()->addDays(30))
-              ->orWhere('status', 'Unavailable');
-        })->count();
 
         // Feedback alert: New feedbacks in last 48 hours with flagged issues
         $feedbackAlertCount = \App\Models\Feedback::where('created_at', '>=', now()->subDays(2))
@@ -117,22 +109,25 @@
         @endif
     </a>
 
-    <a href="{{ route('admin.vehicle.index') }}" class="flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle.index') ? 'sidebar-active' : '' }}">
-        <div class="flex items-center whitespace-nowrap">
-            <i class="ri-car-line mr-3 text-xl"></i> Fleet Management
+    <div x-data="{ open: {{ request()->routeIs('admin.vehicle.*') || request()->routeIs('admin.pricing.*') ? 'true' : 'false' }} }">
+        <button @click="open = !open" class="w-full flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition focus:outline-none" :class="{'bg-white/10': open}">
+            <div class="flex items-center">
+                <i class="ri-car-line mr-3 text-xl"></i> Fleet Management
+            </div>
+            <i class="ri-arrow-down-s-line transition-transform duration-200" :class="{'rotate-180': open}"></i>
+        </button>
+        <div x-show="open" class="bg-black/10 text-sm">
+            <a href="{{ route('admin.vehicle.index') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.vehicle.index') ? 'text-white font-bold' : 'text-white/70' }}">
+                Vehicle List
+            </a>
+            <a href="{{ route('admin.pricing.index') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.pricing.index') ? 'text-white font-bold' : 'text-white/70' }}">
+                Pricing Setup
+            </a>
         </div>
-        @if($fleetAlertCount > 0)
-            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm blink-animation">{{ $fleetAlertCount }}</span>
-        @endif
-    </a>
-    
+    </div>
 
     <a href="{{ route('admin.customers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.customers*') ? 'sidebar-active' : '' }}">
         <i class="ri-user-line mr-3 text-xl"></i> Customers
-    </a>
-
-    <a href="{{ route('admin.pricing.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.pricing*') ? 'sidebar-active' : '' }}">
-        <i class="ri-price-tag-3-line mr-3 text-xl"></i> Pricing
     </a>
 
     <a href="{{ route('admin.vouchers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vouchers*') ? 'sidebar-active' : '' }}">
@@ -197,31 +192,6 @@
     </div>
     @endif
 
-
-    {{-- Fleet Health Aside Summary --}}
-    <div class="px-6 py-4 mt-6 border-t border-white/5 space-y-4">
-        <p class="text-[10px] font-black text-white/40 uppercase tracking-widest">Fleet Health</p>
-        
-        <div class="space-y-2">
-            @php
-                $unavailableCars = \App\Models\Vehicle::where('status', 'Unavailable')->count();
-                $expiringCarsCount = \App\Models\Vehicle::where(function($q) {
-                    $q->where('road_tax_expiry', '<=', now()->addDays(14))
-                      ->orWhere('insurance_expiry', '<=', now()->addDays(14));
-                })->count();
-            @endphp
-            
-            <a href="{{ route('admin.vehicle.index', ['status' => 'Unavailable']) }}" class="flex items-center justify-between text-xs group">
-                <span class="text-white/60 group-hover:text-white transition">Maintenance Needed</span>
-                <span class="{{ $unavailableCars > 0 ? 'text-red-300 font-bold' : 'text-white/20' }}">{{ $unavailableCars }}</span>
-            </a>
-            
-            <a href="{{ route('admin.vehicle.index') }}" class="flex items-center justify-between text-xs group">
-                <span class="text-white/60 group-hover:text-white transition">Expiring Soon (14d)</span>
-                <span class="{{ $expiringCarsCount > 0 ? 'text-orange-300 font-bold' : 'text-white/20' }}">{{ $expiringCarsCount }}</span>
-            </a>
-        </div>
-    </div>
 </nav>
         
         <div class="p-6 text-center text-[10px] text-white/30 uppercase tracking-widest font-bold">
