@@ -122,6 +122,41 @@
                         </div>
                     </div>
 
+                    {{-- Ownership & Documents --}}
+                    <div class="md:col-span-2 space-y-4 pt-4 border-t border-gray-100">
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="ri-folder-user-line"></i> Ownership & Documents
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Owner Name (Nama)</label>
+                                <input type="text" name="owner_name" value="{{ old('owner_name') }}" class="w-full border-gray-300 rounded-md shadow-sm focus:border-[#cb5c55] focus:ring-[#cb5c55] py-2" placeholder="Full Name of Owner">
+                                <p class="text-xs text-gray-400 mt-1">Required if vehicle is leased from external owner.</p>
+                            </div>
+                            
+                            <!-- File Uploads Group -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">Owner IC</label>
+                                    <input type="file" name="owner_ic_path" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-sm text-gray-500 file:mr-2 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#cb5c55]/10 file:text-[#cb5c55] hover:file:bg-[#cb5c55]/20 cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">License Owner</label>
+                                    <input type="file" name="owner_license_path" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-sm text-gray-500 file:mr-2 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#cb5c55]/10 file:text-[#cb5c55] hover:file:bg-[#cb5c55]/20 cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">Grant (Geran)</label>
+                                    <input type="file" name="geran_path" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-sm text-gray-500 file:mr-2 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#cb5c55]/10 file:text-[#cb5c55] hover:file:bg-[#cb5c55]/20 cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">Insurance Cover</label>
+                                    <input type="file" name="insurance_cover_path" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-sm text-gray-500 file:mr-2 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#cb5c55]/10 file:text-[#cb5c55] hover:file:bg-[#cb5c55]/20 cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Road Tax Expiry</label>
