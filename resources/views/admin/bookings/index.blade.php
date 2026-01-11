@@ -159,7 +159,15 @@
                         <td class="px-6 py-5 font-bold text-gray-400 text-xs">
                             <a href="{{ route('admin.bookings.show_detail', $booking->id) }}" class="hover:text-[#cb5c55] transition underline decoration-dotted relative">
                                 #{{ $booking->id }}
-                                @if($booking->fines->where('status', 'Pending Verification')->count() > 0)
+                                @php
+                                    $needsRefund = in_array($booking->status, ['Completed', 'Cancelled']) && 
+                                                  $booking->payment_verified && 
+                                                  (!in_array($booking->deposit_status, ['Returned', 'Forfeited']));
+                                    
+                                    $hasPendingFine = $booking->fines->where('status', 'Pending Verification')->count() > 0;
+                                @endphp
+
+                                @if($needsRefund || $hasPendingFine)
                                     <span class="absolute -top-1 -right-2 flex h-2 w-2">
                                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                       <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
@@ -224,11 +232,6 @@
                             
                             @elseif($booking->status == 'Approved')
                                 <div class="flex items-center justify-center gap-2">
-                                    @if($booking->inspections->count() > 0)
-                                        <a href="{{ route('inspections.show', $booking->inspections->first()) }}" onclick="event.stopPropagation()" class="bg-white text-blue-600 border-2 border-blue-200 hover:bg-blue-50 hover:border-blue-300 font-black text-[10px] px-3 py-2 rounded-lg transition-all flex items-center gap-1 uppercase shadow-sm h-full whitespace-nowrap">
-                                            <i class="ri-eye-line text-sm"></i> Inspection
-                                        </a>
-                                    @endif
                                     
                                     @php
                                         $hasReturnInspection = $booking->inspections->contains('type', 'return');
@@ -238,7 +241,7 @@
                                     <form action="{{ route('admin.booking.return', $booking->id) }}" method="POST" onsubmit="return confirm('Confirm vehicle return?')" onclick="event.stopPropagation()">
                                         @csrf
                                         <button type="submit" class="bg-white text-green-700 border-2 border-green-500 hover:bg-green-500 hover:text-white font-black text-[10px] px-3 py-2 rounded-lg transition-all flex items-center gap-1 uppercase shadow-sm h-full whitespace-nowrap">
-                                            <i class="ri-checkbox-circle-line"></i> Return
+                                            <i class="ri-car-fill"></i> Car Return
                                         </button>
                                     </form>
                                     @else
@@ -249,14 +252,15 @@
                                 </div>
                             
                             @elseif($booking->status == 'Completed' || $booking->status == 'Cancelled')
-                                @if($booking->deposit_status === 'Returned')
-                                    <div class="flex items-center justify-center text-green-600 gap-1 font-black text-[11px] uppercase tracking-widest bg-green-50 px-3 py-1.5 rounded-full w-fit mx-auto border border-green-100">
+                                @if(in_array($booking->deposit_status, ['Returned', 'Forfeited']))
+                                    <div class="flex items-center justify-center text-green-600 gap-1 font-black text-[11px] uppercase tracking-widest bg-green-50 px-3 py-1.5 rounded-full w-fit mx-auto border border-green-100" title="All settlements completed">
                                         <i class="ri-checkbox-circle-fill text-lg"></i> 
-                                        {{ $booking->status == 'Cancelled' ? 'Refunded' : 'Returned' }}
+                                        DONE
                                     </div>
                                 @elseif($booking->status == 'Completed')
-                                    <div class="flex items-center justify-center text-purple-400 gap-1 font-black text-[11px] uppercase tracking-widest">
-                                        <i class="ri-checkbox-circle-fill text-xl text-purple-500"></i> Done
+                                    <div class="flex items-center justify-center text-purple-400 gap-2 font-black text-[11px] uppercase tracking-widest bg-purple-50 px-3 py-1.5 rounded-full w-fit mx-auto border border-purple-100">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></div>
+                                        Wait Refund
                                     </div>
                                 @else
                                     <span class="text-gray-300 text-xs">—</span>
