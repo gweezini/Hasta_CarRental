@@ -43,11 +43,19 @@
             </h3>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 @foreach(['prefix' => 'photo_'] as $prefix)
-                    @foreach(['front', 'back', 'left', 'right', 'dashboard'] as $view)
+                    @foreach(['front', 'back', 'left', 'right', 'dashboard', 'keys'] as $view)
                         @php $col = $prefix . $view; @endphp
                         @if($inspection->$col)
                             <div class="space-y-2 group">
-                                <p class="text-xs font-bold text-gray-500 uppercase text-center">{{ ucfirst($view) }}</p>
+                                <p class="text-xs font-bold text-gray-500 uppercase text-center">
+                                    @if($view === 'keys')
+                                        Key in Box
+                                    @elseif($view === 'front' && $inspection->type === 'return')
+                                        Drop-off Location
+                                    @else
+                                        {{ ucfirst($view) }}
+                                    @endif
+                                </p>
                                 <div class="relative overflow-hidden rounded-xl border border-gray-200 aspect-square shadow-sm group-hover:shadow-md transition">
                                     <a href="{{ asset('storage/'.$inspection->$col) }}" target="_blank">
                                         <img src="{{ asset('storage/'.$inspection->$col) }}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500">
