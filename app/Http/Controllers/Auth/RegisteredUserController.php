@@ -62,7 +62,7 @@ class RegisteredUserController extends Controller
             'phone_number' => ['required', 'string', 'regex:/^[0-9]+$/', 'max:15'],
 
             // Student Specifics
-            'driving_license' => ['required', 'string', 'regex:/^[a-zA-Z0-9]+$/', 'max:20', 'unique:users'],
+            'expired_date'    => ['required', 'date', 'after:today'],
             'address'         => ['required', 'string', 'max:255'],
             'college_id'      => ['required'], 
             'faculty_id'      => ['required'], 
@@ -106,7 +106,7 @@ class RegisteredUserController extends Controller
             'is_blacklisted' => false, // Default status
 
             // Save Student Details
-            'driving_license' => $request->driving_license,
+            'expired_date'    => $request->expired_date,
             'address'         => $request->address,
             'college_id'      => $request->college_id,
             'faculty_id'      => $request->faculty_id,
@@ -131,7 +131,6 @@ class RegisteredUserController extends Controller
             'email' => ['nullable', 'email'],
             'matric_staff_id' => ['nullable', 'string'],
             'nric_passport' => ['nullable', 'string'],
-            'driving_license' => ['nullable', 'string'],
         ]);
 
         $errors = [];
@@ -146,10 +145,6 @@ class RegisteredUserController extends Controller
 
         if ($request->nric_passport && User::where('nric_passport', $request->nric_passport)->exists()) {
             $errors['nric_passport'] = 'The NRIC/Passport has already been taken.';
-        }
-
-        if ($request->driving_license && User::where('driving_license', $request->driving_license)->exists()) {
-            $errors['driving_license'] = 'The driving license serial number has already been taken.';
         }
 
         return response()->json(['errors' => $errors]);
