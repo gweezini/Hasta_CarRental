@@ -371,13 +371,17 @@
                                         <span class="font-bold text-gray-800">RM {{ number_format($booking->deposit_amount, 2) }}</span>
                                     </div>
                                     
-                                    @if($booking->fines->count() > 0)
+                                    @php
+                                        $deductibleFines = $booking->fines->where('status', '!=', 'Paid');
+                                    @endphp
+                                    
+                                    @if($deductibleFines->count() > 0)
                                         <div class="pt-2 pb-1">
                                             <p class="text-[9px] text-gray-400 font-black uppercase tracking-wider mb-2">Detailed Deductions</p>
                                             <div class="space-y-2">
-                                                @foreach($booking->fines as $fine)
+                                                @foreach($deductibleFines as $fine)
                                                     <div class="flex justify-between items-center text-[11px]">
-                                                        <span class="text-gray-400 truncate pr-4">{{ $fine->reason }}</span>
+                                                        <span class="text-gray-400 pr-4">{{ $fine->reason }}</span>
                                                         <span class="font-bold text-red-500 shrink-0">- RM {{ number_format($fine->amount, 2) }}</span>
                                                     </div>
                                                 @endforeach
@@ -387,7 +391,7 @@
 
                                     <div class="flex justify-between items-center text-sm text-red-600 border-t border-gray-100 pt-2">
                                         <span class="font-black uppercase text-[10px]">Total Penalties</span>
-                                        <span class="font-black">- RM {{ number_format($booking->total_fines, 2) }}</span>
+                                        <span class="font-black">- RM {{ number_format($booking->unsettled_fines_amount, 2) }}</span>
                                     </div>
                                     <div class="pt-3 border-t-2 border-dashed border-gray-200 flex justify-between items-center">
                                         @if($booking->net_refund > 0)
