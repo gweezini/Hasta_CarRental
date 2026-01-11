@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
             'phone_number' => '012-3456789',
             
             // Student Specifics
-            'driving_license' => 'D-12345678', // Matching your new Model
+            'expired_date' => '2030-01-01',
             'address' => 'Kolej Tun Razak, UTM Skudai',
             'college_id' => 1, // Ensure CollegeSeeder runs before this!
             'faculty_id' => 1, // Ensure FacultySeeder runs before this!
