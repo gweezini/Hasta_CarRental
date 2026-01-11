@@ -45,12 +45,12 @@
 </head>
 <body class="flex min-h-screen bg-[#f3f4f6]">
 
-    <aside class="w-64 bg-[#cb5c55] text-white flex flex-col flex-shrink-0 transition-all duration-300 sticky top-0 h-screen">
-        <div class="p-6 flex items-center justify-center border-b border-white/10">
-            <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Logo" class="h-10 rounded shadow-lg border-2 border-white/30">
+    <aside class="w-60 bg-[#cb5c55] text-white flex flex-col flex-shrink-0 transition-all duration-300 sticky top-0 h-screen">
+        <div class="p-4 flex items-center justify-center border-b border-white/10">
+            <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Logo" class="h-8 rounded shadow-lg border-2 border-white/30">
         </div>
 
-        <nav class="flex-1 overflow-y-auto py-8 space-y-2 custom-scrollbar">
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1 custom-scrollbar">
     @php
         $pendingFineCount = \App\Models\Fine::where('status', 'Pending Verification')->count();
         $newBookingCount = \App\Models\Booking::where('status', 'Waiting for Verification')->count();
@@ -91,18 +91,18 @@
     @endphp
 
     {{-- 1. Dashboard --}}
-    <a href="{{ route('admin.dashboard') }}" class="flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.dashboard') ? 'sidebar-active' : '' }}">
+    <a href="{{ route('admin.dashboard') }}" class="flex items-center justify-between px-6 py-2.5 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.dashboard') ? 'sidebar-active' : '' }}">
         <div class="flex items-center">
-            <i class="ri-dashboard-line mr-3 text-xl"></i> Dashboard
+            <i class="ri-dashboard-line mr-3 text-lg"></i> Dashboard
         </div>
         @if($totalBookingAction > 0)
             <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm blink-animation">{{ $totalBookingAction }}</span>
         @endif
     </a>
 
-    <a href="{{ route('admin.bookings.index') }}" class="flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.bookings*') ? 'sidebar-active' : '' }}">
+    <a href="{{ route('admin.bookings.index') }}" class="flex items-center justify-between px-6 py-2.5 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.bookings*') ? 'sidebar-active' : '' }}">
         <div class="flex items-center">
-            <i class="ri-list-check mr-3 text-xl"></i> Bookings
+            <i class="ri-list-check mr-3 text-lg"></i> Bookings
         </div>
         @if($totalBookingAction > 0)
             <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm blink-animation">{{ $totalBookingAction }}</span>
@@ -110,33 +110,33 @@
     </a>
 
     <div x-data="{ open: {{ request()->routeIs('admin.vehicle.*') || request()->routeIs('admin.pricing.*') ? 'true' : 'false' }} }">
-        <button @click="open = !open" class="w-full flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition focus:outline-none" :class="{'bg-white/10': open}">
+        <button @click="open = !open" class="w-full flex items-center justify-between px-6 py-2.5 text-sm font-medium hover:bg-white/10 transition focus:outline-none" :class="{'bg-white/10': open}">
             <div class="flex items-center">
-                <i class="ri-car-line mr-3 text-xl"></i> Fleet Management
+                <i class="ri-car-line mr-3 text-lg"></i> Fleet Management
             </div>
             <i class="ri-arrow-down-s-line transition-transform duration-200" :class="{'rotate-180': open}"></i>
         </button>
-        <div x-show="open" class="bg-black/10 text-sm">
-            <a href="{{ route('admin.vehicle.index') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.vehicle.index') ? 'text-white font-bold' : 'text-white/70' }}">
+        <div x-show="open" class="bg-black/10 text-xs">
+            <a href="{{ route('admin.vehicle.index') }}" class="block pl-14 pr-6 py-2 hover:bg-white/5 transition {{ request()->routeIs('admin.vehicle.index') ? 'text-white font-bold' : 'text-white/70' }}">
                 Vehicle List
             </a>
-            <a href="{{ route('admin.pricing.index') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.pricing.index') ? 'text-white font-bold' : 'text-white/70' }}">
+            <a href="{{ route('admin.pricing.index') }}" class="block pl-14 pr-6 py-2 hover:bg-white/5 transition {{ request()->routeIs('admin.pricing.index') ? 'text-white font-bold' : 'text-white/70' }}">
                 Pricing Setup
             </a>
         </div>
     </div>
 
-    <a href="{{ route('admin.customers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.customers*') ? 'sidebar-active' : '' }}">
-        <i class="ri-user-line mr-3 text-xl"></i> Customers
+    <a href="{{ route('admin.customers.index') }}" class="flex items-center px-6 py-2.5 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.customers*') ? 'sidebar-active' : '' }}">
+        <i class="ri-user-line mr-3 text-lg"></i> Customers
     </a>
 
-    <a href="{{ route('admin.vouchers.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vouchers*') ? 'sidebar-active' : '' }}">
-        <i class="ri-coupon-3-line mr-3 text-xl"></i> Vouchers
+    <a href="{{ route('admin.vouchers.index') }}" class="flex items-center px-6 py-2.5 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vouchers*') ? 'sidebar-active' : '' }}">
+        <i class="ri-coupon-3-line mr-3 text-lg"></i> Vouchers
     </a>
 
-    <a href="{{ route('admin.feedbacks.index') }}" class="flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.feedbacks*') ? 'sidebar-active' : '' }}">
+    <a href="{{ route('admin.feedbacks.index') }}" class="flex items-center justify-between px-6 py-2.5 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.feedbacks*') ? 'sidebar-active' : '' }}">
         <div class="flex items-center">
-            <i class="ri-feedback-line mr-3 text-xl"></i> Feedbacks
+            <i class="ri-feedback-line mr-3 text-lg"></i> Feedbacks
         </div>
         @if($feedbackAlertCount > 0)
             <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm blink-animation">{{ $feedbackAlertCount }}</span>
@@ -145,20 +145,20 @@
 
     @if(Auth::user()->isTopManagement())
     <div x-data="{ open: {{ request()->routeIs('admin.claims.*') ? 'true' : 'false' }} }">
-        <button @click="open = !open" class="w-full flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition focus:outline-none" :class="{'bg-white/10': open}">
+        <button @click="open = !open" class="w-full flex items-center justify-between px-6 py-2.5 text-sm font-medium hover:bg-white/10 transition focus:outline-none" :class="{'bg-white/10': open}">
             <div class="flex items-center">
-                <i class="ri-money-dollar-circle-line mr-3 text-xl"></i> Claims
+                <i class="ri-money-dollar-circle-line mr-3 text-lg"></i> Claims
                 @if($pendingClaimsCount > 0)
                     <span class="ml-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm blink-animation">{{ $pendingClaimsCount }}</span>
                 @endif
             </div>
             <i class="ri-arrow-down-s-line transition-transform duration-200" :class="{'rotate-180': open}"></i>
         </button>
-        <div x-show="open" class="bg-black/10 text-sm">
-            <a href="{{ route('admin.claims.create') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.claims.create') ? 'text-white font-bold' : 'text-white/70' }}">
+        <div x-show="open" class="bg-black/10 text-xs">
+            <a href="{{ route('admin.claims.create') }}" class="block pl-14 pr-6 py-2 hover:bg-white/5 transition {{ request()->routeIs('admin.claims.create') ? 'text-white font-bold' : 'text-white/70' }}">
                 My Claims
             </a>
-            <a href="{{ route('admin.claims.index') }}" class="flex justify-between items-center pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.claims.index') ? 'text-white font-bold' : 'text-white/70' }}">
+            <a href="{{ route('admin.claims.index') }}" class="flex justify-between items-center pl-14 pr-6 py-2 hover:bg-white/5 transition {{ request()->routeIs('admin.claims.index') ? 'text-white font-bold' : 'text-white/70' }}">
                 <span>Review Claims</span>
                 @if($pendingClaimsCount > 0)
                     <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm blink-animation">{{ $pendingClaimsCount }}</span>
@@ -167,26 +167,26 @@
         </div>
     </div>
     @else
-    <a href="{{ route('admin.claims.create') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.claims.create') ? 'sidebar-active' : '' }}">
-        <i class="ri-money-dollar-circle-line mr-3 text-xl"></i> My Claims
+    <a href="{{ route('admin.claims.create') }}" class="flex items-center px-6 py-2.5 text-sm font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.claims.create') ? 'sidebar-active' : '' }}">
+        <i class="ri-money-dollar-circle-line mr-3 text-lg"></i> My Claims
     </a>
     @endif
 
 
     @if(Auth::user()->isTopManagement())
     <div x-data="{ open: {{ request()->routeIs('admin.reports') || request()->routeIs('admin.staff.*') ? 'true' : 'false' }} }">
-        <button @click="open = !open" class="w-full flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition focus:outline-none" :class="{'bg-white/10': open}">
+        <button @click="open = !open" class="w-full flex items-center justify-between px-6 py-2.5 text-sm font-medium hover:bg-white/10 transition focus:outline-none" :class="{'bg-white/10': open}">
             <div class="flex items-center">
-                <i class="ri-bank-line mr-3 text-xl"></i> Finance Control
+                <i class="ri-bank-line mr-3 text-lg"></i> Finance Control
             </div>
             <i class="ri-arrow-down-s-line transition-transform duration-200" :class="{'rotate-180': open}"></i>
         </button>
-        <div x-show="open" class="bg-black/10 text-sm">
-            <a href="{{ route('admin.reports') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.reports') ? 'text-white font-bold' : 'text-white/70' }}">
-                Reports
+        <div x-show="open" class="bg-black/10 text-xs">
+            <a href="{{ route('admin.reports') }}" class="block pl-14 pr-6 py-2 hover:bg-white/5 transition {{ request()->routeIs('admin.reports') ? 'text-white font-bold' : 'text-white/70' }}">
+                Financial Reports
             </a>
-            <a href="{{ route('admin.staff.index') }}" class="block pl-14 pr-6 py-2.5 hover:bg-white/5 transition {{ request()->routeIs('admin.staff*') ? 'text-white font-bold' : 'text-white/70' }}">
-                Staff Payroll
+            <a href="{{ route('admin.staff.index') }}" class="block pl-14 pr-6 py-2 hover:bg-white/5 transition {{ request()->routeIs('admin.staff.*') ? 'text-white font-bold' : 'text-white/70' }}">
+                Staff Management
             </a>
         </div>
     </div>
@@ -199,9 +199,9 @@
         </div>
     </aside>
 
-    <div class="flex-1 flex flex-col min-h-screen">
-        <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 z-30 sticky top-0">
-            <h2 class="text-2xl font-bold text-gray-800">
+    <div class="flex-1 flex flex-col min-h-screen w-full min-w-0">
+        <header class="bg-white shadow-sm h-14 flex items-center justify-between px-6 z-30 sticky top-0">
+            <h2 class="text-xl font-bold text-gray-800">
                 @yield('header_title', 'Admin Portal')
             </h2>
             
@@ -308,7 +308,7 @@
             </div>
         </header>
 
-        <main class="flex-1 p-8 bg-[#f3f4f6]">
+        <main class="flex-1 p-5 bg-[#f3f4f6]">
             
             @if(session('success'))
                 <div class="mb-4 bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
@@ -336,7 +336,10 @@
             @endif
 
             @yield('content')
-            <div class="mt-8 text-center text-xs text-gray-400 no-print">&copy; 2026 Hasta Car Rental Admin Panel</div>
+            
+            <footer class="mt-auto pt-12 pb-8 text-center text-xs text-gray-400 no-print">
+                &copy; 2026 Hasta Car Rental Admin Panel
+            </footer>
         </main>
     </div>
 
