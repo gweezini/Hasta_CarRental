@@ -69,6 +69,32 @@
                             <p class="text-xs text-orange-600 mt-1 pl-7">Owned by external partner.</p>
                         @endif
                     </div>
+
+                    <div class="mt-6 bg-white rounded-lg border border-gray-100 p-4 shadow-sm">
+                        <h4 class="text-xs font-bold text-gray-800 uppercase mb-3 border-b border-gray-100 pb-2 flex items-center gap-2">
+                             <i class="ri-folder-user-line"></i> Documents
+                        </h4>
+                        
+                        <div class="space-y-2"> 
+                            {{-- Owner Info --}}
+                            <div class="mb-3 border-b border-gray-100 pb-3">
+                                <span class="text-[10px] uppercase text-gray-400 font-bold block mb-1">Owner Name</span>
+                                <div class="text-sm font-bold text-gray-800">{{ $vehicle->owner_name ?? 'N/A' }}</div>
+                            </div>
+                            
+                            {{-- Files --}}
+                            @foreach(['owner_ic_path' => 'Owner IC', 'owner_license_path' => 'License Owner', 'geran_path' => 'Grant (Geran)', 'insurance_cover_path' => 'Insurance Cover'] as $field => $label)
+                                <div class="flex justify-between items-center py-1">
+                                    <span class="text-xs text-gray-600 font-medium">{{ $label }}</span>
+                                    @if($vehicle->$field)
+                                        <a href="{{ asset('storage/' . $vehicle->$field) }}" target="_blank" class="text-xs font-bold text-[#cb5c55] hover:underline flex items-center gap-1"><i class="ri-eye-line"></i> View</a>
+                                    @else
+                                        <span class="text-[10px] text-gray-300 italic">Not Uploaded</span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
 
                 <div class="lg:col-span-2">
