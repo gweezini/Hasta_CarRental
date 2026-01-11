@@ -11,6 +11,14 @@ class CarController extends Controller
 {
     public function index()
     {
+        // Auto-update expired vehicles to Unavailable
+        Vehicle::where('status', 'Available')
+            ->where(function($q) {
+                $q->where('road_tax_expiry', '<', now())
+                  ->orWhere('insurance_expiry', '<', now());
+            })
+            ->update(['status' => 'Unavailable']);
+
         $vehicle = Vehicle::with('pricingTier')->get();
         return view('admin.vehicle.index', compact('vehicle'));
     }
@@ -44,10 +52,27 @@ class CarController extends Controller
             'price_per_hour'    => 'required|numeric',
             'status'            => 'required|string',
             'vehicle_image'     => 'required|image|max:2048', // 创建时还是必须要有图片的
+            'owner_name'        => 'nullable|string|max:255',
+            'owner_ic_path'      => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'owner_license_path' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'geran_path'         => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'insurance_cover_path' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'chassis_number' => 'nullable|string|max:255',
+            'engine_number' => 'nullable|string|max:255',
+            'owner_ic_number' => 'nullable|string|max:50',
+            'insurance_policy_number' => 'nullable|string|max:255',
         ]);
 
         if ($request->hasFile('vehicle_image')) {
             $data['vehicle_image'] = $request->file('vehicle_image')->store('vehicles', 'public');
+        }
+
+        // Handle Ownership Documents
+        $docFields = ['owner_ic_path', 'owner_license_path', 'geran_path', 'insurance_cover_path'];
+        foreach ($docFields as $field) {
+            if ($request->hasFile($field)) {
+                $data[$field] = $request->file($field)->store('vehicle_docs', 'public');
+            }
         }
         Vehicle::create($data);
         return redirect()->route('admin.vehicle.index')->with('success', 'New vehicle added successfully!');
@@ -79,6 +104,15 @@ class CarController extends Controller
             'status' => 'required|string',
             'vehicle_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'pricing_tier_id' => 'nullable|exists:pricing_tiers,id',
+            'owner_name'        => 'nullable|string|max:255',
+            'owner_ic_path'      => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'owner_license_path' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'geran_path'         => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'insurance_cover_path' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'chassis_number' => 'nullable|string|max:255',
+            'engine_number' => 'nullable|string|max:255',
+            'owner_ic_number' => 'nullable|string|max:50',
+            'insurance_policy_number' => 'nullable|string|max:255',
         ]);
 
         if (!$request->hasFile('vehicle_image')) {
@@ -89,9 +123,22 @@ class CarController extends Controller
             if ($vehicle->vehicle_image) {
                 Storage::disk('public')->delete($vehicle->vehicle_image);
             }
-            
             $imagePath = $request->file('vehicle_image')->store('vehicles', 'public');
             $data['vehicle_image'] = $imagePath;
+        }
+
+        // Handle Ownership Documents Update
+        $docFields = ['owner_ic_path', 'owner_license_path', 'geran_path', 'insurance_cover_path'];
+        foreach ($docFields as $field) {
+            if ($request->hasFile($field)) {
+                // Delete old file if exists
+                if ($vehicle->$field) {
+                    Storage::disk('public')->delete($vehicle->$field);
+                }
+                $data[$field] = $request->file($field)->store('vehicle_docs', 'public');
+            } else {
+                unset($data[$field]); // Do not overwrite with null if no new file uploaded
+            }
         }
 
         $vehicle->update($data);
