@@ -50,15 +50,27 @@
     </div>
 
     <div class="flex flex-col md:flex-row gap-6 mb-8 print:flex-row print:justify-between print:gap-4">
-        {{-- Gross Revenue --}}
+        {{-- Rental Revenue --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between border-l-4 border-l-green-500 text-left">
             <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Gross Revenue</p>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Rental Revenue</p>
                 <h3 class="text-2xl font-black text-gray-800 mt-1 print:text-lg">RM {{ number_format($totalRevenueAmount ?? 0, 2) }}</h3>
-                <p class="text-[10px] text-green-500 font-bold">Total rental income</p>
+                <p class="text-[10px] text-green-500 font-bold uppercase tracking-tighter">Verified Rental Fees</p>
             </div>
             <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-500 no-print">
-                <i class="ri-money-dollar-circle-line text-xl"></i>
+                <i class="ri-car-line text-xl"></i>
+            </div>
+        </div>
+
+        {{-- Penalty Income --}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between border-l-4 border-l-yellow-600 text-left">
+            <div>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Penalty Income</p>
+                <h3 class="text-2xl font-black text-gray-800 mt-1 print:text-lg">RM {{ number_format($totalFineAmount ?? 0, 2) }}</h3>
+                <p class="text-[10px] text-yellow-600 font-bold uppercase tracking-tighter">Settled Fines & Fuel</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-600 no-print">
+                <i class="ri-spam-2-line text-xl"></i>
             </div>
         </div>
 
@@ -88,47 +100,12 @@
         {{-- Net Profit --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between border-l-4 border-l-blue-500 bg-blue-50/10 text-left">
             <div>
-                <p class="text-xs text-blue-600 font-bold uppercase tracking-wider">Final Net Profit</p>
+                <p class="text-xs text-blue-600 font-bold uppercase tracking-wider">Final Net Earnings</p>
                 <h3 class="text-2xl font-black text-blue-700 mt-1 print:text-lg">RM {{ number_format($netProfit ?? 0, 2) }}</h3>
-                <p class="text-[10px] text-blue-400 font-bold uppercase tracking-tighter">Earnings after payroll</p>
+                <p class="text-[10px] text-blue-400 font-bold uppercase tracking-tighter">After Salaries & Claims</p>
             </div>
             <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 no-print">
                 <i class="ri-line-chart-line text-xl"></i>
-            </div>
-        </div>
-    </div>
-
-    <div class="flex flex-col md:flex-row gap-6 mb-8 print:flex-row print:justify-between print:gap-4">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between print:border-gray-200 print:p-4 text-left">
-            <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Total Transactions</p>
-                <h3 class="text-2xl font-black text-gray-800 mt-1 print:text-lg">{{ $totalTransactions ?? 0 }}</h3>
-                <p class="text-[10px] text-gray-400">In this period</p>
-            </div>
-            <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 no-print">
-                <i class="ri-shopping-cart-2-line text-xl"></i>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between print:border-gray-200 print:p-4 text-left">
-            <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Avg. Transaction</p>
-                <h3 class="text-2xl font-black text-gray-800 mt-1 print:text-lg">RM {{ number_format($avgOrderValue ?? 0, 0) }}</h3>
-                <p class="text-[10px] text-gray-400">Revenue / Count</p>
-            </div>
-            <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-500 no-print">
-                <i class="ri-scales-3-line text-xl"></i>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex items-center justify-between print:border-gray-200 print:p-4 text-left">
-            <div>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Highest Record</p>
-                <h3 class="text-2xl font-black text-gray-800 mt-1 print:text-lg">RM {{ number_format($highestTransaction ?? 0, 0) }}</h3>
-                <p class="text-[10px] text-gray-400">Best performance</p>
-            </div>
-            <div class="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 no-print">
-                <i class="ri-trophy-line text-xl"></i>
             </div>
         </div>
     </div>
