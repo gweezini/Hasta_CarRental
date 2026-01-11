@@ -51,22 +51,19 @@ class InspectionController extends Controller
             'photo_back' => $request->type === 'pickup' ? 'required|image|max:10240' : 'nullable|image|max:10240',
             'photo_left' => $request->type === 'pickup' ? 'required|image|max:10240' : 'nullable|image|max:10240',
             'photo_right' => $request->type === 'pickup' ? 'required|image|max:10240' : 'nullable|image|max:10240',
+            'photo_keys' => $request->type === 'return' ? 'required|image|max:10240' : 'nullable',
             'damage_photos.*' => 'image|max:10240',
             'damage_description' => 'nullable|string',
             'acknowledgement' => 'accepted',
             'agreement_check' => $request->type === 'pickup' ? 'accepted' : 'nullable',
             
-            // Check for Feedback fields if type is return
-            'rating_cleanliness_interior' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
-            'rating_smell' => $request->type === 'return' ? 'required|string' : 'nullable',
-            'rating_cleanliness_exterior' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
-            'rating_cleanliness_trash' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
-            'rating_condition_mechanical' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
-            'rating_condition_ac' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
-            'rating_condition_fuel' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
-            'rating_condition_safety' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
-            'rating_service_access' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
-            'rating_service_value' => $request->type === 'return' ? 'required|integer|between:1,5' : 'nullable',
+            // Checklist Feedback fields
+            'issue_interior' => 'nullable',
+            'issue_smell' => 'nullable',
+            'issue_mechanical' => 'nullable',
+            'issue_ac' => 'nullable',
+            'issue_exterior' => 'nullable',
+            'issue_safety' => 'nullable',
             'feedback_text' => 'nullable|string',
         ]);
 
@@ -81,7 +78,7 @@ class InspectionController extends Controller
         ];
 
         // Handle File Uploads
-        $sides = ['front', 'back', 'left', 'right', 'dashboard'];
+        $sides = ['front', 'back', 'left', 'right', 'dashboard', 'keys'];
         foreach ($sides as $side) {
             if ($request->hasFile("photo_{$side}")) {
                 $data["photo_{$side}"] = $request->file("photo_{$side}")->store('inspections', 'public');
@@ -98,8 +95,22 @@ class InspectionController extends Controller
 
         Inspection::create($data);
 
-        // Store Feedback if Return
+        // Store Feedback and handle fuel/maintenance if Return
         if ($request->type === 'return') {
+            // Fuel Penalty Logic: RM 10 per missing bar
+            $pickupInspection = $booking->inspections()->where('type', 'pickup')->first();
+            if ($pickupInspection && $request->fuel_level < $pickupInspection->fuel_level) {
+                $missingBars = $pickupInspection->fuel_level - $request->fuel_level;
+                $penaltyAmount = $missingBars * 10;
+                
+                \App\Models\Fine::create([
+                    'booking_id' => $booking->id,
+                    'amount' => $penaltyAmount,
+                    'reason' => "Fuel penalty: {$missingBars} bars missing (Pickup: {$pickupInspection->fuel_level}, Return: {$request->fuel_level})",
+                    'status' => 'Unpaid',
+                ]);
+            }
+
             // Auto Update Vehicle Fuel
             if ($booking->vehicle) {
                 $booking->vehicle->update(['current_fuel_bars' => $request->fuel_level]);
@@ -110,18 +121,35 @@ class InspectionController extends Controller
                 'category' => 'Return Inspection',
                 'description' => $request->feedback_text,
                 'ratings' => [
-                    'cleanliness_interior' => $request->rating_cleanliness_interior,
-                    'smell' => $request->rating_smell,
-                    'cleanliness_exterior' => $request->rating_cleanliness_exterior,
-                    'cleanliness_trash' => $request->rating_cleanliness_trash,
-                    'condition_mechanical' => $request->rating_condition_mechanical,
-                    'condition_ac' => $request->rating_condition_ac,
-                    'condition_fuel' => $request->rating_condition_fuel,
-                    'condition_safety' => $request->rating_condition_safety,
-                    'service_access' => $request->rating_service_access,
-                    'service_value' => $request->rating_service_value,
+                    'issue_interior' => $request->has('issue_interior'),
+                    'issue_smell' => $request->has('issue_smell'),
+                    'issue_mechanical' => $request->has('issue_mechanical'),
+                    'issue_ac' => $request->has('issue_ac'),
+                    'issue_exterior' => $request->has('issue_exterior'),
+                    'issue_safety' => $request->has('issue_safety'),
                 ]
             ]);
+
+            // Auto-update vehicle status if ANY issue is reported
+            $hasAnyIssue = $request->hasAny(['issue_interior', 'issue_smell', 'issue_mechanical', 'issue_ac', 'issue_exterior', 'issue_safety']);
+            if ($hasAnyIssue && $booking->vehicle) {
+                $booking->vehicle->update(['status' => 'Unavailable']);
+                
+                // Notify all staff about maintenance need
+                $staff = \App\Models\User::whereIn('role', ['admin', 'topmanagement'])->get();
+                \Illuminate\Support\Facades\Notification::send($staff, new \App\Notifications\VehicleMaintenanceAlert($booking->vehicle, $booking));
+            }
+
+            // Always notify staff about new inspection
+            $staff = \App\Models\User::whereIn('role', ['admin', 'topmanagement'])->get();
+            $inspection = \App\Models\Inspection::latest()->first(); // The one we just created
+            \Illuminate\Support\Facades\Notification::send($staff, new \App\Notifications\InspectionSubmitted($inspection));
+
+            // If return, feedback was also created
+            if ($request->type === 'return') {
+                $feedback = \App\Models\Feedback::latest()->first();
+                \Illuminate\Support\Facades\Notification::send($staff, new \App\Notifications\FeedbackSubmitted($feedback));
+            }
         }
 
         return redirect()->route('inspections.show', Inspection::latest()->first())
