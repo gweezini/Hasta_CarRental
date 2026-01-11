@@ -131,8 +131,8 @@
                     <span class="text-base font-medium text-gray-800">{{ $customer->faculty ? $customer->faculty->name : '-' }}</span>
                 </div>
                 <div>
-                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Driving License</span>
-                    <span class="text-base font-medium text-gray-800">{{ $customer->driving_license }}</span>
+                    <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">License Expiry Date</span>
+                    <span class="text-base font-medium text-gray-800">{{ $customer->expired_date ? $customer->expired_date->format('d M Y') : 'N/A' }}</span>
                 </div>
                 <div class="col-span-1 md:col-span-2">
                     <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Home Address</span>
