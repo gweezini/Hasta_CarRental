@@ -111,10 +111,10 @@
             </div>
 
             <div class="mt-4">
-                <x-input-label for="driving_license" :value="__('Serial Number (Refer behind of driving license)')" />
-                <x-text-input id="driving_license" class="block mt-1 w-full" type="text" name="driving_license" :value="old('driving_license')" required placeholder="12A1hewex" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" />
+                <x-input-label for="expired_date" :value="__('Driving License Expiry Date')" />
+                <x-text-input id="expired_date" class="block mt-1 w-full" type="date" name="expired_date" :value="old('expired_date')" required />
                 
-                <x-input-error :messages="$errors->get('driving_license')" class="mt-2" />
+                <x-input-error :messages="$errors->get('expired_date')" class="mt-2" />
             </div>
 
             <div class="mt-4">
@@ -239,7 +239,6 @@
                 const emailInput = document.getElementById('email');
                 const matricInput = document.getElementById('matric_staff_id');
                 const nricInput = document.getElementById('nric_passport');
-                const licenseInput = document.getElementById('driving_license');
                 const csrfToken = document.querySelector('input[name="_token"]').value;
 
                 // Clear previous JS errors
@@ -257,8 +256,7 @@
                         body: JSON.stringify({ 
                             email: emailInput.value,
                             matric_staff_id: matricInput.value,
-                            nric_passport: nricInput.value,
-                            driving_license: licenseInput.value
+                            nric_passport: nricInput.value
                         })
                     });
 
