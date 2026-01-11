@@ -88,9 +88,9 @@
         </div>
 
         <div>
-            <x-input-label for="driving_license" :value="__('Driving License')" />
-            <x-text-input id="driving_license" name="driving_license" type="text" class="mt-1 block w-full" :value="old('driving_license', $user->driving_license)" required />
-            <x-input-error class="mt-2" :messages="$errors->get('driving_license')" />
+            <x-input-label for="expired_date" :value="__('Driving License Expiry Date')" />
+            <x-text-input id="expired_date" name="expired_date" type="date" class="mt-1 block w-full" :value="old('expired_date', $user->expired_date ? $user->expired_date->format('Y-m-d') : '')" required />
+            <x-input-error class="mt-2" :messages="$errors->get('expired_date')" />
         </div>
 
         <div>
