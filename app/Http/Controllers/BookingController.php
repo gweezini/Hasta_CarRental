@@ -162,7 +162,7 @@ class BookingController extends Controller
             'vehicle_id' => 'required|exists:vehicles,id',
             'start_time' => 'required', 
             'end_time'   => 'required', 
-            'receipt_image' => 'nullable|image|max:20480',
+            'receipt_image' => 'nullable|file',
             'name' => 'required|string', 
             'phone' => 'required|string',
             'pickup_location' => 'required|string',
@@ -503,7 +503,7 @@ class BookingController extends Controller
         // Check if price increased
         if ($newGrandTotal > $oldGrandTotal) {
             $request->validate([
-                'receipt_image' => 'required|image|max:20480',
+                'receipt_image' => 'required|file',
             ]);
             
             if ($request->hasFile('receipt_image')) {
