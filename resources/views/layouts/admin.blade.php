@@ -51,11 +51,6 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto py-8 space-y-2 custom-scrollbar">
-    {{-- 1. Dashboard --}}
-    <a href="{{ route('admin.dashboard') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.dashboard') ? 'sidebar-active' : '' }}">
-        <i class="ri-dashboard-line mr-3 text-xl"></i> Dashboard
-    </a>
-
     @php
         $pendingFineCount = \App\Models\Fine::where('status', 'Pending Verification')->count();
         $newBookingCount = \App\Models\Booking::where('status', 'Waiting for Verification')->count();
@@ -76,19 +71,42 @@
         $totalBookingAction = $pendingFineCount + $newBookingCount + $pendingRefundsCount;
 
         $pendingClaimsCount = \App\Models\Claim::where('status', 'Pending')->count();
+
+        // Fleet Alert: Unset OR Expiring within 30 days
+        $fleetAlertCount = \App\Models\Vehicle::where(function($q) {
+            $q->whereNull('road_tax_expiry')
+              ->orWhereNull('insurance_expiry')
+              ->orWhere('road_tax_expiry', '<=', now()->addDays(30))
+              ->orWhere('insurance_expiry', '<=', now()->addDays(30));
+        })->count();
     @endphp
+
+    {{-- 1. Dashboard --}}
+    <a href="{{ route('admin.dashboard') }}" class="flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.dashboard') ? 'sidebar-active' : '' }}">
+        <div class="flex items-center">
+            <i class="ri-dashboard-line mr-3 text-xl"></i> Dashboard
+        </div>
+        @if($totalBookingAction > 0)
+            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm blink-animation">{{ $totalBookingAction }}</span>
+        @endif
+    </a>
 
     <a href="{{ route('admin.bookings.index') }}" class="flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.bookings*') ? 'sidebar-active' : '' }}">
         <div class="flex items-center">
             <i class="ri-list-check mr-3 text-xl"></i> Bookings
         </div>
         @if($totalBookingAction > 0)
-            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">{{ $totalBookingAction }}</span>
+            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm blink-animation">{{ $totalBookingAction }}</span>
         @endif
     </a>
 
-    <a href="{{ route('admin.vehicle.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle.index') ? 'sidebar-active' : '' }}">
-        <i class="ri-car-line mr-3 text-xl"></i> Fleet Management
+    <a href="{{ route('admin.vehicle.index') }}" class="flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.vehicle.index') ? 'sidebar-active' : '' }}">
+        <div class="flex items-center whitespace-nowrap">
+            <i class="ri-car-line mr-3 text-xl"></i> Fleet Management
+        </div>
+        @if($fleetAlertCount > 0)
+            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm blink-animation">{{ $fleetAlertCount }}</span>
+        @endif
     </a>
     
 
