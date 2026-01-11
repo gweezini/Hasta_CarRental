@@ -164,8 +164,8 @@
                                         <ol class="list-decimal list-inside space-y-1">
                                             <li><strong>Oil:</strong> Make sure oil level is returned the same as it was given. If overfill, no refund will be given.</li>
                                             <li><strong>Deposit:</strong> Returned if car is in good condition, oil same as given, no summons, clean, and on time.</li>
-                                            <li><strong>Return Key:</strong> Put the key in front passenger seat's compartment.</li>
-                                            <li><strong>Photo:</strong> Take a picture of oil bar, and the car parked in front of the store.</li>
+                                            <li><strong>Return Key:</strong> Put the key in <strong>front passenger seat's compartment (Glove Box)</strong>.</li>
+                                            <li><strong>Photo:</strong> Take a picture of oil bar, <strong>car parked at drop off location</strong>, and <strong>the key placed in the compartment</strong>.</li>
                                         </ol>
                                         <p class="mt-2 text-xs font-bold text-red-600">
                                             * Penalty will be imposed if returned late or oil is less than given.
@@ -252,11 +252,11 @@
                         @if(isset($type) && $type === 'return')
                             <!-- Return Photos (2 Required) -->
                             <p class="text-sm text-gray-500 mb-6">Please upload the required return photos.</p>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <!-- Car Parked Front of Store (Mapped to photo_front) -->
                                 <div x-data="{ preview: null }" class="space-y-2">
                                     <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">
-                                        Car Parked in Front of Store
+                                        Car Parked at drop off location
                                     </label>
                                     <label class="block cursor-pointer relative group h-48">
                                         <input type="file" name="photo_front" accept="image/*" class="hidden" required 
@@ -264,8 +264,8 @@
                                         <div class="w-full h-full rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
                                             <template x-if="!preview">
                                                 <div class="text-center p-2">
-                                                    <i class="ri-store-2-line text-3xl text-gray-400 group-hover:text-[#ec5a29]"></i>
-                                                    <span class="block text-[10px] text-gray-400 mt-2">Upload Store View</span>
+                                                    <i class="ri-map-pin-2-line text-3xl text-gray-400 group-hover:text-[#ec5a29]"></i>
+                                                    <span class="block text-[10px] text-gray-400 mt-2">Upload Drop-off Point</span>
                                                 </div>
                                             </template>
                                             <template x-if="preview">
@@ -288,6 +288,28 @@
                                                 <div class="text-center p-2">
                                                     <i class="ri-gas-station-line text-3xl text-gray-400 group-hover:text-[#ec5a29]"></i>
                                                     <span class="block text-[10px] text-gray-400 mt-2">Upload Fuel Gauge</span>
+                                                </div>
+                                            </template>
+                                            <template x-if="preview">
+                                                <img :src="preview" class="w-full h-full object-cover">
+                                            </template>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- Key Photo (Mapped to photo_keys) -->
+                                <div x-data="{ preview: null }" class="space-y-2">
+                                    <label class="block text-xs font-bold text-gray-700 text-center uppercase tracking-wide">
+                                        Key in Compartment (Glove Box)
+                                    </label>
+                                    <label class="block cursor-pointer relative group h-48">
+                                        <input type="file" name="photo_keys" accept="image/*" class="hidden" required 
+                                               @change="preview = URL.createObjectURL($event.target.files[0])">
+                                        <div class="w-full h-full rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 group-hover:border-[#ec5a29] group-hover:bg-[#ec5a29]/5 transition overflow-hidden">
+                                            <template x-if="!preview">
+                                                <div class="text-center p-2">
+                                                    <i class="ri-key-2-line text-3xl text-gray-400 group-hover:text-[#ec5a29]"></i>
+                                                    <span class="block text-[10px] text-gray-400 mt-2">Upload Key Photo</span>
                                                 </div>
                                             </template>
                                             <template x-if="preview">
@@ -505,177 +527,100 @@
                     <!-- Customer Feedback (Return Only) -->
                     @if(isset($type) && $type === 'return')
                     <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-100 mb-8">
-                        <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            <i class="ri-thumb-up-line text-indigo-600"></i> Customer Feedback
-                        </h3>
-                        <p class="text-xs text-gray-500 mb-6">Please rate your experience to help us improve.</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                                <i class="ri-thumb-up-line text-indigo-600"></i> Vehicle Feedback
+                            </h3>
+                            <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded font-bold uppercase tracking-wider">Stakeholder Request</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-6 italic">Please tick the boxes if you found any issues during your rental period.</p>
 
-                        <!-- Category A: Hygiene & Cleanliness -->
-                        <h4 class="font-bold text-gray-800 text-sm uppercase tracking-wide mb-3 border-b border-indigo-200 pb-1">A. Hygiene & Cleanliness</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            
-                            <!-- 1. Interior Cleanliness -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-2">1. Interior Cleanliness</label>
-                                <div class="flex gap-4">
-                                    @for($i=1; $i<=5; $i++)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="rating_cleanliness_interior" value="{{ $i }}" class="peer sr-only" required>
-                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
-                                                {{ $i }}
-                                            </div>
-                                        </label>
-                                    @endfor
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 mb-8">
+                            {{-- 1. Interior --}}
+                            <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-indigo-50 shadow-sm hover:border-indigo-200 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                        <i class="ri-brush-2-line"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700">Interior is Dirty / Trash found</span>
                                 </div>
+                                <input type="checkbox" name="issue_interior" value="1" class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                             </div>
 
-                            <!-- 2. Odor & Freshness -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-2">2. Odor & Freshness</label>
-                                <select name="rating_smell" class="w-full p-2 rounded-lg border border-gray-300 text-sm focus:ring-2 focus:ring-indigo-500" required>
-                                    <option value="" disabled selected>Select smell...</option>
-                                    <option value="Fresh">Fresh</option>
-                                    <option value="Neutral">Neutral</option>
-                                    <option value="Smoke">Smoke</option>
-                                    <option value="Bad Odor">Bad Odor</option>
-                                </select>
+                            {{-- 2. Smell --}}
+                            <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-indigo-50 shadow-sm hover:border-indigo-200 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                        <i class="ri-windy-line"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700">Bad Smell (Cigarette/Food)</span>
+                                </div>
+                                <input type="checkbox" name="issue_smell" value="1" class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                             </div>
 
-                            <!-- 3. Exterior Appearance -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-2">3. Exterior Appearance</label>
-                                <div class="flex gap-4">
-                                    @for($i=1; $i<=5; $i++)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="rating_cleanliness_exterior" value="{{ $i }}" class="peer sr-only" required>
-                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
-                                                {{ $i }}
-                                            </div>
-                                        </label>
-                                    @endfor
+                            {{-- 3. Mechanical --}}
+                            <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-indigo-50 shadow-sm hover:border-indigo-200 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                        <i class="ri-settings-4-line"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700">Mechanical Issue / Noise</span>
                                 </div>
+                                <input type="checkbox" name="issue_mechanical" value="1" class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                             </div>
 
-                            <!-- 4. Sanitization & Trash -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-2">4. Free of Trash</label>
-                                <div class="flex gap-4">
-                                    @for($i=1; $i<=5; $i++)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="rating_cleanliness_trash" value="{{ $i }}" class="peer sr-only" required>
-                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
-                                                {{ $i }}
-                                            </div>
-                                        </label>
-                                    @endfor
+                            {{-- 4. Aircond --}}
+                            <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-indigo-50 shadow-sm hover:border-indigo-200 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                        <i class="ri-temp-cold-line"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700">Aircond Not Cold</span>
                                 </div>
+                                <input type="checkbox" name="issue_ac" value="1" class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                            </div>
+
+                            {{-- 5. Exterior --}}
+                            <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-indigo-50 shadow-sm hover:border-indigo-200 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                        <i class="ri-car-washing-line"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700">Exterior is very dirty</span>
+                                </div>
+                                <input type="checkbox" name="issue_exterior" value="1" class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                            </div>
+
+                            {{-- 6. Safety --}}
+                            <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-indigo-50 shadow-sm hover:border-indigo-200 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                        <i class="ri-shield-cross-line"></i>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700">Safety Concern (Brakes/Lights)</span>
+                                </div>
+                                <input type="checkbox" name="issue_safety" value="1" class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                             </div>
                         </div>
 
-                        <!-- Category B: Vehicle Condition -->
-                        <h4 class="font-bold text-gray-800 text-sm uppercase tracking-wide mb-3 border-b border-indigo-200 pb-1">B. Vehicle Condition</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            
-                            <!-- 5. Mechanical Performance -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-2">5. Mechanical (Engine/Brakes)</label>
-                                <div class="flex gap-4">
-                                    @for($i=1; $i<=5; $i++)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="rating_condition_mechanical" value="{{ $i }}" class="peer sr-only" required>
-                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
-                                                {{ $i }}
-                                            </div>
-                                        </label>
-                                    @endfor
+                        <!-- NOTICE ABOUT STATUS -->
+                        <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="ri-information-line text-amber-400 text-lg"></i>
                                 </div>
-                            </div>
-
-                            <!-- 6. Air Conditioning -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-2">6. Air Conditioning</label>
-                                <div class="flex gap-4">
-                                    @for($i=1; $i<=5; $i++)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="rating_condition_ac" value="{{ $i }}" class="peer sr-only" required>
-                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
-                                                {{ $i }}
-                                            </div>
-                                        </label>
-                                    @endfor
-                                </div>
-                            </div>
-
-                             <!-- 7. Fuel / Battery -->
-                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-2">7. Fuel / Battery Level</label>
-                                <div class="flex gap-4">
-                                    @for($i=1; $i<=5; $i++)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="rating_condition_fuel" value="{{ $i }}" class="peer sr-only" required>
-                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
-                                                {{ $i }}
-                                            </div>
-                                        </label>
-                                    @endfor
-                                </div>
-                            </div>
-
-                             <!-- 8. Safety & Features -->
-                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-2">8. Safety Features</label>
-                                <div class="flex gap-4">
-                                    @for($i=1; $i<=5; $i++)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="rating_condition_safety" value="{{ $i }}" class="peer sr-only" required>
-                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
-                                                {{ $i }}
-                                            </div>
-                                        </label>
-                                    @endfor
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Category C: Service Experience -->
-                        <h4 class="font-bold text-gray-800 text-sm uppercase tracking-wide mb-3 border-b border-indigo-200 pb-1">C. Service Experience</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            
-                            <!-- 9. Ease of Access -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-2">9. Ease of Access</label>
-                                <div class="flex gap-4">
-                                    @for($i=1; $i<=5; $i++)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="rating_service_access" value="{{ $i }}" class="peer sr-only" required>
-                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
-                                                {{ $i }}
-                                            </div>
-                                        </label>
-                                    @endfor
-                                </div>
-                            </div>
-
-                            <!-- 10. Value for Money -->
-                             <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-2">10. Value for Money (Is the overall services worth the price paid?)</label>
-                                <div class="flex gap-4">
-                                    @for($i=1; $i<=5; $i++)
-                                        <label class="cursor-pointer">
-                                            <input type="radio" name="rating_service_value" value="{{ $i }}" class="peer sr-only" required>
-                                            <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white text-gray-400 hover:border-indigo-400 transition font-bold text-xs">
-                                                {{ $i }}
-                                            </div>
-                                        </label>
-                                    @endfor
+                                <div class="ml-3">
+                                    <p class="text-xs text-amber-800">
+                                        <strong>Note:</strong> Ticking any of the boxes above will naturally mark the vehicle for <strong>Maintenance</strong> to ensure quality for the next user.
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Optional Feedback -->
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-2">Additional Feedback (Optional)</label>
-                            <textarea name="feedback_text" rows="3" class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="Any other specific comments?"></textarea>
+                            <label class="block text-xs font-bold text-gray-700 mb-2">Additional Comments / Details of Issues</label>
+                            <textarea name="feedback_text" rows="3" class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="Please provide more details if you checked any issues above..."></textarea>
                         </div>
                     </div>
                     @endif
