@@ -19,7 +19,13 @@ class CarController extends Controller
             })
             ->update(['status' => 'Unavailable']);
 
-        $vehicle = Vehicle::with('pricingTier')->get();
+        $query = Vehicle::with('pricingTier');
+        
+        if (request()->has('status')) {
+            $query->where('status', request('status'));
+        }
+
+        $vehicle = $query->get();
         return view('admin.vehicle.index', compact('vehicle'));
     }
 
