@@ -53,4 +53,22 @@ class Booking extends Model
     {
         return $this->belongsTo(User::class, 'processed_by');
     }
+
+    /**
+     * Calculation Helpers
+     */
+    public function getTotalFinesAttribute()
+    {
+        return $this->fines->sum('amount');
+    }
+
+    public function getNetRefundAttribute()
+    {
+        return max(0, $this->deposit_amount - $this->total_fines);
+    }
+
+    public function getOutstandingBalanceAttribute()
+    {
+        return max(0, $this->total_fines - $this->deposit_amount);
+    }
 }
