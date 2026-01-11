@@ -153,11 +153,7 @@
 
                             @elseif($booking->status == 'Approved')
                                 <div class="flex items-center justify-center gap-2">
-                                    @if($booking->inspections->count() > 0)
-                                        <a href="{{ route('inspections.show', $booking->inspections->first()) }}" onclick="event.stopPropagation()" class="bg-white text-blue-600 border-2 border-blue-200 hover:bg-blue-50 hover:border-blue-300 font-black text-[10px] px-3 py-2 rounded-lg transition-all flex items-center gap-1 uppercase shadow-sm h-full whitespace-nowrap">
-                                            <i class="ri-eye-line text-sm"></i> Inspection
-                                        </a>
-                                    @endif
+
                                     
                                     @php
                                         $hasReturnInspection = $booking->inspections->contains('type', 'return');
