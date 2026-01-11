@@ -100,6 +100,11 @@ class InspectionController extends Controller
 
         // Store Feedback if Return
         if ($request->type === 'return') {
+            // Auto Update Vehicle Fuel
+            if ($booking->vehicle) {
+                $booking->vehicle->update(['current_fuel_bars' => $request->fuel_level]);
+            }
+
             \App\Models\Feedback::create([
                 'booking_id' => $booking->id,
                 'category' => 'Return Inspection',
