@@ -3,18 +3,25 @@
 @section('header_title', 'All Bookings')
 
 @section('content')
+    {{-- Unified Page Header --}}
+    <div class="mb-6">
+        <h2 class="text-3xl font-bold text-gray-800">All Bookings</h2>
+        <p class="text-gray-500 text-sm">Monitor and manage all customer rentals and verification processes</p>
+    </div>
+
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-        <div class="p-6 border-b border-gray-100 bg-gray-50/30 flex flex-col md:flex-row justify-between items-center gap-4">
-            <h3 class="text-lg font-bold text-gray-800 tracking-tight flex items-center gap-2">
+        {{-- Card Header --}}
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/30 flex flex-col md:flex-row justify-between items-center gap-3">
+            <h3 class="text-base font-bold text-gray-800 tracking-tight flex items-center gap-2">
                 <i class="ri-history-line text-gray-400"></i> Full Booking History
             </h3>
             
-            <a href="{{ route('admin.vehicle.availability') }}" class="text-xs font-bold text-blue-600 bg-white hover:bg-blue-50 border border-blue-200 px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm">
-                <i class="ri-calendar-check-line text-lg"></i> Check Availability
+            <a href="{{ route('admin.vehicle.availability') }}" class="text-[10px] font-black text-blue-600 bg-white hover:bg-blue-50 border border-blue-200 px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm uppercase tracking-widest">
+                <i class="ri-calendar-check-line text-base"></i> Check Availability
             </a>
         </div>
             
-        <div class="bg-white border-b border-gray-200 px-8 pt-6">
+        <div class="bg-white border-b border-gray-200 px-6 pt-4">
             @php
                  $pendingRefunds = \App\Models\Booking::where(function($q) {
                      $q->where('status', 'Completed')
@@ -30,32 +37,32 @@
             @endphp
 
             {{-- Level 1: Main Navigation --}}
-            <nav class="flex gap-8 -mb-px">
+            <nav class="flex gap-6 -mb-px">
                 <a href="{{ route('admin.bookings.index') }}" 
-                   class="pb-4 text-sm font-bold border-b-2 transition {{ !request('penalty_status') && !request('deposit_status') ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                   class="pb-2.5 text-xs font-black border-b-2 transition {{ !request('penalty_status') && !request('deposit_status') ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} uppercase tracking-widest">
                     All Bookings
                 </a>
 
                 <a href="{{ route('admin.bookings.index', ['deposit_status' => 'Pending']) }}" 
-                   class="pb-4 text-sm font-bold border-b-2 transition flex items-center gap-2 {{ request('deposit_status') ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                   class="pb-2.5 text-xs font-black border-b-2 transition flex items-center gap-2 {{ request('deposit_status') ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} uppercase tracking-widest">
                    Deposit Refunds 
                    @if($pendingRefunds > 0)
-                        <span class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[10px] font-bold">{{ $pendingRefunds }}</span>
+                        <span class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">{{ $pendingRefunds }}</span>
                    @endif
                 </a>
 
                 <a href="{{ route('admin.bookings.index', ['penalty_status' => 'Verifying']) }}" 
-                   class="pb-4 text-sm font-bold border-b-2 transition flex items-center gap-2 {{ request('penalty_status') ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                   class="pb-2.5 text-xs font-black border-b-2 transition flex items-center gap-2 {{ request('penalty_status') ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} uppercase tracking-widest">
                    Penalty Management
                    @if($pendingVerifications > 0)
-                        <span class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[10px] font-bold">{{ $pendingVerifications }}</span>
+                        <span class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">{{ $pendingVerifications }}</span>
                    @endif
                 </a>
             </nav>
         </div>
 
         {{-- Level 2: Smart Filter Toolbar --}}
-        <div class="bg-white border-b border-gray-100 px-8 py-4 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
+        <div class="bg-white border-b border-gray-100 px-6 py-3 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
             
             {{-- Left: Status Tabs (Pills) --}}
             <div class="flex flex-wrap items-center gap-2">
@@ -144,12 +151,12 @@
             <table class="w-full text-sm text-gray-600">
                 <thead class="bg-gray-50 text-[10px] uppercase text-gray-400 font-black tracking-widest border-b">
                     <tr>
-                        <th class="px-6 py-4">ID</th>
-                        <th class="px-6 py-4">Customer</th>
-                        <th class="px-6 py-4">Vehicle</th>
-                        <th class="px-6 py-4">Dates</th>
-                        <th class="px-6 py-4 text-center">Status</th>
-                        <th class="px-6 py-4 text-center">Action</th>
+                        <th class="px-6 py-3">ID</th>
+                        <th class="px-6 py-3">Customer</th>
+                        <th class="px-6 py-3">Vehicle</th>
+                        <th class="px-6 py-3">Dates</th>
+                        <th class="px-6 py-3 text-center">Status</th>
+                        <th class="px-6 py-3 text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -176,8 +183,8 @@
                             </a>
                         </td>
                         
-                        <td class="px-6 py-5">
-                            <a href="{{ route('admin.customers.show', $booking->user->id) }}" onclick="event.stopPropagation()" class="text-base font-bold text-gray-900 hover:text-[#cb5c55] hover:underline transition block leading-tight">
+                        <td class="px-6 py-3">
+                            <a href="{{ route('admin.customers.show', $booking->user->id) }}" onclick="event.stopPropagation()" class="text-sm font-bold text-gray-900 hover:text-[#cb5c55] hover:underline transition block leading-none">
                                 {{ $booking->user->name }}
                             </a>
                             <p class="text-xs text-gray-500 font-medium mt-1">
@@ -185,12 +192,12 @@
                             </p>
                         </td>
 
-                        <td class="px-6 py-5">
-                            <p class="font-bold text-gray-800 uppercase leading-tight">{{ $booking->vehicle->brand }} {{ $booking->vehicle->model }}</p>
-                            <p class="text-xs text-gray-400 font-mono mt-0.5 tracking-wider">{{ $booking->vehicle->plate_number }}</p>
+                        <td class="px-6 py-3">
+                            <p class="font-bold text-gray-800 uppercase leading-none text-[13px]">{{ $booking->vehicle->brand }} {{ $booking->vehicle->model }}</p>
+                            <p class="text-[10px] text-gray-400 font-mono mt-0.5 tracking-wider">{{ $booking->vehicle->plate_number }}</p>
                         </td>
 
-                        <td class="px-6 py-5">
+                        <td class="px-6 py-3">
                             <div class="flex flex-col gap-1.5">
                                 <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 w-fit">
                                     FROM: {{ $booking->pickup_date_time->format('d M, h:i A') }}
@@ -201,7 +208,7 @@
                             </div>
                         </td>
 
-                        <td class="px-6 py-5">
+                        <td class="px-6 py-3">
                             <div class="flex items-center justify-center gap-3">
                                 @php
                                     $style = match($booking->status) {
@@ -321,7 +328,6 @@
                             <p class="text-[10px] text-gray-400 font-medium" id="m-processed-at"></p>
                         </div>
                     </div>
-                </div>
                 <div class="p-8 bg-gray-50 flex flex-col items-center justify-center text-center">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 block w-full">Payment Receipt</label>
                     <img id="m-img" src="" onclick="openLargeImage(this.src)" class="max-h-[350px] rounded-lg shadow-md border-4 border-white cursor-zoom-in hover:scale-[1.02] transition">
