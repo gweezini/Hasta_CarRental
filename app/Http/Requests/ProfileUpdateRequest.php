@@ -27,7 +27,7 @@ class ProfileUpdateRequest extends FormRequest
             ],
             'phone_number' => ['required', 'string', 'max:15'],
             'address'      => ['required', 'string', 'max:255'],
-            'driving_license' => ['required', 'string', 'max:20'],
+            'expired_date'    => ['required', 'date', 'after:today'],
             'matric_staff_id' => ['required', 'string', 'max:20'], 
             'nric_passport'   => ['required', 'string', 'max:20'],
 
