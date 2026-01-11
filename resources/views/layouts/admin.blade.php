@@ -54,8 +54,13 @@
     @php
         $pendingFineCount = \App\Models\Fine::where('status', 'Pending Verification')->count();
         $newBookingCount = \App\Models\Booking::where('status', 'Waiting for Verification')->count();
-        // Calculation moved below pendingRefundsCount definition
         
+        // Unprocessed Returns: Approved bookings that have a return inspection but aren't Completed
+        $unprocessedReturnsCount = \App\Models\Booking::where('status', 'Approved')
+            ->whereHas('inspections', function($q) {
+                $q->where('type', 'return');
+            })->count();
+
         $pendingRefundsCount = \App\Models\Booking::where(function($q) {
                 $q->where('status', 'Completed')
                   ->orWhere(function($sq) {
@@ -68,17 +73,29 @@
                   ->orWhere('deposit_status', '!=', 'Returned');
             })->count();
 
-        $totalBookingAction = $pendingFineCount + $newBookingCount + $pendingRefundsCount;
+        $totalBookingAction = $pendingFineCount + $newBookingCount + $pendingRefundsCount + $unprocessedReturnsCount;
 
         $pendingClaimsCount = \App\Models\Claim::where('status', 'Pending')->count();
 
-        // Fleet Alert: Unset OR Expiring within 30 days
+        // Fleet Alert: Unset OR Expiring within 30 days OR Unavailable
         $fleetAlertCount = \App\Models\Vehicle::where(function($q) {
             $q->whereNull('road_tax_expiry')
               ->orWhereNull('insurance_expiry')
               ->orWhere('road_tax_expiry', '<=', now()->addDays(30))
-              ->orWhere('insurance_expiry', '<=', now()->addDays(30));
+              ->orWhere('insurance_expiry', '<=', now()->addDays(30))
+              ->orWhere('status', 'Unavailable');
         })->count();
+
+        // Feedback alert: New feedbacks in last 48 hours with flagged issues
+        $feedbackAlertCount = \App\Models\Feedback::where('created_at', '>=', now()->subDays(2))
+            ->where(function($q) {
+                $q->where('ratings->issue_interior', true)
+                  ->orWhere('ratings->issue_smell', true)
+                  ->orWhere('ratings->issue_mechanical', true)
+                  ->orWhere('ratings->issue_ac', true)
+                  ->orWhere('ratings->issue_exterior', true)
+                  ->orWhere('ratings->issue_safety', true);
+            })->count();
     @endphp
 
     {{-- 1. Dashboard --}}
@@ -122,11 +139,14 @@
         <i class="ri-coupon-3-line mr-3 text-xl"></i> Vouchers
     </a>
 
-    <a href="{{ route('admin.feedbacks.index') }}" class="flex items-center px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.feedbacks*') ? 'sidebar-active' : '' }}">
-        <i class="ri-feedback-line mr-3 text-xl"></i> Feedbacks
+    <a href="{{ route('admin.feedbacks.index') }}" class="flex items-center justify-between px-6 py-3.5 text-base font-medium hover:bg-white/10 transition {{ request()->routeIs('admin.feedbacks*') ? 'sidebar-active' : '' }}">
+        <div class="flex items-center">
+            <i class="ri-feedback-line mr-3 text-xl"></i> Feedbacks
+        </div>
+        @if($feedbackAlertCount > 0)
+            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm blink-animation">{{ $feedbackAlertCount }}</span>
+        @endif
     </a>
-
-
 
     @if(Auth::user()->isTopManagement())
     <div x-data="{ open: {{ request()->routeIs('admin.claims.*') ? 'true' : 'false' }} }">
@@ -178,6 +198,30 @@
     @endif
 
 
+    {{-- Fleet Health Aside Summary --}}
+    <div class="px-6 py-4 mt-6 border-t border-white/5 space-y-4">
+        <p class="text-[10px] font-black text-white/40 uppercase tracking-widest">Fleet Health</p>
+        
+        <div class="space-y-2">
+            @php
+                $unavailableCars = \App\Models\Vehicle::where('status', 'Unavailable')->count();
+                $expiringCarsCount = \App\Models\Vehicle::where(function($q) {
+                    $q->where('road_tax_expiry', '<=', now()->addDays(14))
+                      ->orWhere('insurance_expiry', '<=', now()->addDays(14));
+                })->count();
+            @endphp
+            
+            <a href="{{ route('admin.vehicle.index', ['status' => 'Unavailable']) }}" class="flex items-center justify-between text-xs group">
+                <span class="text-white/60 group-hover:text-white transition">Maintenance Needed</span>
+                <span class="{{ $unavailableCars > 0 ? 'text-red-300 font-bold' : 'text-white/20' }}">{{ $unavailableCars }}</span>
+            </a>
+            
+            <a href="{{ route('admin.vehicle.index') }}" class="flex items-center justify-between text-xs group">
+                <span class="text-white/60 group-hover:text-white transition">Expiring Soon (14d)</span>
+                <span class="{{ $expiringCarsCount > 0 ? 'text-orange-300 font-bold' : 'text-white/20' }}">{{ $expiringCarsCount }}</span>
+            </a>
+        </div>
+    </div>
 </nav>
         
         <div class="p-6 text-center text-[10px] text-white/30 uppercase tracking-widest font-bold">
