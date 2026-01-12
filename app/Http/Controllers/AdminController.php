@@ -658,9 +658,11 @@ class AdminController extends Controller
                 break;
             case 'monthly':
             default:
-                $query->whereYear('updated_at', Carbon::now()->year);
-                $summaryQuery->whereYear('updated_at', Carbon::now()->year);
-                $groupBy = "MONTH(updated_at)"; 
+                $query->whereMonth('updated_at', Carbon::now()->month)
+                      ->whereYear('updated_at', Carbon::now()->year);
+                $summaryQuery->whereMonth('updated_at', Carbon::now()->month)
+                             ->whereYear('updated_at', Carbon::now()->year);
+                $groupBy = "DATE(updated_at)"; 
                 break;
         }
 
@@ -671,7 +673,7 @@ class AdminController extends Controller
 
         $formattedRevenue = $revenueData->mapWithKeys(function ($item) use ($filter) {
             if ($filter == 'daily') return [Carbon::parse($item->date_key)->format('d M') => $item->total];
-            if ($filter == 'monthly') return [Carbon::create()->month($item->date_key)->format('F') => $item->total];
+            if ($filter == 'monthly') return [Carbon::parse($item->date_key)->format('d M') => $item->total];
             if ($filter == 'weekly') return ['Week ' . substr($item->date_key, -2) => $item->total];
             return [$item->date_key => $item->total];
         });
