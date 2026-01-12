@@ -253,7 +253,7 @@
                     }, 
                     x: { 
                         grid: { display: false },
-                        ticks: { font: { size: 9, family: 'Poppins' }, color: '#6b7280', autoSkip: false, maxRotation: 0, minRotation: 0 } 
+                        ticks: { display: false, font: { size: 9, family: 'Poppins' }, color: '#6b7280', autoSkip: false, maxRotation: 0, minRotation: 0 } 
                     } 
                 } 
             }
