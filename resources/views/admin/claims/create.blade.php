@@ -141,7 +141,8 @@
                         <th class="px-8 py-4">Type</th>
                         <th class="px-8 py-4 text-right">Amount</th>
                         <th class="px-8 py-4">Status</th>
-                        <th class="px-8 py-4 text-center">Receipt</th>
+                        <th class="px-8 py-4 text-center">Staff Receipt</th>
+                        <th class="px-8 py-4 text-center">Manager Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
@@ -151,6 +152,9 @@
                         <td class="px-8 py-5">
                             <p class="font-bold text-gray-900 text-sm leading-tight">{{ $claim->claim_type }}</p>
                             <p class="text-[10px] text-gray-400 font-mono mt-1">{{ $claim->vehicle_plate }}</p>
+                            @if($claim->processed_at)
+                                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Processed: {{ $claim->processed_at->format('d M Y') }}</p>
+                            @endif
                         </td>
                         <td class="px-8 py-5 text-right font-black text-gray-900 text-sm">RM {{ number_format($claim->amount, 2) }}</td>
                         <td class="px-8 py-5">
@@ -168,12 +172,30 @@
                         <td class="px-8 py-5 text-center">
                             @if($claim->receipt_path)
                                 <a href="{{ asset('storage/' . $claim->receipt_path) }}" target="_blank" 
-                                    class="inline-flex items-center gap-1.5 text-[10px] font-black text-[#cb5c55] uppercase tracking-widest hover:underline">
-                                    <i class="ri-file-list-3-line text-sm"></i> View Receipt
+                                    class="inline-flex items-center gap-1.5 text-[10px] font-black text-gray-500 uppercase tracking-widest hover:underline">
+                                    <i class="ri-file-list-3-line text-sm"></i> View
                                 </a>
                             @else
-                                <span class="text-[10px] text-gray-300 font-bold uppercase tracking-widest italic">No Receipt</span>
+                                <span class="text-[10px] text-gray-300 font-bold uppercase tracking-widest italic">None</span>
                             @endif
+                        </td>
+                        <td class="px-8 py-5">
+                            <div class="flex flex-col items-center gap-1">
+                                @if($claim->payment_proof)
+                                    <a href="{{ asset('storage/' . $claim->payment_proof) }}" target="_blank" 
+                                        class="inline-flex items-center gap-1.5 text-[10px] font-black text-[#cb5c55] uppercase tracking-widest hover:underline">
+                                        <i class="ri-file-transfer-line text-sm"></i> Payment Proof
+                                    </a>
+                                @endif
+
+                                @if($claim->action_reason)
+                                    <p class="text-[10px] text-gray-500 font-medium italic text-center max-w-[150px]">"{{ $claim->action_reason }}"</p>
+                                @endif
+
+                                @if(!$claim->payment_proof && !$claim->action_reason)
+                                    <span class="text-[10px] text-gray-300 font-bold uppercase tracking-widest italic">-</span>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                     @empty
