@@ -795,6 +795,8 @@
             <input
               type="text"
               id="pickup"
+              name="location"
+              value="{{ request('location') }}"
               placeholder="Student Mall, UTM"
               required
             />
@@ -1120,6 +1122,41 @@
           // Init
           if(startT && startT.value) regenerateOpts();
           else updateConstraints();
+      });
+
+      // 12-Hour Validation Logic (consistent with welcome and results)
+      document.addEventListener("DOMContentLoaded", function() {
+          const startDateInput = document.getElementById('start_date');
+          const startTimeInput = document.querySelector('[name="start_time"]');
+
+          function checkTime() {
+              if(!startDateInput || !startTimeInput) return;
+              
+              const dateVal = startDateInput.value;
+              const timeVal = startTimeInput.value;
+
+              if (dateVal && timeVal) {
+                  // Construct date object (Local time)
+                  const pickupDate = new Date(dateVal + 'T' + timeVal);
+                  const now = new Date();
+                  
+                  // Add 12 hours to current time
+                  const minTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
+
+                  if (pickupDate < minTime) {
+                      alert("Bookings must be made at least 12 hours in advance.");
+                      startTimeInput.value = ""; 
+                  }
+              }
+          }
+
+          if(startDateInput) {
+            startDateInput.addEventListener('change', checkTime);
+          }
+          if(startTimeInput) {
+            startTimeInput.addEventListener('change', checkTime);
+            startTimeInput.addEventListener('blur', checkTime);
+          }
       });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
