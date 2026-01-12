@@ -1048,11 +1048,11 @@
                   const pickupDate = new Date(dateVal + 'T' + timeVal);
                   const now = new Date();
                   
-                  // Add 24 hours to current time
-                  const minTime = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+                  // Add 12 hours to current time
+                  const minTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
 
                   if (pickupDate < minTime) {
-                      alert("Invalid Pick Up Time! Bookings must be made at least 24 hours in advance.");
+                      alert("Invalid Pick Up Time! Bookings must be made at least 12 hours in advance.");
                       startTimeInput.value = ""; 
                   }
               }
