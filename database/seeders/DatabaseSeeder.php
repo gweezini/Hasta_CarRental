@@ -21,12 +21,15 @@ class DatabaseSeeder extends Seeder
         CarOwnerSeeder::class, 
         
         FacultySeeder::class,
-        UserSeeder::class,
+        // UserSeeder::class, 
         VehicleSeeder::class,
         VoucherSeeder::class,
         PricingSeeder::class,
           
         PromotionSeeder::class, 
     ]);
+    
+    // Generate 50 dummy users
+    User::factory(50)->create();
     }
 }
