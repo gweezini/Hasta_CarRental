@@ -630,7 +630,7 @@
                   const now = new Date();
                   const minTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
                   if (pickupDate < minTime) {
-                      alert("Invalid Pick Up Time! Bookings must be made at least 12 hours in advance.");
+                      alert("Bookings must be made at least 12 hours in advance.");
                       startTimeInput.value = ""; 
                   }
               }
