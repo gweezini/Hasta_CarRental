@@ -107,11 +107,24 @@
 
       body {
         font-family: "Poppins", sans-serif;
-        background-color: #f9fafb;
+      }
+
+      header {
+        position: relative;
+        background-image: linear-gradient(
+            rgba(0, 0, 0, 0.6),
+            rgba(0, 0, 0, 0.4)
+          ),
+          url("{{ asset('images/hastabackground.png') }}");
+        background-position: center center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
 
       nav {
-        background-color: #2d3748;
         position: fixed;
         isolation: isolate;
         top: 0;
@@ -122,6 +135,12 @@
         align-items: center;
         justify-content: space-between;
         padding: 1.5rem 2rem;
+        background-color: transparent;
+      }
+
+      nav.nav__fixed {
+        background-color: #2d3748;
+        padding: 1rem 2rem;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
       }
 
@@ -184,28 +203,96 @@
       .notif-footer a { font-size: 0.8rem; font-weight: 700; color: var(--primary-color); }
 
 
-      /* Header/Search Form */
-      .header-search {
-         margin-top: 80px; 
-         background-color: var(--white); 
-         padding: 2rem; 
-         border-bottom: 1px solid #eee;
+      /* Header/Hero Section */
+      .header__container {
+        position: relative;
+        padding: 12rem 1rem 5rem;
+        text-align: center;
       }
-      .header-search form {
-         max-width: var(--max-width);
-         margin: auto;
-         display: grid;
-         grid-template-columns: repeat(3, 1fr);
-         gap: 1.5rem;
-         align-items: end;
+
+      .header__container h1 {
+        max-width: 850px;
+        margin-inline: auto;
+        margin-bottom: 2rem;
+        font-size: 4.5rem;
+        font-weight: 700;
+        font-family: var(--header-font);
+        color: var(--white);
+        letter-spacing: -5px;
+        line-height: 5rem;
       }
-      .input__group { display: flex; flex-direction: column; gap: 8px; }
-      .input__group label { font-weight: 600; font-size: 0.9rem; color: var(--text-dark); }
-      .input__group input, .input__group select { width: 100%; padding: 10px; border: 1px solid var(--extra-light); border-radius: 5px; font-size: 1rem; color: var(--text-dark); outline: none; }
-      .input__group select:invalid { color: var(--text-light); }
-      .date-time-wrapper { display: flex; gap: 5px; }
-      .date-time-wrapper input[type="date"] { flex: 2; }
-      .date-time-wrapper select { flex: 1; }
+
+      .header__container form {
+        max-width: 900px;
+        width: 100%;
+        margin-inline: auto;
+        padding: 2rem;
+        background-color: var(--white);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        text-align: left;
+      }
+
+      .input__group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .input__group label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-dark);
+      }
+
+      .input__group input, .input__group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--extra-light);
+        border-radius: 5px;
+        font-size: 1rem;
+        color: var(--text-dark);
+        outline: none;
+      }
+
+      .date-time-wrapper {
+        display: flex;
+        gap: 5px;
+      }
+
+      .checkbox_group {
+        grid-column: 1 / span 2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .dropoff_group {
+        grid-column: 1 / span 2;
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .header__container form .btn {
+        grid-column: 3;
+        justify-self: end;
+        align-self: end;
+        background-color: var(--primary-color);
+        padding: 12px;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-size: 1.5rem;
+      }
 
       /* Vehicle Cards */
       .range__grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; }
@@ -232,9 +319,19 @@
       .footer__col h4 { margin-bottom: 2rem; font-size: 1.2rem; font-family: var(--header-font); color: var(--white); text-transform: uppercase; }
       .footer__links a { color: var(--text-light); display: block; margin-bottom: 1rem; }
       .footer__links a:hover { color: var(--primary-color); }
-      .footer__socials { display: flex; gap: 1rem; }
-      .footer__socials a { padding: 8px 12px; font-size: 1.25rem; color: var(--text-light); border: 2px solid var(--text-light); border-radius: 100%; }
+      .footer__socials { display: flex; gap: 1rem; list-style: none; }
+      .footer__socials a {
+        padding: 8px 12px;
+        font-size: 1.25rem;
+        color: var(--text-light);
+        border: 2px solid var(--text-light);
+        border-radius: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
       .footer__socials a:hover { color: var(--primary-color); border-color: var(--primary-color); }
+      .footer__bar { border-top: 1px solid rgba(255, 255, 255, 0.1); }
 
       @media (max-width: 768px) {
         .nav__menu__btn { display: block; }
@@ -251,106 +348,63 @@
     <title>Search Results | Hasta Car Rental</title>
   </head>
   <body>
-    <!-- Navigation -->
-    <nav id="navbar">
-      <div class="nav__header">
-        <div class="nav__logo">
-          <a href="{{ route('home') }}">
-            <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Hasta" />
-          </a>
-        </div>
-        <div class="nav__menu__btn" id="menu-btn">
-          <i class="ri-menu-line"></i>
-        </div>
-      </div>
-      <ul class="nav__links" id="nav-links">
-        <li><a href="{{ route('home') }}">Home</a></li>
-        <li><a href="{{ url('/#vehicles') }}">All Vehicles</a></li>
-        <li><a href="#contact">Contact</a></li>
-        
-        @auth
-        <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
-        <li class="mobile-only">
-          <a href="{{ route('profile.edit', ['tab' => 'notifications']) }}">Notifications 
-               @if(Auth::user()->unreadNotifications->count() > 0)
-               ({{ Auth::user()->unreadNotifications->count() }})
-               @endif
-          </a>
-        </li>
-        <li class="mobile-only"><a href="{{ route('profile.edit') }}">Profile</a></li>
-        <li class="mobile-only">
-           <form method="POST" action="{{ route('logout') }}" class="inline">
-              @csrf
-              <button type="submit" style="background:none; border:none; padding:10px; width:100%; color:inherit; font:inherit; cursor:pointer; border: 1px solid white; border-radius: 5px; margin-top: 10px;">Logout</button>
-           </form>
-        </li>
-        @endauth
-        
-        @guest
-        <li class="mobile-only"><a href="{{ route('login') }}">Login</a></li>
-        <li class="mobile-only"><a href="{{ route('register') }}">Register</a></li>
-        @endguest
-      </ul>
-
-      <div class="nav__btn">
-        @guest
-          <a href="{{ route('login') }}" class="btn btn-transparent">Login</a>
-          <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
-        @else
-          {{-- Authenticated Nav Items --}}
-          <div x-data="{ open: false }" class="notif-wrapper">
-             <button @click="open = !open" @click.away="open = false" class="notif-btn">
-                <i class="ri-notification-3-line"></i>
-                @if(Auth::user()->unreadNotifications->count() > 0) <span class="notif-badge"></span> @endif
-             </button>
-             <div x-show="open" style="display: none;" class="notif-dropdown" x-transition>
-                <div class="notif-header">
-                    <span>Notifications</span>
-                    @if(Auth::user()->unreadNotifications->count() > 0)
-                        <span style="font-size: 0.7rem; background: #fee2e2; color: #dc2626; padding: 2px 6px; border-radius: 10px;">{{ Auth::user()->unreadNotifications->count() }} New</span>
-                    @endif
-                </div>
-                <div style="max-height: 300px; overflow-y: auto;">
-                    @forelse(Auth::user()->notifications->take(3) as $notification)
-                        <div class="notif-item">
-                            <div class="notif-icon {{ isset($notification->data['status']) && $notification->data['status'] == 'Approved' ? 'success' : (isset($notification->data['status']) && $notification->data['status'] == 'Rejected' ? 'error' : 'info') }}">
-                                <i class="ri-notification-line"></i>
-                            </div>
-                            <div class="notif-content">
-                                <p>{{ $notification->data['message'] ?? 'New Notification' }}</p>
-                                <span>{{ $notification->created_at->diffForHumans() }}</span>
-                            </div>
-                        </div>
-                    @empty
-                        <div style="padding: 20px; text-align: center; color: #999; font-size: 0.85rem;">No notifications</div>
-                    @endforelse
-                </div>
-                <div class="notif-footer"><a href="{{ route('profile.edit', ['tab' => 'notifications']) }}">View All Notifications</a></div>
-             </div>
+    <header>
+      <!-- Navigation -->
+      <nav id="navbar">
+        <div class="nav__header">
+          <div class="nav__logo">
+            <a href="{{ route('home') }}">
+              <img src="{{ asset('images/logo_hasta.jpeg') }}" alt="Hasta" />
+            </a>
           </div>
-
-          <div x-data="{ userOpen: false }" style="position: relative;">
-              <button @click="userOpen = !userOpen" @click.away="userOpen = false" style="display: flex; align-items: center; gap: 0.5rem; background: none; border: none; cursor: pointer; outline: none;">
-                  <img style="height: 36px; width: 36px; border-radius: 50%; object-fit: cover;" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=ec5a29&color=fff" alt="Profile">
-                  <span style="color: white; font-size: 0.875rem; font-weight: 500;" class="hidden md:block">{{ Auth::user()->name }}</span>
-                  <i class="ri-arrow-down-s-line" style="color: white;"></i>
-              </button>
-              <div x-show="userOpen" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 12px; width: 12rem; background-color: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; z-index: 50; border: 1px solid #f3f4f6; padding: 4px 0;" x-transition>
-                  <a href="{{ route('profile.edit') }}" style="display: block; padding: 8px 16px; font-size: 0.875rem; color: #374151; transition: background-color 0.2s;"> My Profile </a>
-                  <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
-                      @csrf
-                      <button type="submit" style="width: 100%; text-align: left; padding: 8px 16px; font-size: 0.875rem; color: #dc2626; background: none; border: none; font-weight: 500; cursor: pointer;"> Logout </button>
-                  </form>
-              </div>
+          <div class="nav__menu__btn" id="menu-btn">
+            <i class="ri-menu-line"></i>
           </div>
-        @endguest
-      </div>
-    </nav>
+        </div>
+        <ul class="nav__links" id="nav-links">
+          <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url('/#vehicles') }}">Vehicles</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="{{ url('/#about') }}">About Us</a></li>
+          @auth
+          <li><a href="{{ route('profile.edit') }}">My Profile</a></li>
+          @endauth
+          
+          @guest
+          <li class="mobile-only"><a href="{{ route('login') }}">Login</a></li>
+          <li class="mobile-only"><a href="{{ route('register') }}">Register</a></li>
+          @endguest
+        </ul>
 
-    <!-- Header / Search Form -->
-    <div class="header-search">
+        <div class="nav__btn">
+          @guest
+            <a href="{{ route('login') }}" class="btn btn-transparent">Login</a>
+            <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
+          @else
+            <!-- Notification & User dropdown (Simplified as in home) -->
+            <div x-data="{ userOpen: false }" style="position: relative;">
+                <button @click="userOpen = !userOpen" @click.away="userOpen = false" style="display: flex; align-items: center; gap: 0.5rem; background: none; border: none; cursor: pointer; outline: none;">
+                    <img style="height: 36px; width: 36px; border-radius: 50%; object-fit: cover;" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=ec5a29&color=fff" alt="Profile">
+                    <span style="color: white; font-size: 0.875rem; font-weight: 500;" class="hidden md:block">{{ Auth::user()->name }}</span>
+                    <i class="ri-arrow-down-s-line" style="color: white;"></i>
+                </button>
+                <div x-show="userOpen" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 12px; width: 12rem; background-color: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; z-index: 50; padding: 4px 0;">
+                    <a href="{{ route('profile.edit') }}" style="display: block; padding: 8px 16px; font-size: 0.875rem; color: #374151;">My Profile</a>
+                    <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                        @csrf
+                        <button type="submit" style="width: 100%; text-align: left; padding: 8px 16px; font-size: 0.875rem; color: #dc2626; background: none; border: none; cursor: pointer;">Logout</button>
+                    </form>
+                </div>
+            </div>
+          @endguest
+        </div>
+      </nav>
+
+      <div class="header__container">
+        <h1>AFFORDABLE CAR RENTAL SERVICE</h1>
+
         @if(session('error'))
-            <div class="max-w-4xl mx-auto mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r shadow-sm">
+            <div class="max-w-4xl mx-auto mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r shadow-sm text-left">
                 {{ session('error') }}
             </div>
         @endif
@@ -365,7 +419,7 @@
                 <div class="date-time-wrapper">
                     <input type="date" name="start_date" id="start_date" value="{{ $start ? $start->format('Y-m-d') : '' }}" min="{{ date('Y-m-d') }}" required />
                     <select name="start_time" required>
-                        <option value="" disabled>Time</option>
+                        <option value="" disabled>Select Time</option>
                         @for ($i = 420; $i < 1440; $i += 10)
                             @php $timeVal = sprintf('%02d:%02d', floor($i / 60), $i % 60); @endphp
                             <option value="{{ $timeVal }}" {{ $start && $start->format('H:i') == $timeVal ? 'selected' : '' }}>{{ $timeVal }}</option>
@@ -378,7 +432,7 @@
                 <div class="date-time-wrapper">
                     <input type="date" name="stop_date" id="stop_date" value="{{ $end ? $end->format('Y-m-d') : '' }}" min="{{ date('Y-m-d') }}" required />
                     <select name="stop_time" required>
-                        <option value="" disabled>Time</option>
+                        <option value="" disabled>Select Time</option>
                         @for ($i = 420; $i < 1440; $i += 60)
                              @php $timeVal = sprintf('%02d:%02d', floor($i / 60), $i % 60); @endphp
                             <option value="{{ $timeVal }}" {{ $end && $end->format('H:i') == $timeVal ? 'selected' : '' }}>{{ $timeVal }}</option>
@@ -386,9 +440,23 @@
                     </select>
                 </div>
             </div>
-            <button class="btn" style="height: 48px;">Update Search</button>
+
+            <div class="checkbox_group">
+              <input type="checkbox" id="same-location" checked />
+              <label for="same-location">Same as pick up location</label>
+            </div>
+  
+            <div class="input__group dropoff_group" id="dropoff-input-group">
+              <label for="dropoff">Drop off location</label>
+              <input type="text" id="dropoff" placeholder="Different location" />
+            </div>
+
+            <button type="submit" class="btn">
+               <i class="ri-search-line"></i>
+            </button>
         </form>
-    </div>
+      </div>
+    </header>
 
     <!-- Available Vehicles -->
     <section class="section__container" id="available">
@@ -431,7 +499,7 @@
 
     <!-- Unavailable Vehicles -->
     <section class="section__container" id="unavailable" style="background-color: #f3f4f6; padding-top: 3rem;">
-        <h2 class="section__header" style="font-size: 2rem; margin-bottom: 2rem opacity: 0.7;">Unavailable Vehicles</h2>
+        <h2 class="section__header">Unavailable Vehicles</h2>
         <p class="section__subheader">Currently booked for your selected time</p>
 
         @if($unavailableVehicles->isNotEmpty())
@@ -453,42 +521,134 @@
     </section>
 
     <footer>
-        <div class="section__container footer__container">
-            <div class="footer__col">
-                <h4>Hasta Car Rental</h4>
-                <p style="color: var(--text-light); line-height: 1.6; margin-bottom: 1rem;">Experience the freedom of the road with our premium car rental services.</p>
-            </div>
-            <div class="footer__col" id="contact">
-                <h4>Follow Us</h4>
-                <div class="footer__socials">
-                    <a href="#"><i class="ri-facebook-fill"></i></a>
-                    <a href="#"><i class="ri-instagram-fill"></i></a>
-                    <a href="#"><i class="ri-twitter-fill"></i></a>
-                </div>
-            </div>
+      <div class="section__container footer__container">
+        <div class="footer__col">
+          <h4>Hasta Car Rental</h4>
+          <p style="color: var(--text-light); line-height: 1.6; margin-bottom: 1rem;">
+            Experience the freedom of the road with our premium car rental services. 
+            Reliable, affordable, and convenient vehicles for every journey.
+          </p>
         </div>
-        <div style="text-align: center; padding: 2rem; color: var(--text-light); background-color: #2d3748;">
-            © 2026 Hasta Car Rental. All rights reserved.
+        
+        <div class="footer__col" id="about">
+          <h4>Quick Links</h4>
+          <ul class="footer__links">
+            <li><a href="{{ route('about') }}">About Us</a></li>
+            <li><a href="{{ route('faq') }}">FAQ</a></li>
+            <li><a href="{{ route('privacy') }}">Privacy Policy</a></li>
+            <li><a href="{{ route('terms') }}">Terms & Conditions</a></li>
+          </ul>
         </div>
+
+        <div class="footer__col" id="contact">
+          <h4>Follow Us</h4>
+          <ul class="footer__socials">
+            <li>
+              <a href="https://www.facebook.com/hastatraveltours"
+                ><i class="ri-facebook-fill"></i
+              ></a>
+            </li>
+            <li>
+              <a href="https://www.instagram.com/hastatraveltours/?hl=en"
+                ><i class="ri-instagram-fill"></i
+              ></a>
+            </li>
+            <li>
+              <a href="https://x.com/hastacarrental"
+                ><i class="ri-twitter-fill"></i
+              ></a>
+            </li>
+            <li>
+              <a href="https://www.linkedin.com/company/hasta-travel/"
+                ><i class="ri-linkedin-fill"></i
+              ></a>
+            </li>
+          </ul>
+          
+          <div style="margin-top: 1.5rem;">
+              <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
+                  <i class="ri-phone-line" style="color: var(--primary-color);"></i> 
+                  <span>Car Rental Inquiry:<br><strong style="color: #cbd5e1;">+60 11-1090 0700</strong></span>
+              </p>
+              <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
+                  <i class="ri-mail-line" style="color: var(--primary-color);"></i> 
+                  <span>Support:<br><strong style="color: #cbd5e1;">hastatraveltours@gmail.com</strong></span>
+              </p>
+          </div>
+          <br>
+        </div>
+      </div>
+      <div class="footer__bar">
+        <p style="color: var(--text-light); text-align: center; padding: 2rem">
+          © 2026 Hasta Car Rental. All rights reserved.
+        </p>
+      </div>
     </footer>
 
     <script>
       const menuBtn = document.getElementById("menu-btn");
       const navLinks = document.getElementById("nav-links");
+      const navbar = document.getElementById("navbar");
+
       menuBtn.addEventListener("click", () => {
         navLinks.classList.toggle("open");
       });
+
+      window.onscroll = () => {
+        if (window.scrollY > 20) {
+            navbar.classList.add("nav__fixed");
+        } else {
+            navbar.classList.remove("nav__fixed");
+        }
+      };
+
+      // Dropoff checkbox logic (same as home)
+      const sameLocationCheckbox = document.getElementById('same-location');
+      const dropoffInputGroup = document.getElementById('dropoff-input-group');
+      if (sameLocationCheckbox && dropoffInputGroup) {
+          sameLocationCheckbox.addEventListener('change', function() {
+              if (this.checked) {
+                  dropoffInputGroup.style.display = 'none';
+              } else {
+                  dropoffInputGroup.style.display = 'flex';
+              }
+          });
+      }
 
       // Date constraints (Simple version)
       document.addEventListener("DOMContentLoaded", function() {
           const startInput = document.getElementById('start_date');
           const stopInput = document.getElementById('stop_date');
-          startInput.addEventListener('change', function() {
-            stopInput.min = this.value;
-            if (stopInput.value && stopInput.value < this.value) {
-                stopInput.value = "";
-            }
-          });
+          const startTimeInput = document.querySelector('[name="start_time"]');
+
+          function checkTime() {
+              if(!startInput || !startTimeInput) return;
+              const dateVal = startInput.value;
+              const timeVal = startTimeInput.value;
+              if (dateVal && timeVal) {
+                  const pickupDate = new Date(dateVal + 'T' + timeVal);
+                  const now = new Date();
+                  const minTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
+                  if (pickupDate < minTime) {
+                      alert("Invalid Pick Up Time! Bookings must be made at least 12 hours in advance.");
+                      startTimeInput.value = ""; 
+                  }
+              }
+          }
+
+          if (startInput && stopInput) {
+            startInput.addEventListener('change', function() {
+                checkTime();
+                stopInput.min = this.value;
+                if (stopInput.value && stopInput.value < this.value) {
+                    stopInput.value = "";
+                }
+            });
+          }
+          if (startTimeInput) {
+            startTimeInput.addEventListener('change', checkTime);
+            startTimeInput.addEventListener('blur', checkTime);
+          }
       });
     </script>
     @include('partials.rate-modal-global')
