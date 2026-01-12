@@ -26,7 +26,7 @@ class BookingController extends Controller
     }
     public function getAvailability(Request $request, $id) {
         $query = Booking::where('vehicle_id', $id)
-            ->whereIn('status', ['Pending', 'Waiting for Verification', 'Approved']);
+            ->whereIn('status', ['Pending', 'Waiting for Verification', 'Verify Receipt', 'Approved', 'Rented']);
             
         if ($request->has('exclude_booking_id')) {
             $query->where('id', '!=', $request->exclude_booking_id);
@@ -190,18 +190,17 @@ class BookingController extends Controller
         }
 
         // 12h Lead Time Check
-        // if (now()->diffInHours($start, false) < 12) {
-        //    return redirect()->back()->with('error', 'Bookings must be made at least 12 hours in advance.');
-        // }
+        if (now()->diffInHours($start, false) < 12) {
+           return redirect()->back()->with('error', 'Bookings must be made at least 12 hours in advance.');
+        }
         
         // Minimum 1 Hour Check
         if ($start->diffInMinutes($end, false) < 60) {
             return redirect()->back()->with('error', 'Minimum rental time is 1 hour.');
         }
 
-        // Double Booking Check
         $conflictingBooking = Booking::where('vehicle_id', $vehicle->id)
-            ->whereIn('status', ['Pending', 'Waiting for Verification', 'Approved'])
+            ->whereIn('status', ['Pending', 'Waiting for Verification', 'Verify Receipt', 'Approved', 'Rented'])
             ->where(function($q) use ($start, $end) {
                 // Strict Overlap: (StartA < EndB) and (EndA > StartB)
                 $q->where('pickup_date_time', '<', $end)
@@ -441,6 +440,21 @@ class BookingController extends Controller
         // Minimum 1 Hour Check
         if ($start->diffInMinutes($end, false) < 60) {
              return redirect()->back()->with('error', 'Minimum rental time is 1 hour.');
+        }
+
+        // Double Booking Check (Conflict Check)
+        $conflictingBooking = Booking::where('vehicle_id', $vehicle->id)
+            ->where('id', '!=', $booking->id)
+            ->whereIn('status', ['Pending', 'Waiting for Verification', 'Verify Receipt', 'Approved', 'Rented'])
+            ->where(function($q) use ($start, $end) {
+                // Strict Overlap: (StartA < EndB) and (EndA > StartB)
+                $q->where('pickup_date_time', '<', $end)
+                  ->where('return_date_time', '>', $start);
+            })
+            ->exists();
+
+        if ($conflictingBooking) {
+            return redirect()->back()->with('error', 'The new time slot conflicts with an existing booking. Please choose another time.');
         }
 
         $pricingResult = $this->pricingService->calculatePrice($vehicle, $start, $end);
