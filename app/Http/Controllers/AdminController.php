@@ -305,7 +305,7 @@ class AdminController extends Controller
         if ($newVehicleId != $oldVehicleId) {
             $hasConflict = Booking::where('vehicle_id', $newVehicleId)
                 ->where('id', '!=', $booking->id)
-                ->whereIn('status', ['Pending', 'Waiting for Verification', 'Approved', 'Rented'])
+                ->whereIn('status', ['Pending', 'Waiting for Verification', 'Verify Receipt', 'Approved', 'Rented'])
                 ->where(function($q) use ($start, $end) {
                     $q->where('pickup_date_time', '<', $end)
                       ->where('return_date_time', '>', $start);
