@@ -31,5 +31,9 @@ class DatabaseSeeder extends Seeder
     
     // Generate 50 dummy users
     User::factory(50)->create();
+    
+    $this->call([
+        BookingSeeder::class,
+    ]);
     }
 }
