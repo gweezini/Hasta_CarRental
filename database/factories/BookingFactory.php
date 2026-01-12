@@ -57,7 +57,7 @@ class BookingFactory extends Factory
             'status' => $status,
             'deposit_status' => $status === 'Completed' ? 'Returned' : 'Pending',
             'deposit_receipt_path' => $status === 'Completed' ? 'receipts/deposit_sample.jpg' : null,
-            'deposit_returned_at' => $status === 'Completed' ? $return->copy()->addHours(fake()->numberBetween(24, 48)) : null,
+            'deposit_returned_at' => $status === 'Completed' ? \Illuminate\Support\Carbon::instance($return)->addHours(fake()->numberBetween(24, 48)) : null,
             
             'rejection_reason' => $status === 'Rejected' ? fake()->sentence() : null,
             'payment_verified' => in_array($status, ['Approved', 'Completed']),
