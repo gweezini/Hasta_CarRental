@@ -498,11 +498,11 @@
     </section>
 
     <!-- Unavailable Vehicles -->
+    @if($unavailableVehicles->isNotEmpty())
     <section class="section__container" id="unavailable" style="background-color: #f3f4f6; padding-top: 3rem;">
         <h2 class="section__header">Unavailable Vehicles</h2>
         <p class="section__subheader">Currently booked for your selected time</p>
 
-        @if($unavailableVehicles->isNotEmpty())
         <div class="range__grid">
             @foreach($unavailableVehicles as $vehicle)
             <div class="range__card unavailable">
@@ -517,8 +517,8 @@
             </div>
             @endforeach
         </div>
-        @endif
     </section>
+    @endif
 
     <footer>
       <div class="section__container footer__container">
@@ -615,20 +615,27 @@
           });
       }
 
-      // Date constraints (Simple version)
+      // Date constraints (Ported from Homepage)
       document.addEventListener("DOMContentLoaded", function() {
-          const startInput = document.getElementById('start_date');
+          const startDateInput = document.getElementById('start_date');
           const stopInput = document.getElementById('stop_date');
           const startTimeInput = document.querySelector('[name="start_time"]');
+          const stopTimeSelect = document.querySelector('select[name="stop_time"]');
 
           function checkTime() {
-              if(!startInput || !startTimeInput) return;
-              const dateVal = startInput.value;
+              if(!startDateInput || !startTimeInput) return;
+              
+              const dateVal = startDateInput.value;
               const timeVal = startTimeInput.value;
+
               if (dateVal && timeVal) {
+                  // Construct date object (Local time)
                   const pickupDate = new Date(dateVal + 'T' + timeVal);
                   const now = new Date();
+                  
+                  // Add 12 hours to current time
                   const minTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
+
                   if (pickupDate < minTime) {
                       alert("Bookings must be made at least 12 hours in advance.");
                       startTimeInput.value = ""; 
@@ -636,18 +643,125 @@
               }
           }
 
-          if (startInput && stopInput) {
-            startInput.addEventListener('change', function() {
+          function regenerateEndTimeOptions() {
+              if (!startTimeInput || !stopTimeSelect) return;
+
+              const startTime = startTimeInput.value; // HH:MM
+              let minutes = "00";
+              
+              if (startTime) {
+                  const parts = startTime.split(':');
+                  if (parts.length === 2) {
+                      minutes = parts[1];
+                  }
+              }
+
+              // Save current selection if possible
+              const currentVal = stopTimeSelect.value;
+              let currentHour = -1;
+              if (currentVal) {
+                  currentHour = parseInt(currentVal.split(':')[0]);
+              }
+
+              // Clear existing
+              stopTimeSelect.innerHTML = '<option value="" disabled ' + (!currentVal ? 'selected' : '') + '>Select Time</option>';
+
+              // Generate New Options (07:mm to 23:mm)
+              for (let i = 7; i < 24; i++) {
+                  const hourStr = i.toString().padStart(2, '0');
+                  const val = `${hourStr}:${minutes}`;
+                  const opt = document.createElement('option');
+                  opt.value = val;
+                  opt.textContent = val;
+                  
+                  // Try to preserve previous hour selection
+                  if (i === currentHour) {
+                      opt.selected = true;
+                  }
+                  
+                  stopTimeSelect.appendChild(opt);
+              }
+              
+              // Verify/Update Constraints after regeneration
+              updateEndTimeConstraints();
+          }
+
+          function updateEndTimeConstraints() {
+              if(!startDateInput || !startTimeInput || !stopInput || !stopTimeSelect) return;
+
+              const startDate = startDateInput.value;
+              const startTime = startTimeInput.value;
+              const stopDate = stopInput.value;
+
+              // 1. Min Date: End Date cannot be before Start Date
+              if (startDate) {
+                  stopInput.min = startDate;
+                  if (stopInput.value && stopInput.value < startDate) {
+                      stopInput.value = startDate;
+                  }
+              }
+
+              // 2. Min Time: If End Date == Start Date, End Time > Start Time + 1hr
+              if (startDate && stopInput.value && startDate === stopInput.value && startTime) {
+                  const [h, m] = startTime.split(':').map(Number);
+                  const startMinutes = h * 60 + m;
+                  const minEndMinutes = startMinutes + 60; // +1 Hour
+
+                  Array.from(stopTimeSelect.options).forEach(opt => {
+                      if (opt.value) {
+                          const [oh, om] = opt.value.split(':').map(Number);
+                          const optMinutes = oh * 60 + om;
+
+                          if (optMinutes < minEndMinutes) {
+                              opt.disabled = true;
+                              opt.style.color = '#ccc';
+                          } else {
+                              opt.disabled = false;
+                              opt.style.color = '';
+                          }
+                      }
+                  });
+                  
+                  // Helper: If currently selected value is now disabled, reset it
+                  if (stopTimeSelect.value) {
+                       const [sh, sm] = stopTimeSelect.value.split(':').map(Number);
+                       if ((sh * 60 + sm) < minEndMinutes) {
+                           stopTimeSelect.value = "";
+                       }
+                  }
+
+              } else {
+                  // Different dates or no start time: Enable all (except default placeholder)
+                  Array.from(stopTimeSelect.options).forEach(opt => {
+                      if (opt.value) {
+                          opt.disabled = false;
+                          opt.style.color = '';
+                      }
+                  });
+              }
+          }
+
+          // Attach Listeners
+          if(startDateInput) {
+            startDateInput.addEventListener('change', function() {
                 checkTime();
-                stopInput.min = this.value;
-                if (stopInput.value && stopInput.value < this.value) {
-                    stopInput.value = "";
-                }
+                updateEndTimeConstraints();
             });
           }
-          if (startTimeInput) {
-            startTimeInput.addEventListener('change', checkTime);
-            startTimeInput.addEventListener('blur', checkTime);
+          if(startTimeInput) {
+              startTimeInput.addEventListener('change', function() {
+                  checkTime();
+                  regenerateEndTimeOptions();
+              });
+              startTimeInput.addEventListener('blur', checkTime);
+          }
+          if(stopInput) stopInput.addEventListener('change', updateEndTimeConstraints);
+          
+          // Init logic (in case of page reload with values)
+          if(startTimeInput && startTimeInput.value) {
+              regenerateEndTimeOptions();
+          } else {
+              updateEndTimeConstraints();
           }
       });
     </script>
