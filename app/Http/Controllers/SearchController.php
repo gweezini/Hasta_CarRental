@@ -42,7 +42,7 @@ class SearchController extends Controller
 
 
             // 4. Get All Vehicles (Active ones)
-            $allVehicles = Vehicle::with('pricingTier.rates')->whereIn('status', ['Available', 'Rented'])->get();
+            $allVehicles = Vehicle::with('pricingTier.rules')->whereIn('status', ['Available', 'Rented'])->get();
             
             $availableVehicles = collect();
             $unavailableVehicles = collect();
