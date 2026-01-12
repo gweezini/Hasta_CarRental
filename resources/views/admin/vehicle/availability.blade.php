@@ -62,7 +62,7 @@
                     Vehicle
                 </div>
                 <!-- Scrollable Date Header -->
-                <div class="flex-1 overflow-hidden flex">
+                <div id="header-scroll" class="flex-1 overflow-hidden flex">
                     @foreach($dates as $date)
                         <div class="flex-1 min-w-[100px] border-r border-gray-100 p-2 text-center">
                             <div class="text-[10px] text-gray-400 font-bold uppercase">{{ $date->format('D') }}</div>
@@ -73,7 +73,7 @@
             </div>
 
             <!-- Vehicle Rows -->
-            <div class="overflow-auto flex-1 custom-scrollbar">
+            <div id="body-scroll" class="overflow-auto flex-1 custom-scrollbar">
                 @forelse($vehicles as $vehicle)
                 <div class="flex border-b border-gray-100 hover:bg-gray-50 transition group h-24 relative">
                     <!-- Vehicle Info Column -->
@@ -152,4 +152,14 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const headerScroll = document.getElementById('header-scroll');
+        const bodyScroll = document.getElementById('body-scroll');
+        if (bodyScroll && headerScroll) {
+            bodyScroll.addEventListener('scroll', function() {
+                headerScroll.scrollLeft = this.scrollLeft;
+            });
+        }
+    </script>
 @endsection
