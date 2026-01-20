@@ -33,6 +33,7 @@ class UserSeeder extends Seeder
             'emergency_name' => 'Abu Father',
             'emergency_contact' => '019-9999999',
             'emergency_relationship' => 'Father',
+            'nationality' => 'Malaysian',
             
             'is_blacklisted' => false,
         ]);
@@ -48,6 +49,7 @@ class UserSeeder extends Seeder
             'matric_staff_id' => 'S001',
             'nric_passport' => '880101-01-2222', 
             'phone_number' => '011-1111111',
+            'nationality' => 'Malaysian',
             
             // We don't need license/emergency/college for staff, so we skip them.
         ]);
@@ -62,6 +64,7 @@ class UserSeeder extends Seeder
             'matric_staff_id' => 'M001',
             'nric_passport' => '770101-01-3333',
             'phone_number' => '019-9999999',
+            'nationality' => 'Malaysian',
         ]);
     }
 }
