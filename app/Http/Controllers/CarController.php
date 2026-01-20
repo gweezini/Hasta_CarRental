@@ -207,7 +207,10 @@ class CarController extends Controller
             'cost' => $request->cost,
         ]);
 
-        return redirect()->back()->with('success', 'Maintenance record added successfully!');
+        // A1: Automatically mark as unavailable (Maintenance)
+        Vehicle::where('id', $id)->update(['status' => 'Maintenance']);
+
+        return redirect()->back()->with('success', 'Maintenance record added and vehicle set to Maintenance!');
     }
 
     public function availability(Request $request)
