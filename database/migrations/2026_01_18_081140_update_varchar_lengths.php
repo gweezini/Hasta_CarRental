@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string('name', 100)->change();
             $table->string('email', 60)->change();
             $table->string('password', 255)->change();
-            $table->string('role', 15)->change();
+            $table->string('role', 15)->default('customer')->change();
             $table->string('matric_staff_id', 15)->change(); // This is the trouble maker
             $table->string('phone_number', 20)->nullable()->change();
             $table->string('nationality', 100)->nullable()->change();
@@ -45,14 +45,14 @@ return new class extends Migration
         });
 
         Schema::table('bookings', function (Blueprint $table) {
-            $table->string('pickup_location', 50)->change();
-            $table->string('dropoff_location', 50)->change();
+            $table->string('pickup_location', 50)->default('Student Mall')->change();
+            $table->string('dropoff_location', 50)->default('Student Mall')->change();
             $table->string('customer_name', 50)->change();
             $table->string('customer_phone', 20)->change();
             $table->string('emergency_contact_name', 100)->change();
             $table->string('emergency_contact_phone', 20)->change();
             $table->string('emergency_relationship', 20)->change();
-            $table->string('deposit_status', 20)->change();
+            $table->string('deposit_status', 20)->default('Pending')->change();
             $table->string('refund_bank_name', 60)->change();
             $table->string('refund_account_number', 50)->change();
             $table->string('refund_recipient_name', 100)->change();
@@ -66,7 +66,7 @@ return new class extends Migration
         Schema::table('claims', function (Blueprint $table) {
             $table->string('matric_staff_id', 15)->change();
             $table->string('claim_type', 20)->change();
-            $table->string('vehicle_plate', 10)->change();
+            $table->string('vehicle_plate', 10)->nullable()->change();
         });
 
         Schema::table('colleges', function (Blueprint $table) {
@@ -78,11 +78,11 @@ return new class extends Migration
         });
 
         Schema::table('feedback', function (Blueprint $table) {
-            $table->string('category', 50)->change();
+            $table->string('category', 50)->default('General')->change();
         });
 
         Schema::table('fines', function (Blueprint $table) {
-            $table->string('status', 30)->change();
+            $table->string('status', 30)->default('Unpaid')->change();
         });
 
         Schema::table('password_reset_tokens', function (Blueprint $table) {
@@ -90,8 +90,8 @@ return new class extends Migration
         });
 
         Schema::table('payments', function (Blueprint $table) {
-            $table->string('payment_method', 50)->change();
-            $table->string('status', 30)->change();
+            $table->string('payment_method', 50)->default('QR')->change();
+            $table->string('status', 30)->default('Pending')->change();
         });
 
         Schema::table('pricing_tiers', function (Blueprint $table) {
@@ -100,7 +100,7 @@ return new class extends Migration
 
         Schema::table('promotions', function (Blueprint $table) {
             $table->string('code', 30)->change();
-            $table->string('type', 20)->change();
+            $table->string('type', 20)->default('percentage')->change();
         });
 
         Schema::table('user_vouchers', function (Blueprint $table) {
@@ -109,7 +109,7 @@ return new class extends Migration
 
         Schema::table('vehicles', function (Blueprint $table) {
             $table->string('owner_name', 100)->nullable()->change();
-            $table->string('status', 30)->change();
+            $table->string('status', 30)->default('Available')->change();
             $table->string('plate_number', 10)->change();
             $table->string('vehicle_id_custom', 10)->change();
             $table->dropColumn(['chassis_number', 'engine_number', 'owner_ic_number', 'insurance_policy_number']);
@@ -120,7 +120,7 @@ return new class extends Migration
         });
 
         Schema::table('vouchers', function (Blueprint $table) {
-            $table->string('user_id', 15)->change();
+            $table->string('user_id', 15)->nullable()->change();
             $table->string('code', 30)->change();
             $table->string('type', 20)->change();
             $table->string('name', 50)->change();
