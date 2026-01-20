@@ -108,7 +108,7 @@ return new class extends Migration
         });
 
         Schema::table('vehicles', function (Blueprint $table) {
-            $table->string('owner_name', 100)->change();
+            $table->string('owner_name', 100)->nullable()->change();
             $table->string('status', 30)->change();
             $table->string('plate_number', 10)->change();
             $table->string('vehicle_id_custom', 10)->change();
