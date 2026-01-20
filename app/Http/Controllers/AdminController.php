@@ -185,6 +185,15 @@ class AdminController extends Controller
             $user->update(['is_blacklisted' => false, 'blacklist_reason' => null]);
             return redirect()->back()->with('success', 'User whitelisted!');
         } else {
+            // E1: Active Booking Check
+            $hasActiveBooking = Booking::where('user_id', $user->id)
+                ->whereIn('status', ['Approved', 'Rented'])
+                ->exists();
+
+            if ($hasActiveBooking) {
+                return redirect()->back()->with('error', 'Cannot blacklist user with active/approved bookings. Please wait until the car is returned.');
+            }
+
             $request->validate(['blacklist_reason' => 'required|string|max:255']);
             $user->update(['is_blacklisted' => true, 'blacklist_reason' => $request->blacklist_reason]);
             return redirect()->back()->with('success', 'User blacklisted.');
