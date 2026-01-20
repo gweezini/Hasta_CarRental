@@ -38,7 +38,7 @@ return new class extends Migration
             $table->string('role', 15)->change();
             $table->string('matric_staff_id', 15)->change(); // This is the trouble maker
             $table->string('phone_number', 20)->change();
-            $table->string('nationality', 50)->change();
+            $table->string('nationality', 100)->change();
             $table->string('emergency_name', 100)->change();
             $table->string('emergency_contact', 20)->change();
             $table->string('emergency_relationship', 20)->change();
